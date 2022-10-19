@@ -1,2 +1,8 @@
 # TMPDIR
 TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
+
+# cutadapt parameters
+cutadapt:
+  fwd: 'AGAACAAAAGTATG'
+  rev: 'ACCAATGGGACCTT'
+
