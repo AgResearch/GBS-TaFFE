@@ -25,8 +25,9 @@ onstart:
 
 
 rule all:
-    'resources/gquery.gbs_keyfile.txt',
-    # expand('completed/{samples}.fasta', samples = SAMPLES) #TODO: Update to functional targets
+    input:
+        rules.generateKeyfile.output.keyfile,
+        # expand('completed/{samples}.fasta', samples = SAMPLES) #TODO: Update to functional targets
 
 
 rule generateKeyfile:
