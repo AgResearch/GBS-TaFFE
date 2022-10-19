@@ -25,7 +25,7 @@ onstart:
 
 
 rule all:
-    generateKeyfile.output.keyfile,
+    rules.generateKeyfile.output.keyfile,
     # expand('completed/{samples}.fasta', samples = SAMPLES) #TODO: Update to functional targets
 
 
