@@ -1,8 +1,12 @@
-# TMPDIR
-TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
+# # TMPDIR
+# TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
 
-# cutadapt parameters
-cutadapt:
-  fwd: 'AGAACAAAAGTATG'
-  rev: 'ACCAATGGGACCTT'
+# gquery parameters:
+gquery:
+  libraries: 'SQ1938'
+
+# # cutadapt parameters
+# cutadapt:
+#   fwd: 'AGAACAAAAGTATG'
+#   rev: 'ACCAATGGGACCTT'
 

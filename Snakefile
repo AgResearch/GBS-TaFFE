@@ -18,43 +18,69 @@ onstart:
     os.system('echo "  SNAKEMAKE: $(which snakemake)"')
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
-    print(f"Env TMPDIR={os.environ.get('TMPDIR', '<n/a>')}")
+    print(f"Env TMPDIR = {os.environ.get('TMPDIR', '<n/a>')}")
 
 # Define samples from data directory using wildcards
-SAMPLES, = glob_wildcards('fastq/{samples}.fastq.gz')
+#SAMPLES, = glob_wildcards('fastq/{samples}.fastq.gz')
 
 
 rule all:
-    expand('completed/{samples}.fasta', samples=SAMPLES) #TODO: Update to functional targets
+    generateKeyfile.output.keyfile,
+    # expand('completed/{samples}.fasta', samples = SAMPLES) #TODO: Update to functional targets
 
 
-rule cutadapt:
-    input:
-        'fastq/{samples}.fastq.gz'
+rule generateKeyfile:
     output:
-        '02_cutadapt/{samples}.chop.primer.fastq.gz'
-    threads:4
+        keyfile = 'resources/gquery.gbs_keyfile.txt'
+    threads:2
     log:
-        'logs/{samples}/cutadapt.primers.log'
-    container: 
-        'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
+        'logs/1_gqueryGenerateKeyfile.log'
     params:
-        fwdPrimer=config['cutadapt']['fwd'],
-        revPrimer=config['cutadapt']['rev'],
-    resources:
-        tempdir=config['TMPDIR']
+        libraries = config['gquery']['libraries'],
     message:
-        'removing primers: {wildcards.samples}\n'
-        'TMPDIR: {resources.tempdir}'
+        'Dumping keyfile for: {params.libraries}...\n'
     shell:
-        'cutadapt '
-        '--discard-untrimmed '
-        '--action=retain '
-        '-j {threads} '
-        '--error-rate 0.2 '
-        '-g {params.fwdPrimer} '
-        '-a {params.revPrimer} '
-        '-o {output} '
-        '{input} '
-        '2>&1 | tee {log}'
+        'gquery '
+        '-p no_unpivot '
+        '-t gbs_keyfile '
+        '-b {params.libraries} > '
+        '{output.keyfile} 2> '
+        '{log}'
+
+
+# rule makeFastqLinks:
+#     output:
+
+
+
+# ### Exapmle Rule Template ###
+# rule cutadapt:
+#     input:
+#         'fastq/{samples}.fastq.gz'
+#     output:
+#         '02_cutadapt/{samples}.chop.primer.fastq.gz'
+#     threads:4
+#     log:
+#         'logs/{samples}/cutadapt.primers.log'
+#     container: 
+#         'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
+#     params:
+#         fwdPrimer=config['cutadapt']['fwd'],
+#         revPrimer=config['cutadapt']['rev'],
+#     resources:
+#         tempdir=config['TMPDIR']
+#     message:
+#         'removing primers: {wildcards.samples}\n'
+#         'TMPDIR: {resources.tempdir}'
+#     shell:
+#         'cutadapt '
+#         '--discard-untrimmed '
+#         '--action=retain '
+#         '-j {threads} '
+#         '--error-rate 0.2 '
+#         '-g {params.fwdPrimer} '
+#         '-a {params.revPrimer} '
+#         '-o {output} '
+#         '{input} '
+#         '2>&1 | tee {log}'
 
