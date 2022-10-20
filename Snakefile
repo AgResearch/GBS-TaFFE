@@ -44,7 +44,7 @@ rule generateKeyfile:
         'gquery '
         '-p no_unpivot '
         '-t gbs_keyfile '
-        '-b {params.libraries} > '
+        '-b library {params.libraries} > '
         '{output.keyfile} 2> '
         '{log}'
 
