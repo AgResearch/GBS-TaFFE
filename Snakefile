@@ -140,7 +140,19 @@ rule multiQCMerged:
         '{input.fastqc}'
 
 
-rule knead
+rule kneaddata:
+
+rule humann3:
+
+rule human3GTDB:
+
+rule metaphlan4:
+
+rule kraken2:
+
+rule kraken2GTDB:
+
+
 # rule makeFastqLinks:
 #     output:
 
