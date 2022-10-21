@@ -37,7 +37,8 @@ FIDs = getFIDs('resources/gquery.gbs_keyfile.txt')
 
 rule all:
     input:
-        expand('1_cutadapt/{samples}.fastq.gz', samples = FIDs)
+        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
+        '0_qc/mergedReadsMultiQCReport.html'
 
 ### Currently Assuming Keyfile is Already: resources/gquery.keyfile.txt
 # rule generateKeyfile: #TODO replace with rule generateBarcodes when gquery has feature
@@ -80,30 +81,63 @@ rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has 
 
 rule cutadapt:
     output:
-        '1_cutadapt/{samles}.fastq.gz'
+        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs)
     input: #TODO: determine how to enter the lane level fastq data
-        barcodes=rules.generateBarcodes.output.barcodes
+        barcodes = rules.generateBarcodes.output.barcodes,
+        lane01 = config['novaseq']['lane01'],
+        lane02 = config['novaseq']['lane02'],
     container:
         'docker://...' #TODO
     threads:16
     log:
-        'logs/cutadapt.{samples}.fastq.gz'
+        'logs/cutadapt.log'
     params:
     message:
         'Demultiplexing lanes...'
     shell:
-        'zcat {input} | '
+        'zcat {input.lane01} {input.lane02} | ' #TODO figure out how ot get lane level data in here
         'cutadapt '
         '-j 16 '
         '--discard-untrimmed '
         '--no-indels '
-        '-g ^file:resources/gquery.barcodes.fasta '
-        '-o "1_cutadapt/{name}.fastq.gz" '
+        '-g ^file:{input.barcodes} '
+        r'-o "1_cutadapt/{{name}}.fastq.gz" '
         '-' # indicates to use stdin
 
 
-rule multiQC:
+rule fastqcMerged:
     output:
+        html = '0_qc/fastqc/{samples}_fastqc.html',
+        zip = "0_qc/fastqc/{samples}_fastqc.zip"
+    input:
+        fastq = '01_cutadapt/{samples}.fastq.gz'
+    conda:
+        'fastqc'
+    threads: 4
+    message:
+        'Running QC on reads: {wildcards.samples}\n'
+    shell:
+        'fastqc '
+        '-o 0_qc/fastqc/ '
+        '-q '
+        '-t {threads} '
+        '{input.fastq}'
+
+
+rule multiQCMerged:
+    output:
+        multiQC='0_qc/mergedReadsMultiQCReport.html'
+    input:
+        fastqc= expand('0_qc/fastqc/{samples}_fastqc.zip', samples = SAMPLES)
+    conda:
+        'multiqc'
+    shell:
+        'multiqc '
+        '-n 0_qc/mergedReadsMultiQCReport '
+        '-s '
+        '-f '
+        '--interactive '
+        '{input.fastqc}'
 
 
 rule knead
