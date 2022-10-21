@@ -1,12 +1,14 @@
 # # TMPDIR
 # TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
 
+
+# Nova-seq Lane data
+novaseq:
+  lane01: 'fastq/HMK3LDRX2_SQ1938_L01.fastq.gz'
+  lane02: 'fastq/HMK3LDRX2_SQ1938_L02.fastq.gz'
+
+
 # gquery parameters:
 gquery:
   libraries: 'SQ1938'
-
-# # cutadapt parameters
-# cutadapt:
-#   fwd: 'AGAACAAAAGTATG'
-#   rev: 'ACCAATGGGACCTT'
 
