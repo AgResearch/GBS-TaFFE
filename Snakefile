@@ -52,7 +52,7 @@ for entry in FIDs:
 rule all:
     input:
         expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
-        '0_qc/mergedReadsMultiQCReport.html'
+        '00_qc/mergedReadsMultiQCReport.html'
 
 
 rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has feature
@@ -102,18 +102,18 @@ rule cutadapt:
 
 rule fastqc:
     output:
-        html = '0_qc/fastqc/{samples}_fastqc.html',
-        zip = "0_qc/fastqc/{samples}_fastqc.zip"
+        html = '00_qc/fastqc/{samples}_fastqc.html',
+        zip = "00_qc/fastqc/{samples}_fastqc.zip"
     input:
         fastq = '01_cutadapt/{samples}.fastq.gz'
     container:
-        'docker://quay.io/biocontainers/fastqc:0.11.7--hdfd78af_7'
-    threads: 4
+        'docker://biocontainers/fastqc:v0.11.9_cv8'
+    threads: 1
     message:
         'Running QC on reads: {wildcards.samples}\n'
     shell:
         'fastqc '
-        '-o 0_qc/fastqc/ '
+        '-o 00_qc/fastqc/ '
         '-q '
         '-t {threads} '
         '{input.fastq}'
@@ -121,14 +121,14 @@ rule fastqc:
 
 rule multiQCMerged:
     output:
-        multiQC='0_qc/mergedReadsMultiQCReport.html'
+        multiQC='00_qc/mergedReadsMultiQCReport.html'
     input:
-        fastqc= expand('0_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
+        fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     conda:
         'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
-        '-n 0_qc/mergedReadsMultiQCReport '
+        '-n 00_qc/mergedReadsMultiQCReport '
         '-s '
         '-f '
         '--interactive '
