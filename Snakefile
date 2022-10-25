@@ -25,7 +25,7 @@ onstart:
 
 library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
 # if no keyfile present in resources/, spew keyfile for GBS library
-if not os.path.isdir(library_keyfile):
+if not os.path.isfile(library_keyfile):
     print("Generating Keyfile: " + library_keyfile)
     shell("mkdir -p resources")
     shell(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > {library_keyfile}")
