@@ -25,7 +25,7 @@ onstart:
 library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
 # if no keyfile present in resources/, spew keyfile for GBS library
 if not os.path.isdir(library_keyfile):
-    print("Generating Keyfile for " + library_keyfile)
+    print("Generating Keyfile: " + library_keyfile)
     shell("mkdir -p resources")
     shell(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > {library_keyfile}")
 
@@ -37,7 +37,7 @@ def getFIDs(keyfile):
     :return: list of FIDs
     '''
     import pandas as pd
-    keys=pd.read_tsv(keyfile)
+    keys=pd.read_csv(keyfile, sep='\t', header=0)
     return keys['factid'].tolist()
 
 FIDs = getFIDs(library_keyfile)
