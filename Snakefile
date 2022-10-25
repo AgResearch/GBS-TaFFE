@@ -100,7 +100,7 @@ rule cutadapt:
         '-' # indicates stdin
 
 
-rule fastqcMerged:
+rule fastqc:
     output:
         html = '0_qc/fastqc/{samples}_fastqc.html',
         zip = "0_qc/fastqc/{samples}_fastqc.zip"
