@@ -22,6 +22,7 @@ onstart:
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
 
+
 library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
 # if no keyfile present in resources/, spew keyfile for GBS library
 if not os.path.isdir(library_keyfile):
@@ -30,7 +31,7 @@ if not os.path.isdir(library_keyfile):
     shell(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > {library_keyfile}")
 
 
-#DEPENDENCY - Assumes keyfile is available prior to starting workflow
+# Extracthe unique factids for samples to use as 'wildcards'
 def getFIDs(keyfile):
     '''
     :param keyfile: gquery generated for library
@@ -40,32 +41,18 @@ def getFIDs(keyfile):
     keys=pd.read_csv(keyfile, sep='\t', header=0)
     return keys['factid'].tolist()
 
+print(f"Extracting factid for {config['gquery']['libraries']}...\n")
 FIDs = getFIDs(library_keyfile)
-print(FIDs)
+
+print("Found: \n")
+for entry in FIDs:
+    print(entry)
+
 
 rule all:
     input:
         expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
         '0_qc/mergedReadsMultiQCReport.html'
-
-### Currently Assuming Keyfile is Already: resources/gquery.keyfile.txt
-# rule generateKeyfile: #TODO replace with rule generateBarcodes when gquery has feature
-#     output:
-#         keyfile = 'resources/gquery.gbs_keyfile.txt'
-#     threads:2
-#     log:
-#         'logs/1_gqueryGenerateKeyfile.log'
-#     params:
-#         libraries = config['gquery']['libraries'],
-#     message:
-#         'Dumping keyfile for: {params.libraries}...\n'
-#     shell:
-#         'gquery '
-#         '-p no_unpivot '
-#         '-t gbs_keyfile '
-#         '-b library {params.libraries} > '
-#         '{output.keyfile} 2> '
-#         '{log}'
 
 
 rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has feature
@@ -136,7 +123,7 @@ rule multiQCMerged:
     output:
         multiQC='0_qc/mergedReadsMultiQCReport.html'
     input:
-        fastqc= expand('0_qc/fastqc/{samples}_fastqc.zip', samples = SAMPLES)
+        fastqc= expand('0_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     conda:
         'multiqc'
     shell:
@@ -164,7 +151,6 @@ rule multiQCMerged:
 
 
 # rule kraken2GTDB:
-
 
 
 # ### Exapmle Rule Template ###
