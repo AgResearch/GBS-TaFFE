@@ -125,7 +125,7 @@ rule multiQC:
     input:
         fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     container:
-        'docker://ewels/multiqc:v1.1'
+        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
         '-n 00_qc/mergedReadsMultiQCReport '
