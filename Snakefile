@@ -11,15 +11,23 @@ import os
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
+
     print("TOOLS: ")
     os.system('echo "  bash: $(which bash)"')
     os.system('echo "  PYTHON: $(which python)"')
     os.system('echo "  CONDA: $(which conda)"')
     os.system('echo "  SNAKEMAKE: $(which snakemake)"')
+    print(f"Env TMPDIR = {os.environ.get('TMPDIR', '<n/a>')}")
+
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
-    print(f"Env TMPDIR = {os.environ.get('TMPDIR', '<n/a>')}")
-    #os.system(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > resources/{config['gquery']['libraries']}.keyfile.tsv")
+
+library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
+# if no keyfile present in resources/, spew keyfile for GBS library
+if not os.path.isdir(library_keyfile):
+    print("Generating Keyfile for " + library_keyfile)
+    shell("mkdir -p resources")
+    shell(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > {library_keyfile}")
 
 
 #DEPENDENCY - Assumes keyfile is available prior to starting workflow
@@ -32,8 +40,8 @@ def getFIDs(keyfile):
     keys=pd.read_tsv(keyfile)
     return keys['factid'].tolist()
 
-FIDs = getFIDs('resources/gquery.gbs_keyfile.txt')
-
+FIDs = getFIDs(library_keyfile)
+print(FIDs)
 
 rule all:
     input:
@@ -82,7 +90,7 @@ rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has 
 rule cutadapt:
     output:
         expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs)
-    input: #TODO: determine how to enter the lane level fastq data
+    input:
         barcodes = rules.generateBarcodes.output.barcodes,
         lane01 = config['novaseq']['lane01'],
         lane02 = config['novaseq']['lane02'],
@@ -95,14 +103,14 @@ rule cutadapt:
     message:
         'Demultiplexing lanes...'
     shell:
-        'zcat {input.lane01} {input.lane02} | ' #TODO figure out how ot get lane level data in here
+        'zcat {input.lane01} {input.lane02} | '
         'cutadapt '
         '-j 16 '
         '--discard-untrimmed '
         '--no-indels '
         '-g ^file:{input.barcodes} '
         r'-o "1_cutadapt/{{name}}.fastq.gz" '
-        '-' # indicates to use stdin
+        '-' # indicates stdin
 
 
 rule fastqcMerged:
@@ -140,21 +148,22 @@ rule multiQCMerged:
         '{input.fastqc}'
 
 
-rule kneaddata:
-
-rule humann3:
-
-rule human3GTDB:
-
-rule metaphlan4:
-
-rule kraken2:
-
-rule kraken2GTDB:
+# rule kneaddata:
 
 
-# rule makeFastqLinks:
-#     output:
+# rule humann3:
+
+
+# rule human3GTDB:
+
+
+# rule metaphlan4:
+
+
+# rule kraken2:
+
+
+# rule kraken2GTDB:
 
 
 
