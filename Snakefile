@@ -119,13 +119,13 @@ rule fastqc:
         '{input.fastq}'
 
 
-rule multiQCMerged:
+rule multiQC:
     output:
         multiQC='00_qc/mergedReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     conda:
-        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
+        'docker://ewels/multiqc:v1.1'
     shell:
         'multiqc '
         '-n 00_qc/mergedReadsMultiQCReport '
