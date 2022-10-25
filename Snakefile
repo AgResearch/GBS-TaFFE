@@ -76,7 +76,7 @@ rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has 
 
 rule cutadapt:
     output:
-        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs)
+        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     input:
         barcodes = rules.generateBarcodes.output.barcodes,
         lane01 = config['novaseq']['lane01'],
@@ -96,7 +96,7 @@ rule cutadapt:
         '--discard-untrimmed '
         '--no-indels '
         '-g ^file:{input.barcodes} '
-        r'-o "1_cutadapt/{{name}}.fastq.gz" '
+        r'-o "01_cutadapt/{{name}}.fastq.gz" '
         '-' # indicates stdin
 
 
