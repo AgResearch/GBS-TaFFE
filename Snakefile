@@ -124,7 +124,7 @@ rule multiQC:
         multiQC='00_qc/mergedReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
-    conda:
+    container:
         'docker://ewels/multiqc:v1.1'
     shell:
         'multiqc '
