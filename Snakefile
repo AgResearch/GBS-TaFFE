@@ -82,7 +82,7 @@ rule cutadapt:
         lane01 = config['novaseq']['lane01'],
         lane02 = config['novaseq']['lane02'],
     container:
-        'docker://...' #TODO
+        'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
     threads:16
     log:
         'logs/cutadapt.log'
@@ -106,8 +106,8 @@ rule fastqcMerged:
         zip = "0_qc/fastqc/{samples}_fastqc.zip"
     input:
         fastq = '01_cutadapt/{samples}.fastq.gz'
-    conda:
-        'fastqc'
+    container:
+        'docker://quay.io/biocontainers/fastqc:0.11.7--hdfd78af_7'
     threads: 4
     message:
         'Running QC on reads: {wildcards.samples}\n'
@@ -125,7 +125,7 @@ rule multiQCMerged:
     input:
         fastqc= expand('0_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     conda:
-        'multiqc'
+        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
         '-n 0_qc/mergedReadsMultiQCReport '
