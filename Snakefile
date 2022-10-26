@@ -52,7 +52,8 @@ for entry in FIDs:
 rule all:
     input:
         expand('02_kneaddata/{samples}.read.stats.txt', samples = FIDs),
-        '00_qc/mergedReadsMultiQCReport.html',
+        '00_qc/ReadsMultiQCReport.html',
+        '00_qc/KDRReadsMultiQCReport.html'
 
 
 rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has feature
@@ -121,14 +122,14 @@ rule fastqc:
 
 rule multiQC:
     output:
-        multiQC='00_qc/mergedReadsMultiQCReport.html'
+        multiQC='00_qc/ReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     container:
         'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
-        '-n 00_qc/mergedReadsMultiQCReport '
+        '-n 00_qc/ReadsMultiQCReport '
         '-s '
         '-f '
         '--interactive '
@@ -143,7 +144,7 @@ rule kneaddata:
         trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
-        clnReads= temp('02_kneaddata/{samples}_kneaddata.fastq'),
+        clnReads= '02_kneaddata/{samples}_kneaddata.fastq.gz',
         readStats = '02_kneaddata/{samples}.read.stats.txt'
     log:
         'logs/{samples}.kneaddata.log'
@@ -164,6 +165,41 @@ rule kneaddata:
         '-o 02_kneaddata && '
         'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
 
+#TODO Compress output reads
+
+rule fastqcKDRs:
+    output:
+        html = '00_qc/fastqcKDR/{samples}_fastqc.html',
+        zip = "00_qc/fastqcKDR/{samples}_fastqc.zip"
+    input:
+        fastq = rules.kneaddata.output.clnReads
+    container:
+        'docker://biocontainers/fastqc:v0.11.9_cv8'
+    threads: 1
+    message:
+        'Running QC on reads: {wildcards.samples}\n'
+    shell:
+        'fastqc '
+        '-o 00_qc/fastqcKDR/ '
+        '-q '
+        '-t {threads} '
+        '{input.fastq}'
+
+
+rule multiQCKDRs:
+    output:
+        multiQC='00_qc/KDRReadsMultiQCReport.html'
+    input:
+        fastqc= expand('00_qc/fastqcKDR/{samples}_fastqc.html', samples = FIDs)
+    container:
+        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
+    shell:
+        'multiqc '
+        '-n 00_qc/KDRReadsMultiQCReport '
+        '-s '
+        '-f '
+        '--interactive '
+        '{input.fastqc}'
 
 # rule kraken2:
 #     output:
