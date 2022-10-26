@@ -137,7 +137,7 @@ rule multiQC:
 
 rule kneaddata: #TODO: Update rule for this workflow
     input:
-        reads = '01_cutadapt/{samples}.fastq.gz,
+        reads = '01_cutadapt/{samples}.fastq.gz',
     output:
         trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
