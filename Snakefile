@@ -134,6 +134,7 @@ rule multiQC:
         '--interactive '
         '{input.fastqc}'
 
+#TODO Rule to Build Rambv2 index
 
 rule kneaddata:
     input:
@@ -159,56 +160,76 @@ rule kneaddata:
         '--log {log} '
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
-        '-db ref/ARS_UI_Ramb_v2 '
+        '-db ref/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
         '-o 02_kneaddata && '
         'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
-    
-
-
-# rule humann3:
-
-
-# rule human3GTDB:
-
-
-# rule metaphlan4:
 
 
 # rule kraken2:
+#     output:
 
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
 
 # rule kraken2GTDB:
-
-
-# ### Exapmle Rule Template ###
-# rule cutadapt:
-#     input:
-#         'fastq/{samples}.fastq.gz'
 #     output:
-#         '02_cutadapt/{samples}.chop.primer.fastq.gz'
-#     threads:4
-#     log:
-#         'logs/{samples}/cutadapt.primers.log'
-#     container: 
-#         'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
-#     params:
-#         fwdPrimer=config['cutadapt']['fwd'],
-#         revPrimer=config['cutadapt']['rev'],
-#     resources:
-#         tempdir=config['TMPDIR']
-#     message:
-#         'removing primers: {wildcards.samples}\n'
-#         'TMPDIR: {resources.tempdir}'
-#     shell:
-#         'cutadapt '
-#         '--discard-untrimmed '
-#         '--action=retain '
-#         '-j {threads} '
-#         '--error-rate 0.2 '
-#         '-g {params.fwdPrimer} '
-#         '-a {params.revPrimer} '
-#         '-o {output} '
-#         '{input} '
-#         '2>&1 | tee {log}'
 
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
+
+
+# rule humann3:
+#     output:
+
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
+
+
+# rule human3GTDB:
+#     output:
+
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
+
+
+# rule metaphlan4:
+#     output:
+
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
 
