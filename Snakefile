@@ -135,7 +135,34 @@ rule multiQC:
         '{input.fastqc}'
 
 
-# rule kneaddata:
+rule kneaddata: #TODO: Update rule for this workflow
+    input:
+        reads = '01_cutadapt/{samples}.fastq.gz,
+    output:
+        trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
+        trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
+        ovineReads = temp('02_kneaddata/{samples}_kneaddata_ARS_UI_Ramb_v2_bowtie2_contam.fastq'),
+        clnReads= temp('02_kneaddata/{samples}_kneaddata.fastq'),
+        readStats = '02_kneaddata/{samples}.read.stats.txt'
+    log:
+        'logs/{samples}.kneaddata.log'
+    conda:
+        'biobakery'
+    threads: 16
+    message:
+        'kneaddata: {wildcards.samples}\n'
+    shell:
+        'kneaddata '
+        '--input {input.reads} '
+        '-t {threads} '
+        '--log-level INFO '
+        '--log {log} '
+        '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
+        '--sequencer-source TruSeq3 '
+        '-db ref/ARS_UI_Ramb_v2 '
+        '-o 02_kneaddata && '
+        'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
+    
 
 
 # rule humann3:
