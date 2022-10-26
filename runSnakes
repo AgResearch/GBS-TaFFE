@@ -2,7 +2,7 @@
 ### Wrapper script for launching snakemake workflows ###
 clear
 echo "Launching snakemake workflow..."
-sleep 10
+sleep 3
 echo "Beginning executing on: $(date)"
 
 if [ ! -d ./slurm ]; then
@@ -11,14 +11,14 @@ fi
 
 #TODO: add gquery keyfile and barcode calls here?
 
-conda activate snakemake
+#conda activate snakemake
 
 snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o ./slurm/%j.log -A perrybe -t 02:00:00 -p inv-iranui-fast,inv-iranui --cpus-per-task {threads} -v" --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason -R $(snakemake --list-params-changes)
 
-snakemake --report snakemakeReport.html
+#snakemake --report snakemakeReport.html
 
-snakemake --rulegraph | dot -T svg > rulegraph.svg
+#snakemake --rulegraph | dot -T svg > rulegraph.svg
 
-conda deactivate
+#conda deactivate
 
 echo "snakemake run completed: $(date)"
