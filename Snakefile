@@ -41,17 +41,17 @@ def getFIDs(keyfile):
     keys=pd.read_csv(keyfile, sep='\t', header=0)
     return keys['factid'].tolist()
 
-print(f"Extracting factid for {config['gquery']['libraries']}...\n")
+print(f"Extracting factid for {config['gquery']['libraries']}...")
 FIDs = getFIDs(library_keyfile)
 
-print("Found: \n")
+print("Found: ")
 for entry in FIDs:
     print(entry)
 
 
 rule all:
     input:
-        expand('02_kneaddata/{samples}.read.stats.txt', samples = FIDs),
+        expand('02_kneaddata/{samples}_kneaddata.fastq.gz', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 

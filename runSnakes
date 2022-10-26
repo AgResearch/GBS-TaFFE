@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ### Wrapper script for launching snakemake workflows ###
 clear
 echo "Launching snakemake workflow..."
@@ -9,11 +10,9 @@ if [ ! -d ./slurm ]; then
   mkdir slurm;
 fi
 
-#TODO: add gquery keyfile and barcode calls here?
-
 #conda activate snakemake
 
-snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o ./slurm/%j.log -A perrybe -t 02:00:00 -p inv-iranui-fast,inv-iranui --cpus-per-task {threads} -v" --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason -R $(snakemake --list-params-changes)
+snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o ./slurm/%j.log -A perrybe -t 02:00:00 -p inv-iranui-fast,inv-iranui --cpus-per-task {threads} -v" --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason
 
 #snakemake --report snakemakeReport.html
 
