@@ -142,7 +142,7 @@ rule kneaddata:
     output:
         trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
-        ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_clean.fastq'),
+        ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
         clnReads= temp('02_kneaddata/{samples}_kneaddata.fastq'),
         readStats = '02_kneaddata/{samples}.read.stats.txt'
     log:
