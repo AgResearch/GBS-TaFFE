@@ -51,8 +51,8 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
-        '00_qc/mergedReadsMultiQCReport.html'
+        expand('02_kneaddata/{samples}.read.stats.txt', samples = FIDs),
+        '00_qc/mergedReadsMultiQCReport.html',
 
 
 rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has feature
