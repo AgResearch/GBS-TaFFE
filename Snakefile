@@ -135,7 +135,7 @@ rule multiQC:
         '{input.fastqc}'
 
 
-rule kneaddata: #TODO: Update rule for this workflow
+rule kneaddata:
     input:
         reads = '01_cutadapt/{samples}.fastq.gz',
     output:
@@ -148,7 +148,7 @@ rule kneaddata: #TODO: Update rule for this workflow
         'logs/{samples}.kneaddata.log'
     conda:
         'biobakery'
-    threads: 16
+    threads: 4
     message:
         'kneaddata: {wildcards.samples}\n'
     shell:
