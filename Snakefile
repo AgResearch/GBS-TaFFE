@@ -169,10 +169,10 @@ rule kneaddata:
 
 rule fastqcKDRs:
     output:
-        html = '00_qc/fastqcKDR/{samples}_fastqc.html',
-        zip = "00_qc/fastqcKDR/{samples}_fastqc.zip"
+        html = '00_qc/fastqcKDR/{samples}_kneaddata_fastqc.html',
+        zip = "00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip"
     input:
-        fastq = rules.kneaddata.output.clnReads
+        fastq = '02_kneaddata/{samples}_kneaddata.fastq'
     container:
         'docker://biocontainers/fastqc:v0.11.9_cv8'
     threads: 1
@@ -190,7 +190,7 @@ rule multiQCKDRs:
     output:
         multiQC='00_qc/KDRReadsMultiQCReport.html'
     input:
-        fastqc= expand('00_qc/fastqcKDR/{samples}_fastqc.html', samples = FIDs)
+        fastqc= expand('00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
     container:
         'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
