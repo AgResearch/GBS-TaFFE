@@ -51,7 +51,7 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('02_kneaddata/{samples}_kneaddata.fastq', samples = FIDs),
+        expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -138,18 +138,18 @@ rule multiQC:
 #TODO Rule to Build Rambv2 index
 
 rule kneaddata:
-    input:
-        reads = '01_cutadapt/{samples}.fastq.gz',
     output:
         trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
-        clnReads= '02_kneaddata/{samples}_kneaddata.fastq',
+        clnReads = '02_kneaddata/{samples}_kneaddata.fastq',
         readStats = '02_kneaddata/{samples}.read.stats.txt'
-    log:
-        'logs/{samples}.kneaddata.log'
+    input:
+        reads = '01_cutadapt/{samples}.fastq.gz',
     conda:
         'biobakery'
+    log:
+        'logs/{samples}.kneaddata.log'
     threads: 4
     message:
         'kneaddata: {wildcards.samples}\n'
@@ -200,45 +200,59 @@ rule multiQCKDRs:
         '--interactive '
         '{input.fastqc}'
 
-# rule kraken2:
-#     output:
 
-#     input:
+rule metaphlan4:
+    output:
+        '03_metaphlan4/{samples}.metaphlan4.profile.txt'
+    input:
+        KDRs=rules.kneaddata.output.clnReads
+    conda:
+        'biobakery'
 
-#     log:
+    log:
+        'logs/{samples}.metaphlan4.log'
+    threads: 4
+    message:
+        'Running Metaphlan4 on: {wildcards.samples} \n'
+    shell:
+    'metaphlan '
+    '--input_type fastq '
+    '--nprocs {threads} '
+    '--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
+    '--unclassified_estimation '
+    '--tax_lev s '
+    '-t clade_profiles '
+    '-o {output} '
 
-#     threads:
-
-#     message:
-
-#     shell:
-
-# rule kraken2GTDB:
-#     output:
-
-#     input:
-
-#     log:
-
-#     threads:
-
-#     message:
-
-#     shell:
-
-
-# rule humann3:
-#     output:
-
-#     input:
-
-#     log:
-
-#     threads:
-
-#     message:
-
-#     shell:
+rule humann3:
+    output:
+        genes = '03_humann/{samples}_kneaddata_genefamilies.tsv',
+        pathways = '03_humann/{samples}_kneaddata_pathabundance.tsv',
+        pathwaysCoverage = '03_humann/{samples}_kneaddata_pathcoverage.tsv'
+    input:
+        KDRs=rules.kneaddata.output.clnReads
+    log:
+        'logs/{samples}.human3.log'
+    conda:
+        'biobakery'
+    threads:8
+    message:
+        'humann3 profiling RumFunc: {wildcards.samples}\n'
+    shell:
+        'humann '
+        '--threads {threads} '
+        '--input {input.KDRs} '
+        '--output 03_humann '
+        #'--nucleotide-database ref/chocophlan '
+        '--bypass-nucleotide-search '
+        '--memory-use maximum '
+        '--input-format fastq '
+        '--search-mode uniref90 '
+        '--protein-database ref/uniref ' #TODO Update
+        '--verbose '
+        '--log-level INFO '
+        '--o-log {log} '
+        '--remove-temp-output '
 
 
 # rule human3GTDB:
@@ -255,7 +269,22 @@ rule multiQCKDRs:
 #     shell:
 
 
-# rule metaphlan4:
+# rule kraken2:
+#     output:
+#         '03_kraken/{samples}_kraken.k2'
+
+#     input:
+
+#     log:
+
+#     threads:
+
+#     message:
+
+#     shell:
+
+
+# rule kraken2GTDB:
 #     output:
 
 #     input:
