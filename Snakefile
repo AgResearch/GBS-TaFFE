@@ -56,7 +56,7 @@ rule all:
         '00_qc/KDRReadsMultiQCReport.html'
 
 
-rule generateBarcodes: #TODO replace with rule generateBarcodes when gquery has feature
+rule generateBarcodes:
     output:
         barcodes = 'resources/gquery.barcodes.fasta'
     threads:2
