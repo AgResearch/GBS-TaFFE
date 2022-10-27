@@ -169,8 +169,7 @@ rule kneaddata:
 
 rule fastqcKDRs:
     output:
-        html = '00_qc/fastqcKDR/{samples}_kneaddata_fastqc.html',
-        zip = "00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip"
+        "00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip"
     input:
         fastq = '02_kneaddata/{samples}_kneaddata.fastq'
     container:
@@ -188,7 +187,7 @@ rule fastqcKDRs:
 
 rule multiQCKDRs:
     output:
-        multiQC='00_qc/KDRReadsMultiQCReport.html'
+        '00_qc/KDRReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
     container:
