@@ -51,7 +51,7 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('02_kneaddata/{samples}_kneaddata.fastq.gz', samples = FIDs),
+        expand('02_kneaddata/{samples}_kneaddata.fastq', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
