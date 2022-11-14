@@ -59,7 +59,7 @@ rule all:
 rule generateBarcodes:
     output:
         barcodes = 'resources/gquery.barcodes.fasta'
-    threads:2
+    threads: 2
     log:
         'logs/1_gqueryGenerateBarcodes.log'
     params:
@@ -75,7 +75,7 @@ rule generateBarcodes:
         '{log}'
 
 
-rule cutadapt:
+rule cutadapt: #demultiplexing GBS reads
     output:
         expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     input:
@@ -84,7 +84,7 @@ rule cutadapt:
         lane02 = config['novaseq']['lane02'],
     container:
         'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
-    threads:16
+    threads: 16
     log:
         'logs/cutadapt.log'
     params:
@@ -205,7 +205,7 @@ rule metaphlan4:
     output:
         '03_metaphlan/{samples}.metaphlan4.profile.txt'
     input:
-        KDRs=rules.kneaddata.output.clnReads
+        KDRs=rules.kneaddata.output.clnReads,
     conda:
         'biobakery'
 
@@ -235,7 +235,7 @@ rule humann3:
         'logs/{samples}.human3.log'
     conda:
         'biobakery'
-    threads:8
+    threads: 8
     message:
         'humann3 profiling RumFunc: {wildcards.samples}\n'
     shell:
@@ -255,23 +255,34 @@ rule humann3:
         '--remove-temp-output '
 
 
+rule kraken2:
+    output:
+        '03_kraken2/{samples}.out.k2'
+    input:
+        KDRs=rules.kneaddata.output.clnReads
+    log:
+
+    threads:
+
+    message:
+
+    shell:
+        'kraken2 --db $DBDIR --report --output - --paired {input.read1} {input.read2} > sample.kreport'
+
+rule braken:
+    output:
+        '03_kraken2/{samples}.braken.out'
+    input:
+        k2out=rules.kraken2.output
+    log:
+        'logs/{samples}.braken.out'
+    conda:
+        #TBD
+    threads: 4
+
+
 # rule human3GTDB:
 #     output:
-
-#     input:
-
-#     log:
-
-#     threads:
-
-#     message:
-
-#     shell:
-
-
-# rule kraken2:
-#     output:
-#         '03_kraken/{samples}_kraken.k2'
 
 #     input:
 
