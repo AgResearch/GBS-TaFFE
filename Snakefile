@@ -261,13 +261,13 @@ rule kraken2:
     input:
         KDRs=rules.kneaddata.output.clnReads
     log:
-
-    threads:
-
+        ''
+    threads: 8
     message:
 
     shell:
         'kraken2 --db $DBDIR --report --output - --paired {input.read1} {input.read2} > sample.kreport'
+
 
 rule braken:
     output:
@@ -277,8 +277,12 @@ rule braken:
     log:
         'logs/{samples}.braken.out'
     conda:
-        #TBD
-    threads: 4
+        # TBD
+    threads: 8
+    message:
+        ''
+    shell:
+        ''
 
 
 # rule human3GTDB:
