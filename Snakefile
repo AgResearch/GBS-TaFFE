@@ -220,7 +220,7 @@ rule metaphlan4:
         '--input_type fastq '
         '--bowtie2db ref/biobakery/metaphlan '
         '--nproc {threads} '
-        '--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
+        #'--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
         '--unclassified_estimation '
         '-t rel_ab '
         '> {output} '
