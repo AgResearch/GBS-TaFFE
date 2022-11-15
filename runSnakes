@@ -12,7 +12,7 @@ fi
 
 #conda activate snakemake
 
-snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o ./slurm/%j.log -A perrybe -t 02:00:00 -p inv-iranui-fast,inv-iranui --cpus-per-task {threads} -v" --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason
+snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o {cluster.output} -A {cluster.account} -t {cluster.time} -p {cluster.partition} --cpus-per-task {threads} -v" --cluster-config config/cluster_config.yml --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason
 
 #snakemake --report snakemakeReport.html
 
