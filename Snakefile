@@ -261,6 +261,8 @@ rule kraken2:
     input:
         KDRs=rules.kneaddata.output.clnReads
     log:
+        'logs/{samples}.kraken2.log'
+    conda:
         ''
     threads: 8
     message:
@@ -275,9 +277,9 @@ rule braken:
     input:
         k2out=rules.kraken2.output
     log:
-        'logs/{samples}.braken.out'
+        'logs/{samples}.braken.log'
     conda:
-        # TBD
+        ''# TBD
     threads: 8
     message:
         ''
