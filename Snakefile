@@ -238,7 +238,8 @@ rule kraken2:
         'logs/{samples}.kraken2.log'
     conda:
         'kraken2'
-    threads: 8
+    threads: 4 
+    resources: mem_mb=180000
     shell:
         'kraken2 '
         '--db ref/kraken2 '
