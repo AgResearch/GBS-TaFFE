@@ -208,8 +208,8 @@ rule metaphlan4:
         '03_metaphlan4/{samples}.metaphlan4.profile.txt'
     input:
         KDRs=rules.kneaddata.output.clnReads,
-    container:
-        'docker://biobakery/metaphlan:4.0.2' #5.68 Gb
+    conda:
+        'metaphlan'
     log:
         'logs/{samples}.metaphlan4.log'
     threads: 4
