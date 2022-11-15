@@ -185,6 +185,7 @@ rule fastqcKDRs:
         '{input.fastq}'
 
 
+
 rule multiQCKDRs:
     output:
         '00_qc/KDRReadsMultiQCReport.html'
@@ -201,14 +202,14 @@ rule multiQCKDRs:
         '{input.fastqc}'
 
 
+
 rule metaphlan4:
     output:
         '03_metaphlan4/{samples}.metaphlan4.profile.txt'
     input:
         KDRs=rules.kneaddata.output.clnReads,
-    conda:
-        'biobakery'
-
+    container:
+        'docker://biobakery/metaphlan:4.0.2' #5.68 Gb
     log:
         'logs/{samples}.metaphlan4.log'
     threads: 4
@@ -217,12 +218,14 @@ rule metaphlan4:
     shell:
         'metaphlan '
         '--input_type fastq '
-        '--nprocs {threads} '
+        '--bowtie2db ref/biobakery/metaphlan '
+        '--nproc {threads} '
         '--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
         '--unclassified_estimation '
-        '--tax_lev s '
-        '-t clade_profiles '
-        '-o {output} '
+        '-t rel_ab '
+        '> {output} '
+
+
 
 rule humann3:
     output:
@@ -255,6 +258,7 @@ rule humann3:
         '--remove-temp-output '
 
 
+
 rule kraken2:
     output:
         '03_kraken2/{samples}.out.k2'
@@ -269,6 +273,8 @@ rule kraken2:
         ''
     shell:
         'kraken2 --db $DBDIR --report --output - --paired {input.read1} {input.read2} > sample.kreport'
+
+
 
 
 rule braken:
