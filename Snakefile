@@ -51,7 +51,7 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
+        expand('03_kraken2/{samples}.out.k2', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -228,6 +228,43 @@ rule metaphlan4:
 
 
 
+rule kraken2:
+    output:
+        k2Out='03_kraken2/{samples}.out.k2',
+        k2Report='03_kraken2/{samples}.report.k2'
+    input:
+        KDRs=rules.kneaddata.output.clnReads
+    log:
+        'logs/{samples}.kraken2.log'
+    conda:
+        'kraken2'
+    threads: 8
+    shell:
+        'kraken2 '
+        '--db ref/kraken2 '
+        '--report {output.k2Report} '
+        '--report-minimizer-data '
+        '{input.KDRs} > {output.k2Out}'
+
+
+
+rule braken:
+    output:
+        '03_kraken2/{samples}.braken.out'
+    input:
+        k2out=rules.kraken2.output
+    log:
+        'logs/{samples}.braken.log'
+    conda:
+        ''# TBD
+    threads: 8
+    message:
+        ''
+    shell:
+        ''
+
+
+
 rule humann3:
     output:
         genes = '03_humann/{samples}_kneaddata_genefamilies.tsv',
@@ -258,40 +295,6 @@ rule humann3:
         '--o-log {log} '
         '--remove-temp-output '
 
-
-
-rule kraken2:
-    output:
-        '03_kraken2/{samples}.out.k2'
-    input:
-        KDRs=rules.kneaddata.output.clnReads
-    log:
-        'logs/{samples}.kraken2.log'
-    conda:
-        ''
-    threads: 8
-    message:
-        ''
-    shell:
-        'kraken2 --db $DBDIR --report --output - --paired {input.read1} {input.read2} > sample.kreport'
-
-
-
-
-rule braken:
-    output:
-        '03_kraken2/{samples}.braken.out'
-    input:
-        k2out=rules.kraken2.output
-    log:
-        'logs/{samples}.braken.log'
-    conda:
-        ''# TBD
-    threads: 8
-    message:
-        ''
-    shell:
-        ''
 
 
 # rule human3GTDB:
