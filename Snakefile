@@ -217,6 +217,7 @@ rule metaphlan4:
         'Running Metaphlan4 on: {wildcards.samples} \n'
     shell:
         'metaphlan '
+        '{input}'
         '--input_type fastq '
         '--bowtie2db ref/biobakery/metaphlan '
         '--nproc {threads} '
