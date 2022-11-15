@@ -203,7 +203,7 @@ rule multiQCKDRs:
 
 rule metaphlan4:
     output:
-        '03_metaphlan/{samples}.metaphlan4.profile.txt'
+        '03_metaphlan4/{samples}.metaphlan4.profile.txt'
     input:
         KDRs=rules.kneaddata.output.clnReads,
     conda:
