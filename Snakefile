@@ -215,14 +215,14 @@ rule metaphlan4:
     message:
         'Running Metaphlan4 on: {wildcards.samples} \n'
     shell:
-    'metaphlan '
-    '--input_type fastq '
-    '--nprocs {threads} '
-    '--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
-    '--unclassified_estimation '
-    '--tax_lev s '
-    '-t clade_profiles '
-    '-o {output} '
+        'metaphlan '
+        '--input_type fastq '
+        '--nprocs {threads} '
+        '--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
+        '--unclassified_estimation '
+        '--tax_lev s '
+        '-t clade_profiles '
+        '-o {output} '
 
 rule humann3:
     output:
