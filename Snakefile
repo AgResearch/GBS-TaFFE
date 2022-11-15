@@ -264,7 +264,7 @@ rule kraken2:
         ''
     threads: 8
     message:
-
+        ''
     shell:
         'kraken2 --db $DBDIR --report --output - --paired {input.read1} {input.read2} > sample.kreport'
 
