@@ -238,7 +238,7 @@ rule kraken2:
         'logs/{samples}.kraken2.log'
     conda:
         'kraken2'
-    threads: 4 
+    threads: 12 
     resources: mem_mb=180000
     shell:
         'kraken2 '
