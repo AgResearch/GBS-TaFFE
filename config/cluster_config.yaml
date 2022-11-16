@@ -4,11 +4,11 @@ __default__:
     partition: inv-iranui-fast,inv-iranui
     time: 02:00:00 # time limit for each job
     output: ./slurm/%j.log
-    memory: 6G
+    memory: 600
 
 cutadapt:
     memory: 32G
 
 kraken2:
     partition: inv-bigmem-fast
-    memory: 180G
+    memory: 180000
