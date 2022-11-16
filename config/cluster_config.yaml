@@ -7,8 +7,11 @@ __default__:
     memory: 600
 
 cutadapt:
-    memory: 32G
+    memory: 3200
 
 kraken2:
     partition: inv-bigmem,inv-bigmem-fast
     memory: 180000
+
+humann3:
+    memory: 2400
