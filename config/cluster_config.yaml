@@ -10,5 +10,5 @@ cutadapt:
     memory: 32G
 
 kraken2:
-    partition: inv-bigmem-fast
+    partition: inv-bigmem,inv-bigmem-fast
     memory: 180000
