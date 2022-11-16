@@ -51,7 +51,9 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_kraken2/{samples}.out.k2', samples = FIDs),
+        expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
+        expand('03_kraken2/{samples}.report.k2', samples = FIDs),
+        expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -279,7 +281,7 @@ rule humann3:
         'biobakery'
     threads: 8
     message:
-        'humann3 profiling RumFunc: {wildcards.samples}\n'
+        'humann3 profiling: {wildcards.samples}\n'
     shell:
         'humann '
         '--threads {threads} '
@@ -290,7 +292,7 @@ rule humann3:
         '--memory-use maximum '
         '--input-format fastq '
         '--search-mode uniref90 '
-        '--protein-database ref/uniref ' #TODO Update
+        '--protein-database ref/biobakery/humann_dbs/uniref ' #TODO Update
         '--verbose '
         '--log-level INFO '
         '--o-log {log} '
