@@ -203,7 +203,7 @@ rule multiQCKDRs:
         '--interactive '
         '{input.fastqc}'
 
-
+# TODO derepliation ???
 
 rule metaphlan4:
     output:
@@ -287,8 +287,9 @@ rule humann3:
         '--threads {threads} '
         '--input {input.KDRs} '
         '--output 03_humann '
-        #'--nucleotide-database ref/chocophlan '
-        '--bypass-nucleotide-search '
+        '--nucleotide-database ref/biobakery/humann_dbs/chocophlan '
+        '--bypass-prescreen '
+        #'--bypass-nucleotide-search '
         '--memory-use maximum '
         '--input-format fastq '
         '--search-mode uniref90 '
@@ -300,7 +301,7 @@ rule humann3:
 
 
 
-# rule human3GTDB:
+# rule kraken2GTDBStruio2:
 #     output:
 
 #     input:
@@ -314,7 +315,7 @@ rule humann3:
 #     shell:
 
 
-# rule kraken2GTDB:
+# # rule human3GTDB:
 #     output:
 
 #     input:
