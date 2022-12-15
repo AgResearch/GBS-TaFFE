@@ -1,14 +1,13 @@
 # # TMPDIR
 # TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
-
-
+# Project Directory: /dataset/2022-BJP-GTDB_Benchmarking/active/RE-RRS-GTDB
 # Nova-seq Lane data
 novaseq:
-  lane01: 'fastq/HMK3LDRX2_SQ1938_L01.fastq.gz'
-  lane02: 'fastq/HMK3LDRX2_SQ1938_L02.fastq.gz'
-
+# /dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L001_R1_001.fastq.gz
+  lane01: 'fastq/SQ1917_S2_L001_R1_001.fastq.gz'
+# /dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L002_R1_001.fastq.gz
+  lane02: 'fastq/SQ1917_S2_L002_R1_001.fastq.gz'
 
 # gquery parameters:
 gquery:
-  libraries: 'SQ1938'
-
+  libraries: 'SQ1917'
