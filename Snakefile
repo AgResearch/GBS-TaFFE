@@ -92,9 +92,6 @@ rule cutadapt: #demultiplexing GBS reads
     threads: 16
     resources:
         mem_gb=32,
-    log:
-        'logs/cutadapt.log'
-    params:
     message:
         'Demultiplexing lanes...'
     shell:
