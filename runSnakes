@@ -6,18 +6,14 @@ echo "Launching snakemake workflow..."
 sleep 3
 echo "Beginning executing on: $(date)"
 
-if [ ! -d ./slurm ]; then
-  mkdir slurm;
-fi
+source activate snakemake
 
-#conda activate snakemake
+snakemake --profile simple
 
-snakemake --latency-wait 300 --rerun-incomplete --cluster "sbatch -o {cluster.output} -A {cluster.account} -t {cluster.time} -p {cluster.partition} --cpus-per-task {cluster.threads} --mem {cluster.memory} -v" --cluster-config config/cluster_config.yaml --jobs 32 --local-cores 2 --use-conda --keep-going --use-singularity --restart-times 5 --printshellcmds --reason
+snakemake --report snakemakeReport.html
 
-#snakemake --report snakemakeReport.html
+snakemake --rulegraph | dot -T svg > rulegraph.svg
 
-#snakemake --rulegraph | dot -T svg > rulegraph.svg
-
-#conda deactivate
+source deactivate
 
 echo "snakemake run completed: $(date)"
