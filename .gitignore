@@ -6,3 +6,4 @@ test
 .cache
 .git
 .java
+fastq/*.gz
