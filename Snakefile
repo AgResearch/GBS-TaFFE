@@ -63,6 +63,8 @@ rule generateBarcodes:
     output:
         barcodes = 'resources/gquery.barcodes.fasta'
     threads: 2
+    resources:
+        partition="inv-iranui-fast"
     log:
         'logs/1_gqueryGenerateBarcodes.log'
     params:
@@ -76,7 +78,7 @@ rule generateBarcodes:
         '{params.libraries} > '
         '{output.barcodes} 2> '
         '{log}'
-
+#gquery -t gbs_keyfile -b library -p "columns=factid,barcode;fasta;noheading;no_unpivot" SQ1917 > resources/gquery.barcodes.fast
 
 rule cutadapt: #demultiplexing GBS reads
     output:
