@@ -51,10 +51,10 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         expand('03_kraken2/{samples}.report.k2', samples = FIDs),
         expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
-        expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        # expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
+        # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -88,6 +88,8 @@ rule cutadapt: #demultiplexing GBS reads
     container:
         'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
     threads: 16
+    resources:
+        mem_gb=32,
     log:
         'logs/cutadapt.log'
     params:
@@ -113,7 +115,7 @@ rule fastqc:
         fastq = '01_cutadapt/{samples}.fastq.gz'
     container:
         'docker://biocontainers/fastqc:v0.11.9_cv8'
-    threads: 1
+    threads: 2
     message:
         'Running QC on reads: {wildcards.samples}\n'
     shell:
@@ -159,7 +161,10 @@ rule kneaddata:
         'biobakery'
     log:
         'logs/{samples}.kneaddata.log'
-    threads: 4
+    threads: 8
+    resources:
+        mem_gb=12,
+        time='02:00:00'
     message:
         'kneaddata: {wildcards.samples}\n'
     shell:
@@ -187,7 +192,7 @@ rule fastqcKDRs:
         fastq = '02_kneaddata/{samples}_kneaddata.fastq'
     container:
         'docker://biocontainers/fastqc:v0.11.9_cv8'
-    threads: 1
+    threads: 2
     message:
         'Running QC on reads: {wildcards.samples}\n'
     shell:
@@ -257,7 +262,8 @@ rule kraken2:
         'kraken2'
     threads: 12 
     resources: 
-        mem_gb=180
+        mem_gb=180,
+        partition=inv-bigmem,inv-bigmem-fast
     shell:
         'kraken2 '
         '--db ref/kraken2 '
@@ -277,9 +283,10 @@ rule kraken2GTDB:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
-    threads: 8 
+    threads: 18 
     resources: 
-        mem_gb=340
+        mem_gb=330,
+        partition=inv-bigmem,inv-bigmem-fast
     shell:
         'kraken2 '
         '--db /dataset/2022-BJP-GTDB/active/kraken/GTDB '
@@ -318,6 +325,8 @@ rule humann3:
     conda:
         'biobakery'
     threads: 8
+    resources:
+        mem_gb=24,
     message:
         'humann3 profiling: {wildcards.samples}\n'
     shell:
