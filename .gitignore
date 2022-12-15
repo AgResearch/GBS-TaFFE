@@ -8,3 +8,4 @@ test
 .java
 fastq/*.gz
 0*
+logs
