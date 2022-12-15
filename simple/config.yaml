@@ -1,0 +1,33 @@
+# Based on: https://github.com/jdblischak/smk-simple-slurm
+cluster:
+  mkdir -p logs/{rule} &&
+  sbatch
+    --partition={resources.partition}
+    --qos={resources.qos}
+    --cpus-per-task={threads}
+    --mem="{resources.mem_gb_pt}G"
+    --job-name=smk-{rule}-{wildcards}
+    --time={resources.time}
+    --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    --verbose
+default-resources:
+  - account=perrybe
+  - partition=inv-iranui-fast,inv-iranui,inv-blade-g8-fast,inv-blade-g8,inv-bigmem-fast,inv-bigmem
+  - qos=normal
+  - time="02:00:00"
+  - mem_gb_pt="8G"
+  - threads=4
+restart-times: 5
+max-jobs-per-second: 10
+max-status-checks-per-second: 1
+local-cores: 4
+latency-wait: 6000
+jobs: 12
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+scheduler: greedy
+use-conda: True
+use-singularity: True
+reason: True
+cluster-cancel: scancel
