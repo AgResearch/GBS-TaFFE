@@ -86,8 +86,9 @@ rule cutadapt: #demultiplexing GBS reads
         barcodes = rules.generateBarcodes.output.barcodes,
         lane01 = config['novaseq']['lane01'],
         lane02 = config['novaseq']['lane02'],
-    container:
-        'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
+    conda:
+        'cutadapt'
+        # 'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
     threads: 16
     resources:
         mem_gb=32,
@@ -114,8 +115,9 @@ rule fastqc:
         zip = "00_qc/fastqc/{samples}_fastqc.zip"
     input:
         fastq = '01_cutadapt/{samples}.fastq.gz'
-    container:
-        'docker://biocontainers/fastqc:v0.11.9_cv8'
+    conda:
+        'fastqc'
+        # 'docker://biocontainers/fastqc:v0.11.9_cv8'
     threads: 2
     message:
         'Running QC on reads: {wildcards.samples}\n'
@@ -133,8 +135,9 @@ rule multiQC:
         multiQC='00_qc/ReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
-    container:
-        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
+    conda:
+        'multiqc'
+        # 'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
         '-n 00_qc/ReadsMultiQCReport '
@@ -191,8 +194,9 @@ rule fastqcKDRs:
         "00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip"
     input:
         fastq = '02_kneaddata/{samples}_kneaddata.fastq'
-    container:
-        'docker://biocontainers/fastqc:v0.11.9_cv8'
+    conda:
+        'fastqc'
+        # 'docker://biocontainers/fastqc:v0.11.9_cv8'
     threads: 2
     message:
         'Running QC on reads: {wildcards.samples}\n'
@@ -210,8 +214,9 @@ rule multiQCKDRs:
         '00_qc/KDRReadsMultiQCReport.html'
     input:
         fastqc= expand('00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
-    container:
-        'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
+    conda:
+        'multiqc'
+        # 'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
         '-n 00_qc/KDRReadsMultiQCReport '
