@@ -53,6 +53,7 @@ rule all:
     input:
         expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         expand('03_kraken2/{samples}.report.k2', samples = FIDs),
+        expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
@@ -103,6 +104,7 @@ rule cutadapt: #demultiplexing GBS reads
         '-' # indicates stdin
 
 
+
 rule fastqc:
     output:
         html = '00_qc/fastqc/{samples}_fastqc.html',
@@ -122,6 +124,7 @@ rule fastqc:
         '{input.fastq}'
 
 
+
 rule multiQC:
     output:
         multiQC='00_qc/ReadsMultiQCReport.html'
@@ -137,7 +140,11 @@ rule multiQC:
         '--interactive '
         '{input.fastqc}'
 
+
+
 #TODO Rule to Build Rambv2 index
+
+
 
 rule kneaddata:
     output:
@@ -167,7 +174,11 @@ rule kneaddata:
         '-o 02_kneaddata && '
         'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
 
+
+
 #TODO Compress output reads
+
+
 
 rule fastqcKDRs:
     output:
@@ -203,7 +214,11 @@ rule multiQCKDRs:
         '--interactive '
         '{input.fastqc}'
 
+
+
 # TODO derepliation ???
+
+
 
 rule metaphlan4:
     output:
@@ -241,13 +256,36 @@ rule kraken2:
     conda:
         'kraken2'
     threads: 12 
-    resources: mem_mb=180000
+    resources: 
+        mem_gb=180
     shell:
         'kraken2 '
         '--db ref/kraken2 '
         '--report {output.k2Report} '
         '--report-minimizer-data '
         '{input.KDRs} > {output.k2Out}'
+
+
+
+rule kraken2GTDB:
+    output:
+        k2OutGTDB='03_kraken2GTDB/{samples}.GTDB.out.k2',
+        k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
+    input:
+        KDRs=rules.kneaddata.output.clnReads
+    log:
+        'logs/{samples}.kraken2.GTDB.log'
+    conda:
+        'kraken2'
+    threads: 8 
+    resources: 
+        mem_gb=340
+    shell:
+        'kraken2 '
+        '--db /dataset/2022-BJP-GTDB/active/kraken/GTDB '
+        '--report {output.k2ReportGTDB} '
+        '--report-minimizer-data '
+        '{input.KDRs} > {output.k2OutGTDB}'
 
 
 
@@ -299,20 +337,6 @@ rule humann3:
         '--o-log {log} '
         '--remove-temp-output '
 
-
-
-# rule kraken2GTDBStruio2:
-#     output:
-
-#     input:
-
-#     log:
-
-#     threads:
-
-#     message:
-
-#     shell:
 
 
 # # rule human3GTDB:
