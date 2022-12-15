@@ -263,9 +263,9 @@ rule kraken2:
         'logs/{samples}.kraken2.log'
     conda:
         'kraken2'
-    threads: 12 
+    threads: 10 
     resources: 
-        mem_gb=180,
+        mem_gb=146,
         partition="inv-bigmem,inv-bigmem-fast"
     shell:
         'kraken2 '
@@ -286,9 +286,9 @@ rule kraken2GTDB:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
-    threads: 18 
+    threads: 20 
     resources: 
-        mem_gb=330,
+        mem_gb=324,
         partition="inv-bigmem,inv-bigmem-fast"
     shell:
         'kraken2 '
