@@ -263,7 +263,7 @@ rule kraken2:
     threads: 12 
     resources: 
         mem_gb=180,
-        partition=inv-bigmem,inv-bigmem-fast
+        partition="inv-bigmem,inv-bigmem-fast"
     shell:
         'kraken2 '
         '--db ref/kraken2 '
@@ -286,7 +286,7 @@ rule kraken2GTDB:
     threads: 18 
     resources: 
         mem_gb=330,
-        partition=inv-bigmem,inv-bigmem-fast
+        partition="inv-bigmem,inv-bigmem-fast"
     shell:
         'kraken2 '
         '--db /dataset/2022-BJP-GTDB/active/kraken/GTDB '
