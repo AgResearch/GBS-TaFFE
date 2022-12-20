@@ -55,7 +55,7 @@ rule all:
         #expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         # expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
-        expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs)
+        expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
