@@ -52,7 +52,7 @@ for entry in FIDs:
 rule all:
     input:
         #expand('03_kraken2/{samples}.report.k2', samples = FIDs),
-        #expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
+        expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         # expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
