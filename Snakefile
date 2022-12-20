@@ -60,6 +60,7 @@ rule all:
         '00_qc/KDRReadsMultiQCReport.html'
 
 
+
 localrules: generateBarcodes
 rule generateBarcodes:
     output:
@@ -78,6 +79,7 @@ rule generateBarcodes:
         '{params.libraries} > '
         '{output.barcodes} 2> '
         '{log}'
+
 
 
 rule cutadapt: #demultiplexing GBS reads
@@ -171,6 +173,7 @@ rule kneaddata:
         'kneaddata: {wildcards.samples}\n'
     shell:
         'kneaddata '
+        '--trimmomatic-options MINLEN:60 ILLUMINACLIP:/-SE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:50 CROP:80'
         '--input {input.reads} '
         '-t {threads} '
         '--log-level INFO '
@@ -180,6 +183,23 @@ rule kneaddata:
         '-db ref/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
         '-o 02_kneaddata && '
         'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
+
+
+
+rule vsearchDereplicate:
+    output:
+        uniqueReads='',
+    input:
+        cleanReads=rules.kneaddata.output.clnReads,
+    conda:
+        'vsearch'
+    log:
+        'logs/{samples}.vsearch.dereplicate.log'
+    threads: 2
+    resources:
+    message: 'Dereplicating clean reads...'
+    shell:
+        ''
 
 
 
@@ -223,11 +243,7 @@ rule multiQCKDRs:
         '--interactive '
         '{input.fastqc}'
 
-
-
-# TODO derepliation ???
-
-
+ 
 
 rule metaphlan4:
     output:
