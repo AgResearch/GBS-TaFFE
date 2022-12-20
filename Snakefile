@@ -186,23 +186,6 @@ rule kneaddata:
 
 
 
-rule vsearchDereplicate:
-    output:
-        uniqueReads='',
-    input:
-        cleanReads=rules.kneaddata.output.clnReads,
-    conda:
-        'vsearch'
-    log:
-        'logs/{samples}.vsearch.dereplicate.log'
-    threads: 2
-    resources:
-    message: 'Dereplicating clean reads...'
-    shell:
-        ''
-
-
-
 #TODO Compress output reads
 
 
@@ -243,13 +226,30 @@ rule multiQCKDRs:
         '--interactive '
         '{input.fastqc}'
 
- 
+
+
+rule vsearchDereplicate: #TODO
+    output:
+        uniqueReads='',
+    input:
+        cleanReads=rules.kneaddata.output.clnReads,
+    conda:
+        'vsearch'
+    log:
+        'logs/{samples}.vsearch.dereplicate.log'
+    threads: 2
+    resources:
+    message: 'Dereplicating clean reads...'
+    shell:
+        ''
+
+
 
 rule metaphlan4:
     output:
         '03_metaphlan4/{samples}.metaphlan4.profile.txt'
     input:
-        KDRs=rules.kneaddata.output.clnReads,
+        KDRs=rules.kneaddata.output.clnReads, 
     conda:
         'metaphlan'
     log:
@@ -377,12 +377,13 @@ rule kmcpSearch:
         'logs/{samples}.kmcp.search.GTDB.log'
     conda:
         'kmcp'
-    threads: 20 
+    threads:12
     resources: 
-        mem_gb=80,
+        mem_gb=104,
         partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
     shell:
         'kmcp search '
+        '-w '
         '--threads {threads} '
         '--db-dir {input.kmcpGTDB} '
         '{input.KDRs} '
@@ -402,8 +403,7 @@ rule kmcpProfile:
         'logs/{samples}.kmcp.profile.log'
     threads: 8 
     resources: 
-        mem_gb=16,
-        partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
+        mem_gb=6,
     shell:
         'kmcp profile '
         '--mode 1 '
@@ -413,7 +413,7 @@ rule kmcpProfile:
         '-o {output.search} '
         '--log {log} '
         '{input.kmcpSearch} '
-'    
+
 
 
 # # rule human3GTDB:
