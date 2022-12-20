@@ -228,20 +228,20 @@ rule multiQCKDRs:
 
 
 
-rule vsearchDereplicate: #TODO
-    output:
-        uniqueReads='',
-    input:
-        cleanReads=rules.kneaddata.output.clnReads,
-    conda:
-        'vsearch'
-    log:
-        'logs/{samples}.vsearch.dereplicate.log'
-    threads: 2
-    resources:
-    message: 'Dereplicating clean reads...'
-    shell:
-        ''
+# rule vsearchDereplicate: #TODO
+#     output:
+#         uniqueReads='',
+#     input:
+#         cleanReads=rules.kneaddata.output.clnReads,
+#     conda:
+#         'vsearch'
+#     log:
+#         'logs/{samples}.vsearch.dereplicate.log'
+#     threads: 2
+#     resources:
+#     message: 'Dereplicating clean reads...'
+#     shell:
+#         ''
 
 
 
