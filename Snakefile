@@ -51,10 +51,11 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_kraken2/{samples}.report.k2', samples = FIDs),
-        expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
+        #expand('03_kraken2/{samples}.report.k2', samples = FIDs),
+        #expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         # expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs)
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -349,6 +350,54 @@ rule humann3:
         '--o-log {log} '
         '--remove-temp-output '
 
+
+rule kmcpSearch:
+    output:
+        search='03_kmcpGTDB/{sample}.search.tsv.gz'
+    input:
+        kmcpGTDB='/dataset/2022-BJP-GTDB/active/kmcp/gtdb.kmcp',
+        KDRs=rules.kneaddata.output.clnReads,
+    log:
+        'logs/{samples}.kmcp.search.GTDB.log'
+    conda:
+        'kmcp'
+    threads: 20 
+    resources: 
+        mem_gb=80,
+        partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
+    shell:
+        'kmcp search '
+        '--threads {threads} '
+        '--db-dir {input.kmcpGTDB} '
+        '{input.KDRs} '
+        '-o {output.search} '
+        '--log {log}'     
+
+
+
+rule kmcpProfile:
+    output:
+        profile='03_kmcpGTDB/{samples}.profile.tsv'
+    input:
+        kmcpSearch=rules.kmcpSearch.output.search,
+        kmcpTaxdump='/dataset/2022-BJP-GTDB/active/kmcp/gtdb-taxdump/R207',
+        taxid='/dataset/2022-BJP-GTDB/active/kmcp/taxid.map',
+    log:
+        'logs/{samples}.kmcp.profile.log'
+    threads: 8 
+    resources: 
+        mem_gb=16,
+        partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
+    shell:
+        'kmcp profile '
+        '--mode 1 '
+        '--threads {threads} '
+        '-X {input.kmcpTaxdump} '
+        '-T {input.taxid} '
+        '-o {output.search} '
+        '--log {log} '
+        '{input.kmcpSearch} '
+'    
 
 
 # # rule human3GTDB:
