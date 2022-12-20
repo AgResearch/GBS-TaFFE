@@ -410,7 +410,7 @@ rule kmcpProfile:
         '--threads {threads} '
         '-X {input.kmcpTaxdump} '
         '-T {input.taxid} '
-        '-o {output.search} '
+        '-o {output.profile} '
         '--log {log} '
         '{input.kmcpSearch} '
 
