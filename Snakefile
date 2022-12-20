@@ -369,7 +369,7 @@ rule humann3:
 
 rule kmcpSearch:
     output:
-        search='03_kmcpGTDB/{sample}.search.tsv.gz'
+        search='03_kmcpGTDB/{samples}.search.tsv.gz'
     input:
         kmcpGTDB='/dataset/2022-BJP-GTDB/active/kmcp/gtdb.kmcp',
         KDRs=rules.kneaddata.output.clnReads,
