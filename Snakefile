@@ -281,16 +281,25 @@ rule kraken2:
 
 rule GTDBServiceCreate:
     input:
-        '/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB',
+        k2hash='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
+        k2opts='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
+        k2taxo='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxo.k2d',
     output:
-        kraken2GTDB=temp('/dev/shm/GTDB'),
+        kraken2GTDB=temp(directory('/dev/shm/GTDB')),
+        ramHash=temp('/dev/shm/GTDB/hash.k2d'),
+        ramOpts=temp('/dev/shm/GTDB/opts.k2d'),
+        ramTaxo=temp('/dev/shm/GTDB/taxo.k2d'),
     conda:
         'kraken2'
-    threads: 2
+    threads: 4
     resources:
         partition="inv-bigmem"
     shell:
-        'cp -r {input} {output}'
+        'mkdir {output.kraken2GTDB}; '
+        'cp {input.k2hash} {output.ramHash}; '
+        'cp {input.k2opts} {output.ramOpts}; '
+        'cp {input.k2taxo} {output.ramTaxo}; '
+        'du -sh /dev/shm/GTDB;'
 
 
 
