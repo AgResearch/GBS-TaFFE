@@ -295,7 +295,7 @@ rule GTDBtoRam:
     resources:
         partition="inv-bigmem"
     shell:
-        'mkdir {output.kraken2GTDB}; '
+        'mkdir -p {output.kraken2GTDB}; '
         'cp {input.k2hash} {output.ramHash}; '
         'cp {input.k2opts} {output.ramOpts}; '
         'cp {input.k2taxo} {output.ramTaxo}; '
