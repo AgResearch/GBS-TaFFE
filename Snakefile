@@ -289,7 +289,7 @@ rule GTDBServiceCreate:
     threads: 2
     resources:
         partition="inv-bigmem"
-    group: kraken2
+    group: 'kraken2'
     shell:
         'cp {input} {output}'
 
@@ -310,7 +310,7 @@ rule kraken2GTDB:
     resources: 
         mem_gb=8,
         partition="inv-bigmem"
-    group: kraken2
+    group: 'kraken2'
     shell:
         'kraken2 '
         '--db {input.krakenGTDB} '
