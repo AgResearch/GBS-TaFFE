@@ -305,7 +305,7 @@ rule kraken2GTDB:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
-    threads: 8 
+    threads: 4 
     resources: 
         partition="inv-bigmem"
     shell:
