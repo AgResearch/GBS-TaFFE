@@ -52,9 +52,9 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_kraken2/{samples}.report.k2', samples = FIDs),
         expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
-        expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+        # expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+        # expand('03_kraken2/{samples}.report.k2', samples = FIDs),
 
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
@@ -279,6 +279,21 @@ rule kraken2:
         '{input.KDRs} > {output.k2Out}'
 
 
+rule GTDBServiceCreate:
+    output:
+        service('/dev/shm/GTDB'),
+    input:
+        '/dataset/2022-BJP-GTDB/active/kraken/GTDB',
+    conda:
+        'kraken2'
+    threads: 2
+    resources:
+        partition="inv-bigmem"
+    group: kraken2
+    shell:
+    'cp {input} {output}'
+
+
 
 rule kraken2GTDB:
     output:
@@ -286,38 +301,40 @@ rule kraken2GTDB:
         k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
         KDRs=rules.vsearchUniques.output.uniqueReads,
-        krakenGTDB='/dataset/2022-BJP-GTDB/active/kraken/GTDB'
+        krakenGTDB='/dev/shm/GTDB'
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
-    threads: 20 
+    threads: 8 
     resources: 
-        mem_gb=324,
-        partition="inv-bigmem,inv-bigmem-fast"
+        mem_gb=8,
+        partition="inv-bigmem"
+    group: kraken2
     shell:
         'kraken2 '
         '--db {input.krakenGTDB} '
+        '--memory-mapping '
         '--report {output.k2ReportGTDB} '
         '--report-minimizer-data '
         '{input.KDRs} > {output.k2OutGTDB}'
 
 
 
-rule braken:
-    output:
-        '03_kraken2/{samples}.braken.out'
-    input:
-        k2out=rules.kraken2.output
-    log:
-        'logs/{samples}.braken.log'
-    conda:
-        ''# TBD
-    threads: 8
-    message:
-        ''
-    shell:
-        ''
+# rule braken:
+#     output:
+#         '03_kraken2/{samples}.braken.out'
+#     input:
+#         k2out=rules.kraken2.output
+#     log:
+#         'logs/{samples}.braken.log'
+#     conda:
+#         ''# TBD
+#     threads: 8
+#     message:
+#         ''
+#     shell:
+#         ''
 
 
 
