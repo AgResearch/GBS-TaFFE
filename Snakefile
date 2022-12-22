@@ -49,13 +49,16 @@ for entry in FIDs:
     print(entry)
 
 
+
 rule all:
     input:
-        #expand('03_kraken2/{samples}.report.k2', samples = FIDs),
+        expand('03_kraken2/{samples}.report.k2', samples = FIDs),
         expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
-        # expand('03_metaphlan4/{samples}.metaphlan4.profile.txt', samples = FIDs),
+        expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
-        expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
+        # expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
+        
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -157,7 +160,7 @@ rule kneaddata:
         trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
-        clnReads = '02_kneaddata/{samples}_kneaddata.fastq',
+        KDRs = '02_kneaddata/{samples}_kneaddata.fastq',
         readStats = '02_kneaddata/{samples}.read.stats.txt'
     input:
         reads = '01_cutadapt/{samples}.fastq.gz',
@@ -228,45 +231,29 @@ rule multiQCKDRs:
 
 
 
-# rule vsearchDereplicate: #TODO
-#     output:
-#         uniqueReads='',
-#     input:
-#         cleanReads=rules.kneaddata.output.clnReads,
-#     conda:
-#         'vsearch'
-#     log:
-#         'logs/{samples}.vsearch.dereplicate.log'
-#     threads: 2
-#     resources:
-#     message: 'Dereplicating clean reads...'
-#     shell:
-#         ''
-
-
-
-rule metaphlan4:
+rule vsearchUniques:
     output:
-        '03_metaphlan4/{samples}.metaphlan4.profile.txt'
+        uniqueReads="2_uniques/{samples}.uniques.merged.fastq.gz",
     input:
-        KDRs=rules.kneaddata.output.clnReads, 
-    conda:
-        'metaphlan'
+        KDRs=rules.kneaddata.output.KDRs,
     log:
-        'logs/{samples}.metaphlan4.log'
-    threads: 4
+        "logs/{samples}.vsearch.unqiues.log",
+    conda:
+        "vsearch"
+    threads: 1
     message:
-        'Running Metaphlan4 on: {wildcards.samples} \n'
+        "dereplicating: {wildcards.samples}\n"
     shell:
-        'metaphlan '
-        '{input} '
-        '--input_type fastq '
-        '--bowtie2db ref/biobakery/metaphlan '
-        '--nproc {threads} '
-        #'--nreads $(cat 02_kneaddata/{input.KDRs} | grep "^+$" | wc -l) ' #TODO update to zcat when using compressed reads
-        '--unclassified_estimation '
-        '-t rel_ab '
-        '> {output} '
+        "vsearch "
+        "--gzip "
+        "--threads {threads} "
+        "--log {log} "
+        "--fastx_uniques {input.KDRs} "
+        "--sizein "
+        "--minuniquesize 1 "
+        "--relabel_self "
+        "--sizeout "
+        "--fastqout - | gzip > {output.uniqueReads}"
 
 
 
@@ -275,7 +262,7 @@ rule kraken2:
         k2Out='03_kraken2/{samples}.out.k2',
         k2Report='03_kraken2/{samples}.report.k2'
     input:
-        KDRs=rules.kneaddata.output.clnReads
+        KDRs=rules.vsearchUniques.output.uniqueReads
     log:
         'logs/{samples}.kraken2.log'
     conda:
@@ -298,7 +285,7 @@ rule kraken2GTDB:
         k2OutGTDB='03_kraken2GTDB/{samples}.GTDB.out.k2',
         k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
-        KDRs=rules.kneaddata.output.clnReads
+        KDRs=rules.vsearchUniques.output.uniqueReads
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
@@ -372,7 +359,7 @@ rule kmcpSearch:
         search='03_kmcpGTDB/{samples}.search.tsv.gz'
     input:
         kmcpGTDB='/dataset/2022-BJP-GTDB/active/kmcp/gtdb.kmcp',
-        KDRs=rules.kneaddata.output.clnReads,
+        KDRs=rules.vsearchUniques.output.uniqueReads,
     log:
         'logs/{samples}.kmcp.search.GTDB.log'
     conda:
