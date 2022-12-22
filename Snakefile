@@ -281,7 +281,7 @@ rule kraken2:
 
 rule GTDBServiceCreate:
     input:
-        '/dataset/2022-BJP-GTDB/scratch/kraken/GTDB',
+        '/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB',
     output:
         service('/dev/shm/GTDB'),
     conda:
