@@ -280,10 +280,10 @@ rule kraken2:
 
 
 rule GTDBServiceCreate:
-    output:
-        service('/dev/shm/GTDB'),
     input:
         '/dataset/2022-BJP-GTDB/active/kraken/GTDB',
+    output:
+        service('/dev/shm/GTDB'),
     conda:
         'kraken2'
     threads: 2
