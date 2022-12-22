@@ -167,7 +167,7 @@ rule kneaddata:
     conda:
         'biobakery'
     log:
-        'logs/{samples}.kneaddata.log'
+        'logs/kneaddata/{samples}.kneaddata.log'
     threads: 8
     resources:
         mem_gb=12,
