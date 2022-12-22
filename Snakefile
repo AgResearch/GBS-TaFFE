@@ -279,7 +279,7 @@ rule kraken2:
         '{input.KDRs} > {output.k2Out}'
 
 
-rule GTDBServiceCreate:
+rule GTDBtoRam:
     input:
         k2hash='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
         k2opts='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
@@ -309,7 +309,7 @@ rule kraken2GTDB:
         k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
         KDRs=rules.vsearchUniques.output.uniqueReads,
-        kraken2GTDB=rules.GTDBServiceCreate.output.kraken2GTDB
+        kraken2GTDB=rules.GTDBtoRam.output.kraken2GTDB
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
