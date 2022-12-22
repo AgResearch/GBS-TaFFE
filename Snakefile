@@ -283,13 +283,12 @@ rule GTDBServiceCreate:
     input:
         '/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB',
     output:
-        service('/dev/shm/GTDB'),
+        kraken2GTDB=service('/dev/shm/GTDB'),
     conda:
         'kraken2'
     threads: 2
     resources:
         partition="inv-bigmem"
-    group: 'kraken2'
     shell:
         'cp {input} {output}'
 
@@ -301,7 +300,7 @@ rule kraken2GTDB:
         k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
         KDRs=rules.vsearchUniques.output.uniqueReads,
-        krakenGTDB='/dev/shm/GTDB'
+        kraken2GTDB=rules.GTDBServiceCreate.output.kraken2GTDB
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
@@ -310,10 +309,9 @@ rule kraken2GTDB:
     resources: 
         mem_gb=8,
         partition="inv-bigmem"
-    group: 'kraken2'
     shell:
         'kraken2 '
-        '--db {input.krakenGTDB} '
+        '--db {input.kraken2GTDB} '
         '--memory-mapping '
         '--report {output.k2ReportGTDB} '
         '--report-minimizer-data '
