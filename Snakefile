@@ -290,7 +290,7 @@ rule GTDBServiceCreate:
     resources:
         partition="inv-bigmem"
     shell:
-        'cp {input} {output}'
+        'cp -r {input} {output}'
 
 
 
