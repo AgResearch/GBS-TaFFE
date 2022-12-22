@@ -307,7 +307,6 @@ rule kraken2GTDB:
         'kraken2'
     threads: 8 
     resources: 
-        mem_gb=8,
         partition="inv-bigmem"
     shell:
         'kraken2 '
