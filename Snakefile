@@ -291,7 +291,7 @@ rule GTDBServiceCreate:
         partition="inv-bigmem"
     group: kraken2
     shell:
-    'cp {input} {output}'
+        'cp {input} {output}'
 
 
 
