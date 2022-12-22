@@ -285,7 +285,8 @@ rule kraken2GTDB:
         k2OutGTDB='03_kraken2GTDB/{samples}.GTDB.out.k2',
         k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
-        KDRs=rules.vsearchUniques.output.uniqueReads
+        KDRs=rules.vsearchUniques.output.uniqueReads,
+        krakenGTDB='/dataset/2022-BJP-GTDB/active/kraken/GTDB'
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
@@ -296,7 +297,7 @@ rule kraken2GTDB:
         partition="inv-bigmem,inv-bigmem-fast"
     shell:
         'kraken2 '
-        '--db /dataset/2022-BJP-GTDB/active/kraken/GTDB '
+        '--db {input.krakenGTDB} '
         '--report {output.k2ReportGTDB} '
         '--report-minimizer-data '
         '{input.KDRs} > {output.k2OutGTDB}'
