@@ -344,7 +344,7 @@ rule humann3:
         pathways = '03_humann/{samples}_kneaddata_pathabundance.tsv',
         pathwaysCoverage = '03_humann/{samples}_kneaddata_pathcoverage.tsv'
     input:
-        KDRs=rules.kneaddata.output.clnReads
+        KDRs=rules.kneaddata.output.KDRs
     log:
         'logs/{samples}.human3.log'
     conda:
