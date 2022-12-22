@@ -176,7 +176,7 @@ rule kneaddata:
         'kneaddata: {wildcards.samples}\n'
     shell:
         'kneaddata '
-        '--trimmomatic-options MINLEN:60 ILLUMINACLIP:/home/perrybe/conda-envs/biobakery/share/trimmomatic-0.39-2/adapters/illuminaAdapters.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:50 CROP:80 '
+        '--trimmomatic-options "MINLEN:60 ILLUMINACLIP:/home/perrybe/conda-envs/biobakery/share/trimmomatic-0.39-2/adapters/illuminaAdapters.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:50 CROP:80" '
         '--input {input.reads} '
         '-t {threads} '
         '--log-level INFO '
