@@ -283,7 +283,7 @@ rule GTDBServiceCreate:
     input:
         '/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB',
     output:
-        kraken2GTDB=service('/dev/shm/GTDB'),
+        kraken2GTDB=temp('/dev/shm/GTDB'),
     conda:
         'kraken2'
     threads: 2
