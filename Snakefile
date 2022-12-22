@@ -168,9 +168,9 @@ rule kneaddata:
         'biobakery'
     log:
         'logs/kneaddata/{samples}.kneaddata.log'
-    threads: 8
+    threads: 4
     resources:
-        mem_gb=12,
+        mem_gb=8,
         time='02:00:00'
     message:
         'kneaddata: {wildcards.samples}\n'
