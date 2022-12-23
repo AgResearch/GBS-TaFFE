@@ -281,25 +281,30 @@ rule kraken2:
 
 rule GTDBtoRam:
     input:
-        k2hash='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
-        k2opts='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
-        k2taxo='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/taxo.k2d',
+        GTDBdir='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB',        
+        # k2hash='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
+        # k2opts='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
+        # k2taxo='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/taxo.k2d',
     output:
         kraken2GTDB=temp(directory('/dev/shm/GTDB')),
-        ramHash=temp('/dev/shm/GTDB/hash.k2d'),
-        ramOpts=temp('/dev/shm/GTDB/opts.k2d'),
-        ramTaxo=temp('/dev/shm/GTDB/taxo.k2d'),
+        # ramHash=temp('/dev/shm/GTDB/hash.k2d'),
+        # ramOpts=temp('/dev/shm/GTDB/opts.k2d'),
+        # ramTaxo=temp('/dev/shm/GTDB/taxo.k2d'),
     conda:
         'kraken2'
     threads: 4
     resources:
         partition="inv-bigmem"
     shell:
-        'mkdir -p {output.kraken2GTDB}; '
-        'cp {input.k2hash} {output.ramHash}; '
-        'cp {input.k2opts} {output.ramOpts}; '
-        'cp {input.k2taxo} {output.ramTaxo}; '
-        'du -sh /dev/shm/GTDB;'
+        # 'mkdir -p {output.kraken2GTDB}; '
+        # 'cp {input.k2hash} {output.ramHash}; '
+        # 'cp {input.k2opts} {output.ramOpts}; '
+        # 'cp {input.k2taxo} {output.ramTaxo}; '
+        'echo "starting copy: $(date)... '
+        'cp -p {input.GTDB}/*.k2d {output.kraken2GTDB} ; '
+        'echo "copy completed: $(date)... '
+        'ls -lh /dev/shm/GTDB; '
+        'du -sh /dev/shm/GTDB; '
 
 
 
