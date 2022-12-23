@@ -52,9 +52,9 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('03_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
+        expand('04_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
-        # expand('03_kraken2/{samples}.report.k2', samples = FIDs),
+        # expand('04_kraken2/{samples}.report.k2', samples = FIDs),
 
         # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
@@ -233,7 +233,7 @@ rule multiQCKDRs:
 
 rule vsearchUniques:
     output:
-        uniqueReads="2_uniques/{samples}.uniques.merged.fastq.gz",
+        uniqueReads="03_uniques/{samples}.uniques.merged.fastq.gz",
     input:
         KDRs=rules.kneaddata.output.KDRs,
     log:
@@ -259,8 +259,8 @@ rule vsearchUniques:
 
 rule kraken2:
     output:
-        k2Out='03_kraken2/{samples}.out.k2',
-        k2Report='03_kraken2/{samples}.report.k2'
+        k2Out='04_kraken2/{samples}.out.k2',
+        k2Report='04_kraken2/{samples}.report.k2'
     input:
         KDRs=rules.vsearchUniques.output.uniqueReads
     log:
@@ -281,9 +281,9 @@ rule kraken2:
 
 rule GTDBtoRam:
     input:
-        k2hash='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
-        k2opts='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
-        k2taxo='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxo.k2d',
+        k2hash='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/hash.k2d',
+        k2opts='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/opts.k2d',
+        k2taxo='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB/taxo.k2d',
     output:
         kraken2GTDB=temp(directory('/dev/shm/GTDB')),
         ramHash=temp('/dev/shm/GTDB/hash.k2d'),
@@ -305,8 +305,8 @@ rule GTDBtoRam:
 
 rule kraken2GTDB:
     output:
-        k2OutGTDB='03_kraken2GTDB/{samples}.GTDB.out.k2',
-        k2ReportGTDB='03_kraken2GTDB/{samples}.GTDB.report.k2'
+        k2OutGTDB='04_kraken2GTDB/{samples}.GTDB.out.k2',
+        k2ReportGTDB='04_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
         KDRs=rules.vsearchUniques.output.uniqueReads,
         kraken2GTDB=rules.GTDBtoRam.output.kraken2GTDB
@@ -329,7 +329,7 @@ rule kraken2GTDB:
 
 # rule braken:
 #     output:
-#         '03_kraken2/{samples}.braken.out'
+#         '04_kraken2/{samples}.braken.out'
 #     input:
 #         k2out=rules.kraken2.output
 #     log:
