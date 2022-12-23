@@ -237,7 +237,7 @@ rule vsearchUniques:
     input:
         KDRs=rules.kneaddata.output.KDRs,
     log:
-        "logs/{samples}.vsearch.unqiues.log",
+        "logs/vsearchUniques/{samples}.vsearch.unqiues.log",
     conda:
         "vsearch"
     threads: 1
