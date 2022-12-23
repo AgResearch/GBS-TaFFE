@@ -301,7 +301,7 @@ rule GTDBtoRam:
         # 'cp {input.k2opts} {output.ramOpts}; '
         # 'cp {input.k2taxo} {output.ramTaxo}; '
         'echo "starting copy: $(date)... '
-        'cp -p {input.GTDB}/*.k2d {output.kraken2GTDB} ; '
+        'cp -p {input.GTDBdir}/*.k2d {output.kraken2GTDB} ; '
         'echo "copy completed: $(date)... '
         'ls -lh /dev/shm/GTDB; '
         'du -sh /dev/shm/GTDB; '
