@@ -54,11 +54,11 @@ rule all:
     input:
         expand('04_kraken2GTDB/{samples}.GTDB.report.k2', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
-        # expand('04_kraken2/{samples}.report.k2', samples = FIDs),
-
-        # expand('03_humann/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        # expand('03_humannGTDBUniref50/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.profile.tsv', samples = FIDs),
-        
+        # expand('03_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        # expand('04_kraken2/{samples}.report.k2', samples = FIDs),
+        # expand('04_brackenGTDB/{samples}.report.k2', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
 
@@ -231,54 +231,6 @@ rule multiQCKDRs:
 
 
 
-rule vsearchUniques:
-    output:
-        uniqueReads="03_uniques/{samples}.uniques.merged.fastq.gz",
-    input:
-        KDRs=rules.kneaddata.output.KDRs,
-    log:
-        "logs/vsearchUniques/{samples}.vsearch.unqiues.log",
-    conda:
-        "vsearch"
-    threads: 1
-    message:
-        "dereplicating: {wildcards.samples}\n"
-    shell:
-        "vsearch "
-        "--gzip "
-        "--threads {threads} "
-        "--log {log} "
-        "--fastx_uniques {input.KDRs} "
-        "--sizein "
-        "--minuniquesize 1 "
-        "--relabel_self "
-        "--sizeout "
-        "--fastqout - | gzip > {output.uniqueReads}"
-
-
-
-rule kraken2:
-    output:
-        k2Out='04_kraken2/{samples}.out.k2',
-        k2Report='04_kraken2/{samples}.report.k2'
-    input:
-        KDRs=rules.vsearchUniques.output.uniqueReads
-    log:
-        'logs/{samples}.kraken2.log'
-    conda:
-        'kraken2'
-    threads: 10 
-    resources: 
-        mem_gb=146,
-        partition="inv-bigmem,inv-bigmem-fast"
-    shell:
-        'kraken2 '
-        '--db ref/kraken2 '
-        '--report {output.k2Report} '
-        '--report-minimizer-data '
-        '{input.KDRs} > {output.k2Out}'
-
-
 rule GTDBtoRam:
     input:
         GTDBdir='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB',        
@@ -313,7 +265,7 @@ rule kraken2GTDB:
         k2OutGTDB='04_kraken2GTDB/{samples}.GTDB.out.k2',
         k2ReportGTDB='04_kraken2GTDB/{samples}.GTDB.report.k2'
     input:
-        KDRs=rules.vsearchUniques.output.uniqueReads,
+        KDRs=rules.kneaddata.output.KDRs,
         kraken2GTDB=rules.GTDBtoRam.output.kraken2GTDB
     log:
         'logs/{samples}.kraken2.GTDB.log'
@@ -332,7 +284,7 @@ rule kraken2GTDB:
 
 
 
-# rule braken:
+# rule brackenGTDB:
 #     output:
 #         '04_kraken2/{samples}.braken.out'
 #     input:
@@ -349,11 +301,11 @@ rule kraken2GTDB:
 
 
 
-rule humann3:
+rule humann3Uniref50EC:
     output:
-        genes = '03_humann/{samples}_kneaddata_genefamilies.tsv',
-        pathways = '03_humann/{samples}_kneaddata_pathabundance.tsv',
-        pathwaysCoverage = '03_humann/{samples}_kneaddata_pathcoverage.tsv'
+        genes = '03_humannUniref50/{samples}_kneaddata_genefamilies.tsv',
+        pathways = '03_humannUniref50/{samples}_kneaddata_pathabundance.tsv',
+        pathwaysCoverage = '03_humannUniref50/{samples}_kneaddata_pathcoverage.tsv'
     input:
         KDRs=rules.kneaddata.output.KDRs
     log:
@@ -372,7 +324,7 @@ rule humann3:
         '--output 03_humann '
         '--nucleotide-database ref/biobakery/humann_dbs/chocophlan '
         '--bypass-prescreen '
-        #'--bypass-nucleotide-search '
+        '--bypass-nucleotide-search '
         '--memory-use maximum '
         '--input-format fastq '
         '--search-mode uniref90 '
@@ -383,7 +335,7 @@ rule humann3:
         '--remove-temp-output '
 
 
-rule kmcpSearch:
+rule kmcpGTDBSearch:
     output:
         search='03_kmcpGTDB/{samples}.search.tsv.gz'
     input:
@@ -408,7 +360,7 @@ rule kmcpSearch:
 
 
 
-rule kmcpProfile:
+rule kmcpGTDBProfile:
     output:
         profile='03_kmcpGTDB/{samples}.profile.tsv'
     input:
@@ -430,18 +382,4 @@ rule kmcpProfile:
         '--log {log} '
         '{input.kmcpSearch} '
 
-
-
-# # rule human3GTDB:
-#     output:
-
-#     input:
-
-#     log:
-
-#     threads:
-
-#     message:
-
-#     shell:
 
