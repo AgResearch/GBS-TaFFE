@@ -52,11 +52,10 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('04_kraken2GTDB/{samples}.GTDB.k2report', samples = FIDs),
-
+        expand('04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
+        # expand('04_kraken2GTDB/{samples}.GTDB.k2report', samples = FIDs),
         # expand('03_humannGTDBUniref50/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         # expand('03_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
-        # expand('04_brackenGTDB/{samples}.GTDB.k2report.bracken', samples = FIDs),
         # expand('03_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
         '00_qc/ReadsMultiQCReport.html',
         '00_qc/KDRReadsMultiQCReport.html'
@@ -255,20 +254,27 @@ rule kraken2GTDB:
 
 
 
-# rule brackenGTDB:
-#     output:
-#         '04_kraken2/{samples}.braken.out'
-#     input:
-#         k2out=rules.kraken2.output
-#     log:
-#         'logs/{samples}.braken.log'
-#     conda:
-#         ''# TBD
-#     threads: 8
-#     message:
-#         ''
-#     shell:
-#         ''
+rule brackenGTDB:
+    input:
+        k2report=rules.kraken2.output.k2ReportGTDB,
+    output:
+        braken='04_brakenGTDB/{samples}.GTDB.k2report.bracken',
+        brakenReport='04_brakenGTDB/{samples}.GTDB.k2report.bracken.report',
+    log:
+        'logs/{samples}.bracken.GTDB.log'
+    conda:
+        'kraken2'
+    threads: 2 
+    shell:
+        'bracken '
+        '-d /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB '
+        '-i {input.k2report} '
+        '-o {output.braken} '
+        '-w {output.brakenReport} '
+        '-r 80 '
+        '-l S '
+        '-t 10 '
+        '&> {log} '
 
 
 
