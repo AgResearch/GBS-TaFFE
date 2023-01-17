@@ -46,10 +46,10 @@ for entry in FIDs:
 
 rule all:
     input:
-        # expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
-        # expand('results/04_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
-        # expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
-        # expand('results/04_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
+        expand('results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
+        expand('results/04_kmcpGTDB/{samples}.GTDB.kmcp.report', samples = FIDs),
         'results/00_qc/ReadsMultiQCReport.html',
         'results/00_qc/KDRReadsMultiQCReport.html'
 
@@ -148,7 +148,7 @@ rule multiQC:
 
 rule kneaddata:
     input:
-        reads = rules.cutadapt.output,
+        reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
         trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
@@ -174,7 +174,7 @@ rule kneaddata:
         '--log {log} '
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
-        '-db ref/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
+        '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
         '-o results/02_kneaddata && '
         'seqkit stats -j {threads} -a results/02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
 
@@ -230,7 +230,7 @@ rule kraken2GTDB:
         k2OutGTDB='results/04_kraken2GTDB/{samples}.GTDB.k2',
         k2ReportGTDB='results/04_kraken2GTDB/{samples}.GTDB.k2report'
     log:
-        'logs/{samples}.kraken2.GTDB.log'
+        'logs/kraken2/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
     threads: 20 
@@ -254,7 +254,7 @@ rule brackenGTDB:
         braken='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken',
         brakenReport='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report',
     log:
-        'logs/{samples}.bracken.GTDB.log'
+        'logs/bracken/{samples}.bracken.GTDB.log'
     conda:
         'kraken2'
     threads: 2 
@@ -279,12 +279,12 @@ rule humann3Uniref50EC:
         pathways = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv',
         pathwaysCoverage = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathcoverage.tsv'
     log:
-        'logs/{samples}.human3.log'
+        'logs/humann3/{samples}.human3.log'
     conda:
         'biobakery'
     threads: 18
     resources:
-        mem_gb= lambda wildcards, attempts: 24 + ((attempts - 1) + 12) 
+        mem_gb= lambda wildcards, attempt: 24 + ((attempt - 1) + 12) 
     message:
         'humann3 profiling with uniref50EC: {wildcards.samples}\n'
     shell:
@@ -305,16 +305,16 @@ rule humann3Uniref50EC:
 rule kmcpGTDBSearch:
     input:
         kmcpGTDB='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kmcp/gtdb.kmcp',
-	KDRs=rules.kneaddata.output.KDRs,
+	    KDRs=rules.kneaddata.output.KDRs,
     output:
         search='results/04_kmcpGTDB/{samples}.GTDB.kmcp.search',
     log:
-        'logs/{samples}.kmcp.search.GTDB.log'
+        'logs/kmcp/{samples}.kmcp.search.GTDB.log'
     conda:
         'kmcp'
     threads:12
     resources: 
-        mem_gb= lambda wildcards, attempts: 104 + ((attempts - 1) * 24),
+        mem_gb= lambda wildcards, attempt: 104 + ((attempt - 1) * 24),
         partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
     shell:
         'kmcp search '
@@ -330,12 +330,11 @@ rule kmcpGTDBSearch:
 rule kmcpGTDBProfile:
     input:
         kmcpSearch=rules.kmcpGTDBSearch.output.search,
-        kmcpTaxdump='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kcmp/gtdb-taxdump/R207',
-        taxid='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kcmp/taxid.map',
+        taxid='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kmcp/taxid.map',
     output:
         profile='results/04_kmcpGTDB/{samples}.GTDB.kmcp.report',
     log:
-        'logs/{samples}.kmcp.profile.log'
+        'logs/kmcp/{samples}.kmcp.profile.log'
     conda:
         'kmcp'
     threads: 8 
@@ -345,7 +344,7 @@ rule kmcpGTDBProfile:
         'kmcp profile '
         '--mode 1 '
         '--threads {threads} '
-        '-X {input.kmcpTaxdump} '
+        '-X /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kmcp/gtdb-taxdump/R207 '
         '-T {input.taxid} '
         '-o {output.profile} '
         '--log {log} '
@@ -355,21 +354,20 @@ rule kmcpGTDBProfile:
 
 rule centrifugeGTDB:
     input:
-        CFGTDB='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB' ,
         KDRs=rules.kneaddata.output.KDRs,
     output:
-        report='results/04_centrifuge/{samples}.GTDB.centrifuge.report',
-        out='results/04_centrifuge/{samples}.GTDB.centrifuge',
+        report='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report',
+        out='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge',
     log:
         'logs/centrifuge/{samples}.centrifuge.log'
     conda:
         'centrifuge'
     threads: 8
     resources:
-        mem_gb= lambda wildacards, attempts: 132 + ((attempts -1) + 20),
+        mem_gb= lambda wildacards, attempt: 132 + ((attempt -1) + 20),
     shell:
         'centrifuge ' 
-        '-x {input.CFGTDB} '
+        '-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB '
         '-U {input.KDRs} '
         '-S {output.out} ' 
         '--report-file {output.report} '
