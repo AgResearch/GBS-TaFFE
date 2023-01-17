@@ -46,10 +46,10 @@ for entry in FIDs:
 
 rule all:
     input:
-        # expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
-        # expand('results/04_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
+        expand('results/04_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         # expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
-        # expand('results/04_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+        expand('results/04_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
         'results/00_qc/ReadsMultiQCReport.html',
         'results/00_qc/KDRReadsMultiQCReport.html'
 
@@ -148,7 +148,7 @@ rule multiQC:
 
 rule kneaddata:
     input:
-        reads = rules.cutadapt.output,
+        reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
         trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
