@@ -8,7 +8,7 @@ echo "Beginning executing on: $(date)"
 
 source activate snakemake
 
-snakemake --profile simple
+snakemake --profile ../config/slurm
 
 snakemake --report snakemakeReport.html
 
@@ -16,4 +16,4 @@ snakemake --rulegraph | dot -T svg > rulegraph.svg
 
 source deactivate
 
-echo "snakemake run completed: $(date)"
+echo "snakemake run completed: $(date)
