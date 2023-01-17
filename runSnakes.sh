@@ -8,7 +8,7 @@ echo "Beginning executing on: $(date)"
 
 source activate snakemake
 
-snakemake --profile ../config/slurm
+snakemake --profile config/slurm
 
 snakemake --report snakemakeReport.html
 
