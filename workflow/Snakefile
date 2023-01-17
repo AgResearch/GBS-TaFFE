@@ -304,17 +304,17 @@ rule humann3Uniref50EC:
 
 rule kmcpGTDBSearch:
     input:
-        kmcpGTDB='/dataset/2022-BJP-GTDB/active/kmcp/gtdb.kmcp',
+        kmcpGTDB='/bifo/scratch/2022-BJP-GTDB/kmcp/gtdb.kmcp',
         KDRs=rules.vsearchUniques.output.uniqueReads,
     output:
-        search='03_kmcpGTDB/{samples}.search.tsv.gz'
+        search='results/04_kmcpGTDB/{samples}.GTDB.kmcp.search',
     log:
         'logs/{samples}.kmcp.search.GTDB.log'
     conda:
         'kmcp'
     threads:12
     resources: 
-        mem_gb=104,
+        mem_gb= lambda wildcards, attempts: 104 + ((attempts - 1) * 24),
         partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
     shell:
         'kmcp search '
@@ -330,10 +330,10 @@ rule kmcpGTDBSearch:
 rule kmcpGTDBProfile:
     input:
         kmcpSearch=rules.kmcpSearch.output.search,
-        kmcpTaxdump='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kmcp/gtdb-taxdump/R207',
+        kmcpTaxdump='/bifo/scratch/2022-BJP-GTDB/kcmp/gtdb-taxdump/R207',
+        taxid='/bifo/scratch/2022-BJP-GTDB/kcmp/taxid.map',
     output:
-        profile='03_kmcpGTDB/{samples}.profile.tsv'
-        taxid='/dataset/2022-BJP-GTDB/active/kmcp/taxid.map',
+        profile='results/04_kmcpGTDB/{samples}.GTDB.kmcp.report',
     log:
         'logs/{samples}.kmcp.profile.log'
     threads: 8 
@@ -350,3 +350,5 @@ rule kmcpGTDBProfile:
         '{input.kmcpSearch} '
 
 
+
+rule centrifugeGTDB:
