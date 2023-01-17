@@ -11,17 +11,14 @@ import os
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
-
     print("TOOLS: ")
     os.system('echo "  bash: $(which bash)"')
     os.system('echo "  PYTHON: $(which python)"')
     os.system('echo "  CONDA: $(which conda)"')
     os.system('echo "  SNAKEMAKE: $(which snakemake)"')
     print(f"Env TMPDIR = {os.environ.get('TMPDIR', '<n/a>')}")
-
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
-
 
 library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
 # if no keyfile present in resources/, spew keyfile for GBS library
@@ -29,7 +26,6 @@ if not os.path.isfile(library_keyfile):
     print("Generating Keyfile: " + library_keyfile)
     shell("mkdir -p resources")
     shell(f"gquery -p no_unpivot -t gbs_keyfile -b library {config['gquery']['libraries']} > {library_keyfile}")
-
 
 # Extracthe unique factids for samples to use as 'wildcards'
 def getFIDs(keyfile):
@@ -48,16 +44,14 @@ print("Found: ")
 for entry in FIDs:
     print(entry)
 
-
-
 rule all:
     input:
-        expand('04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
-        # expand('04_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
-        # expand('04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
-        # expand('04_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
-        '00_qc/ReadsMultiQCReport.html',
-        '00_qc/KDRReadsMultiQCReport.html'
+        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
+        # expand('results/04_humannUniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        # expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
+        # expand('results/04_kmcpGTDB/{samples}.search.tsv.gz', samples = FIDs),
+        'results/00_qc/ReadsMultiQCReport.html',
+        'results/00_qc/KDRReadsMultiQCReport.html'
 
 
 
@@ -88,7 +82,7 @@ rule cutadapt: # demultiplexing GBS reads
         lane01 = config['novaseq']['lane01'],
         lane02 = config['novaseq']['lane02'],
     output:
-        expand('01_cutadapt/{samples}.fastq.gz', samples = FIDs),
+        expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     conda:
         'cutadapt'
         # 'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
@@ -100,21 +94,21 @@ rule cutadapt: # demultiplexing GBS reads
     shell:
         'zcat {input.lane01} {input.lane02} | '
         'cutadapt '
-        '-j 16 '
+        '-j {threads} '
         '--discard-untrimmed '
         '--no-indels '
         '-g ^file:{input.barcodes} '
-        r'-o "01_cutadapt/{{name}}.fastq.gz" '
+        r'-o "results/01_cutadapt/{{name}}.fastq.gz" '
         '-' # indicates stdin
 
 
 
 rule fastqc:
     input:
-        fastq = '01_cutadapt/{samples}.fastq.gz'
+        fastq = 'results/01_cutadapt/{samples}.fastq.gz'
     output:
-        html = '00_qc/fastqc/{samples}_fastqc.html',
-        zip = "00_qc/fastqc/{samples}_fastqc.zip"
+        html = 'results/00_qc/fastqc/{samples}_fastqc.html',
+        zip = 'results/00_qc/fastqc/{samples}_fastqc.zip'
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
@@ -123,7 +117,7 @@ rule fastqc:
         'Running QC on reads: {wildcards.samples}\n'
     shell:
         'fastqc '
-        '-o 00_qc/fastqc/ '
+        '-o results/00_qc/fastqc/ '
         '-q '
         '-t {threads} '
         '{input.fastq}'
@@ -132,15 +126,15 @@ rule fastqc:
 
 rule multiQC:
     input:
-        fastqc= expand('00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
+        fastqc= expand('results/00_qc/fastqc/{samples}_fastqc.zip', samples = FIDs)
     output:
-        multiQC='00_qc/ReadsMultiQCReport.html'
+        multiQC='results/00_qc/ReadsMultiQCReport.html'
     conda:
         'multiqc'
         # 'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
-        '-n 00_qc/ReadsMultiQCReport '
+        '-n results/00_qc/ReadsMultiQCReport '
         '-s '
         '-f '
         '--interactive '
@@ -154,13 +148,13 @@ rule multiQC:
 
 rule kneaddata:
     input:
-        reads = '01_cutadapt/{samples}.fastq.gz',
+        reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
-        trimReads = temp('02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
-        trfReads = temp('02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
-        ovineReads = temp('02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
-        KDRs = '02_kneaddata/{samples}_kneaddata.fastq',
-        readStats = '02_kneaddata/{samples}.read.stats.txt'
+        trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
+        trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
+        ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
+        KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
+        readStats = 'results/02_kneaddata/{samples}.read.stats.txt'
     conda:
         'biobakery'
     log:
@@ -181,8 +175,8 @@ rule kneaddata:
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
         '-db ref/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
-        '-o 02_kneaddata && '
-        'seqkit stats -j 12 -a 02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
+        '-o results/02_kneaddata && '
+        'seqkit stats -j {threads} -a results/02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
 
 
 
@@ -192,9 +186,9 @@ rule kneaddata:
 
 rule fastqcKDRs:
     input:
-        fastq = '02_kneaddata/{samples}_kneaddata.fastq'
+        fastq = 'results/02_kneaddata/{samples}_kneaddata.fastq'
     output:
-        "00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip"
+        'results/00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip'
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
@@ -203,7 +197,7 @@ rule fastqcKDRs:
         'Running QC on reads: {wildcards.samples}\n'
     shell:
         'fastqc '
-        '-o 00_qc/fastqcKDR/ '
+        '-o results/00_qc/fastqcKDR/ '
         '-q '
         '-t {threads} '
         '{input.fastq}'
@@ -212,15 +206,15 @@ rule fastqcKDRs:
 
 rule multiQCKDRs:
     input:
-        fastqc= expand('00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
+        fastqc= expand('results/00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
     output:
-        '00_qc/KDRReadsMultiQCReport.html'
+        'results/00_qc/KDRReadsMultiQCReport.html'
     conda:
         'multiqc'
         # 'docker://quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0'
     shell:
         'multiqc '
-        '-n 00_qc/KDRReadsMultiQCReport '
+        '-n results/00_qc/KDRReadsMultiQCReport '
         '-s '
         '-f '
         '--interactive '
@@ -233,8 +227,8 @@ rule kraken2GTDB:
         KDRs=rules.kneaddata.output.KDRs,
         GTDB='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB',        
     output:
-        k2OutGTDB='04_kraken2GTDB/{samples}.GTDB.k2',
-        k2ReportGTDB='04_kraken2GTDB/{samples}.GTDB.k2report'
+        k2OutGTDB='results/04_kraken2GTDB/{samples}.GTDB.k2',
+        k2ReportGTDB='results/04_kraken2GTDB/{samples}.GTDB.k2report'
     log:
         'logs/{samples}.kraken2.GTDB.log'
     conda:
@@ -257,8 +251,8 @@ rule brackenGTDB:
     input:
         k2report=rules.kraken2.output.k2ReportGTDB,
     output:
-        braken='04_brakenGTDB/{samples}.GTDB.k2report.bracken',
-        brakenReport='04_brakenGTDB/{samples}.GTDB.k2report.bracken.report',
+        braken='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken',
+        brakenReport='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report',
     log:
         'logs/{samples}.bracken.GTDB.log'
     conda:
@@ -281,9 +275,9 @@ rule humann3Uniref50EC:
     input:
         KDRs=rules.kneaddata.output.KDRs
     output:
-        genes = '03_humann3Uniref50EC/{samples}_kneaddata_genefamilies.tsv',
-        pathways = '03_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv',
-        pathwaysCoverage = '03_humann3Uniref50EC/{samples}_kneaddata_pathcoverage.tsv'
+        genes = 'results/04_humann3Uniref50EC/{samples}_kneaddata_genefamilies.tsv',
+        pathways = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv',
+        pathwaysCoverage = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathcoverage.tsv'
     log:
         'logs/{samples}.human3.log'
     conda:
@@ -295,6 +289,13 @@ rule humann3Uniref50EC:
         'humann3 profiling with uniref50EC: {wildcards.samples}\n'
     shell:
         'humann3 '
+        '--memory-use minimum '
+        '--threads {threads} '
+        '--bypass-nucleotide-search '
+        '--search-mode uniref50 '
+        '--protein-database /bifo/scratch/2022-BJP-GTDB/biobakery/humann3/unirefECFilt '
+        '--input-format fastq '
+        '--output results/04_humann3Uniref50EC '
 
 
 
@@ -326,7 +327,7 @@ rule kmcpGTDBSearch:
 rule kmcpGTDBProfile:
     input:
         kmcpSearch=rules.kmcpSearch.output.search,
-        kmcpTaxdump='/dataset/2022-BJP-GTDB/active/kmcp/gtdb-taxdump/R207',
+        kmcpTaxdump='/dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kmcp/gtdb-taxdump/R207',
     output:
         profile='03_kmcpGTDB/{samples}.profile.tsv'
         taxid='/dataset/2022-BJP-GTDB/active/kmcp/taxid.map',
