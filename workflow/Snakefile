@@ -296,6 +296,9 @@ rule humann3Uniref50EC:
         '--protein-database /bifo/scratch/2022-BJP-GTDB/biobakery/humann3/unirefECFilt '
         '--input-format fastq '
         '--output results/04_humann3Uniref50EC '
+        '--input {input.KDRs} '
+        '--output-basename {wildcards.samples} '
+        '--o-log {log} '
 
 
 
