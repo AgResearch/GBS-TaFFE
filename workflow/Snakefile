@@ -47,7 +47,7 @@ for entry in FIDs:
 rule all:
     input:
         expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.species.report', samples = FIDs),
-        expand('results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
+        expand('results/04_humann3Uniref50EC/{samples}_pathabundance.tsv', samples = FIDs),
         expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
         expand('results/04_kmcpGTDB/{samples}.GTDB.kmcp.report', samples = FIDs),
         expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.genus.report', samples = FIDs),
