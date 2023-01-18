@@ -325,6 +325,7 @@ rule humann3Uniref50EC:
         '--input {input.KDRs} '
         '--output-basename {wildcards.samples} '
         '--o-log {log} '
+        '--remove-temp-output '
 
 
 

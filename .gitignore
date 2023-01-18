@@ -9,3 +9,4 @@ test
 fastq/*.gz
 0*
 logs
+nohup.out
