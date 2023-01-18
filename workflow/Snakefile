@@ -87,9 +87,10 @@ rule cutadapt: # demultiplexing GBS reads
     conda:
         'cutadapt'
         # 'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
-    threads: 16
+    threads: 32
     resources:
-        mem_gb=32,
+        mem_gb=64,
+        partition=inv-iranui-fast
     message:
         'Demultiplexing lanes...'
     shell:
@@ -225,7 +226,7 @@ rule multiQCKDRs:
 
 rule kraken2GTDB:
     input:
-        KDRs=rules.kneaddata.output.KDRs,
+        KDRs='results/02_kneaddata/{samples}_kneaddata.fastq',
         GTDB='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB',        
     output:
         k2OutGTDB='results/04_kraken2GTDB/{samples}.GTDB.k2',
@@ -298,7 +299,7 @@ rule brackenGTDBGenus:
 
 rule humann3Uniref50EC:
     input:
-        KDRs=rules.kneaddata.output.KDRs
+        KDRs='results/02_kneaddata/{samples}_kneaddata.fastq'
     output:
         genes = 'results/04_humann3Uniref50EC/{samples}_genefamilies.tsv',
         pathways = 'results/04_humann3Uniref50EC/{samples}_pathabundance.tsv',
@@ -330,7 +331,7 @@ rule humann3Uniref50EC:
 rule kmcpGTDBSearch:
     input:
         kmcpGTDB='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kmcp/gtdb.kmcp',
-	    KDRs=rules.kneaddata.output.KDRs,
+	    KDRs='results/02_kneaddata/{samples}_kneaddata.fastq',
     output:
         search='results/04_kmcpGTDB/{samples}.GTDB.kmcp.search',
     log:
@@ -379,7 +380,7 @@ rule kmcpGTDBProfile:
 
 rule centrifugeGTDB:
     input:
-        KDRs=rules.kneaddata.output.KDRs,
+        KDRs='results/02_kneaddata/{samples}_kneaddata.fastq',
     output:
         report='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report',
         out='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge',
