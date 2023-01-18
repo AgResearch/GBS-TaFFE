@@ -46,10 +46,11 @@ for entry in FIDs:
 
 rule all:
     input:
-        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report', samples = FIDs),
+        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.species.report', samples = FIDs),
         expand('results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv', samples = FIDs),
         expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
         expand('results/04_kmcpGTDB/{samples}.GTDB.kmcp.report', samples = FIDs),
+        expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.genus.report', samples = FIDs),
         'results/00_qc/ReadsMultiQCReport.html',
         'results/00_qc/KDRReadsMultiQCReport.html'
 
@@ -159,7 +160,7 @@ rule kneaddata:
         'biobakery'
     log:
         'logs/kneaddata/{samples}.kneaddata.log'
-    threads: 6
+    threads: 8
     resources:
         mem_gb=8,
         time='02:00:00'
@@ -233,7 +234,7 @@ rule kraken2GTDB:
         'logs/kraken2/{samples}.kraken2.GTDB.log'
     conda:
         'kraken2'
-    threads: 20 
+    threads: 18 
     resources: 
         partition = "inv-bigmem,inv-bigmem-fast",
         mem_gb = lambda wildcards, attempt: 325 + ((attempt -1) * 50)
@@ -247,14 +248,14 @@ rule kraken2GTDB:
 
 
 
-rule brackenGTDB:
+rule brackenGTDBSpecies:
     input:
         k2report=rules.kraken2GTDB.output.k2ReportGTDB,
     output:
-        braken='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken',
-        brakenReport='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.report',
+        braken='results/04_brakenGTDB/{samples}.GTDB.k2report.species.bracken',
+        brakenReport='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.species.report',
     log:
-        'logs/bracken/{samples}.bracken.GTDB.log'
+        'logs/bracken/{samples}.bracken.species.GTDB.log'
     conda:
         'kraken2'
     threads: 2 
@@ -271,15 +272,39 @@ rule brackenGTDB:
 
 
 
+rule brackenGTDBGenus:
+    input:
+        k2report=rules.kraken2GTDB.output.k2ReportGTDB,
+    output:
+        braken='results/04_brakenGTDB/{samples}.GTDB.k2report.genus.bracken',
+        brakenReport='results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.genus.report',
+    log:
+        'logs/bracken/{samples}.bracken.genus.GTDB.log'
+    conda:
+        'kraken2'
+    threads: 2 
+    shell:
+        'bracken '
+        '-d /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB '
+        '-i {input.k2report} '
+        '-o {output.braken} '
+        '-w {output.brakenReport} '
+        '-r 80 '
+        '-l G '
+        '-t 10 '
+        '&> {log} '
+
+
+
 rule humann3Uniref50EC:
     input:
         KDRs=rules.kneaddata.output.KDRs
     output:
-        genes = 'results/04_humann3Uniref50EC/{samples}_kneaddata_genefamilies.tsv',
-        pathways = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathabundance.tsv',
-        pathwaysCoverage = 'results/04_humann3Uniref50EC/{samples}_kneaddata_pathcoverage.tsv'
+        genes = 'results/04_humann3Uniref50EC/{samples}_genefamilies.tsv',
+        pathways = 'results/04_humann3Uniref50EC/{samples}_pathabundance.tsv',
+        pathwaysCoverage = 'results/04_humann3Uniref50EC/{samples}_pathcoverage.tsv'
     log:
-        'logs/humann3/{samples}.human3.log'
+        'logs/humann3Uniref50EC/{samples}.human3.uniref50EC.log'
     conda:
         'biobakery'
     threads: 18
@@ -293,7 +318,7 @@ rule humann3Uniref50EC:
         '--threads {threads} '
         '--bypass-nucleotide-search '
         '--search-mode uniref50 '
-        '--protein-database /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/biobakery/humann3/unirefECFilt '
+        '--protein-database /bifo/scratch/2022-BJP-GTDB/biobakery/humann3/unirefECFilt '
         '--input-format fastq '
         '--output results/04_humann3Uniref50EC '
         '--input {input.KDRs} '
@@ -312,7 +337,7 @@ rule kmcpGTDBSearch:
         'logs/kmcp/{samples}.kmcp.search.GTDB.log'
     conda:
         'kmcp'
-    threads:12
+    threads:18
     resources: 
         mem_gb= lambda wildcards, attempt: 104 + ((attempt - 1) * 24),
         partition="inv-bigmem,inv-bigmem-fast,inv-iranui-fast,inv-iranui"
@@ -362,7 +387,7 @@ rule centrifugeGTDB:
         'logs/centrifuge/{samples}.centrifuge.log'
     conda:
         'centrifuge'
-    threads: 8
+    threads: 18
     resources:
         mem_gb= lambda wildacards, attempt: 132 + ((attempt -1) + 20),
     shell:
