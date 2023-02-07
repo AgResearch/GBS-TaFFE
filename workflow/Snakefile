@@ -155,6 +155,7 @@ rule kneaddata:
         trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
+        silvaReads = temp('results/kneaddata/{samples}_kneaddata_SILVA_128_LSUParc_SSUParc_ribosomal_RNA_bowtie2_contam.fastq'),
         KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
         readStats = 'results/02_kneaddata/{samples}.read.stats.txt'
     conda:
@@ -177,6 +178,7 @@ rule kneaddata:
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
         '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
+        '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/SILVA_128_LSUParc_SSUParc_ribosomal_RNA '
         '-o results/02_kneaddata && '
         'seqkit stats -j {threads} -a results/02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
 
