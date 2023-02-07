@@ -81,7 +81,7 @@ rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = rules.generateBarcodes.output.barcodes,
         lane01 = config['novaseq']['lane01'],
-        lane02 = config['novaseq']['lane02'],
+#        lane02 = config['novaseq']['lane02'],
     output:
         expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     conda:
@@ -94,7 +94,7 @@ rule cutadapt: # demultiplexing GBS reads
     message:
         'Demultiplexing lanes...'
     shell:
-        'zcat {input.lane01} {input.lane02} | '
+        'zcat {input.lane01} | '
         'cutadapt '
         '-j {threads} '
         '--discard-untrimmed '
