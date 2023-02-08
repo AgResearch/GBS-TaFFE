@@ -410,7 +410,6 @@ rule centrifugeGTDB:
 rule centrifugeKrakenReport:
     input:
         centrifuge='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge',
-        centrifugeIndex='/bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB'
     output:
         centrifugeKraken2='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report'
     log:
@@ -420,7 +419,7 @@ rule centrifugeKrakenReport:
     threads: 2
     shell:
         'centrifuge-kreport '
-        '-x  {input.centrifugeIndex} '
+        '-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB '
         '{input.centrifuge} > '
         '{output.centrifugeKraken2}'
 
