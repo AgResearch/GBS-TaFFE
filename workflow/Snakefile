@@ -48,11 +48,12 @@ rule all:
     input:
         expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.species.report', samples = FIDs),
         expand('results/04_humann3Uniref50EC/{samples}_pathabundance.tsv', samples = FIDs),
-        expand('results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.report', samples = FIDs),
+        expand('results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.genus.report', samples = FIDs),
         expand('results/04_kmcpGTDB/{samples}.GTDB.kmcp.report', samples = FIDs),
         expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.genus.report', samples = FIDs),
         'results/00_qc/ReadsMultiQCReport.html',
-        'results/00_qc/KDRReadsMultiQCReport.html'
+        'results/00_qc/KDRReadsMultiQCReport.html',
+        expand('results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.species.report', samples = FIDs)
 
 
 
@@ -406,7 +407,68 @@ rule centrifugeGTDB:
 
 
 
-# centrifuge-kreport -x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB rumen.mg.test.centrifuge.out > rumen.mg.test.centrifuge.kreport
+rule centrifugeKrakenReport:
+    input:
+        centrifuge='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge',
+    output:
+        centrifugeKraken2='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report'
+    log:
+        'logs/centrifuge/{samples}.centrifuge.kraken2.log'
+    conda:
+        'centrifuge'
+    threads: 2
+    shell:
+        'centrifuge-kreport '
+        '-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB '
+        '{input.centrifuge} > '
+        '{output.centrifugeKraken2}'
 
+
+
+rule brackenCentrifugeGenus:
+    input:
+        centrifugeKraken2='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report',
+    output:
+        braken='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.genus.bracken',
+        brakenReport='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.genus.report',
+    log:
+        'logs/bracken/{samples}.centrifuge.bracken.genus.GTDB.log'
+    conda:
+        'kraken2'
+    threads: 2 
+    shell:
+        'bracken '
+        '-d /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB '
+        '-i {input.centrifugeKraken2} '
+        '-o {output.braken} '
+        '-w {output.brakenReport} '
+        '-r 80 '
+        '-l G '
+        '-t 10 '
+        '&> {log} '
+
+
+
+rule brackenCentrifugeSpecies:
+    input:
+        centrifugeKraken2='results/04_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report',
+    output:
+        braken='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.species.bracken',
+        brakenReport='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.species.report',
+    log:
+        'logs/bracken/{samples}.centrifuge.bracken.species.GTDB.log'
+    conda:
+        'kraken2'
+    threads: 2 
+    shell:
+        'bracken '
+        '-d /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB '
+        '-i {input.centrifugeKraken2} '
+        '-o {output.braken} '
+        '-w {output.brakenReport} '
+        '-r 80 '
+        '-l S '
+        '-t 10 '
+        '&> {log} '
 
 
