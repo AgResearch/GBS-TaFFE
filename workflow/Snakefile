@@ -51,8 +51,8 @@ rule all:
         expand('results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.genus.report', samples = FIDs),
         #expand('results/04_kmcpGTDB/{samples}.GTDB.kmcp.report', samples = FIDs),
         #expand('results/04_brakenGTDB/{samples}.GTDB.k2report.bracken.genus.report', samples = FIDs),
-        'results/00_qc/ReadsMultiQCReport.html',
-        'results/00_qc/KDRReadsMultiQCReport.html',
+        #'results/00_qc/ReadsMultiQCReport.html',
+        #'results/00_qc/KDRReadsMultiQCReport.html',
         expand('results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.bracken.species.report', samples = FIDs)
 
 
