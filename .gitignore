@@ -12,3 +12,4 @@ logs
 nohup.out
 rulegraph.svg
 snakemake.report.html
+snakemakeReport.html
