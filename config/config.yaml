@@ -1,12 +1,12 @@
 # # TMPDIR
 # TMPDIR: /dataset/{Data Direcotry}/itmp #TODO: Update
-# Project Directory: /dataset/2022-BJP-GTDB_Benchmarking/active/RE-RRS-GTDB
+# Project Directory: /dataset/2022-BJP-GTDB_Benchmarking/scracth/SQ1917/RE-RRS-GTDB
 # Nova-seq Lane data
 novaseq:
-# /dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L001_R1_001.fastq.gz
-  lane01: 'fastq/SQ1917_S2_L001_R1_001.fastq.gz'
-# /dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L002_R1_001.fastq.gz
-  lane02: 'fastq/SQ1917_S2_L002_R1_001.fastq.gz'
+        lane01: '/dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L001_R1_001.fastq.gz'
+        # lane01: 'fastq/SQ1917_S2_L001_R1_001.fastq.gz'
+        lane02: '/dataset/hiseq/scratch/postprocessing/illumina/novaseq/220825_A01439_0113_AHGT5JDRX2/SampleSheet/dedupe/SQ1917_S2_L002_R1_001.fastq.gz'
+        # lane02: 'fastq/SQ1917_S2_L002_R1_001.fastq.gz'
 
 # gquery parameters:
 gquery:
