@@ -38,10 +38,6 @@ get_arguments () {
         file_pattern="${OPTARG}" ;;
       o)
         sample_sheet="${OPTARG}" ;;
-      *)
-        echo "Error: invalid parameter."
-        usage
-        ;;
       \?)
         usage
         ;;
