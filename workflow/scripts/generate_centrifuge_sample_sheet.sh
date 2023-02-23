@@ -73,6 +73,7 @@ check_exsistence () {
   if [[ -z "${matches}" ]]; then
     echo "Error: No files in ${results_directory} which match the pattern ${file_pattern}"
     exit 1
+  fi
   
   if [[ ! -f "${sample_sheet}" ]]; then
     echo "Warning: ${sample_sheet} already exsists. Overwriting."
