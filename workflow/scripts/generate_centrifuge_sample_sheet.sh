@@ -85,6 +85,13 @@ check_exsistence () {
     echo > "${sample_sheet}"
   fi
 
+  if [[ ! -f "${sample_sheet}" ]]; then
+    touch "${sample_sheet}"
+    echo > "${sample_sheet}"
+  fi
+
+
+
 }
 
 generate_centrifuge_sample_sheet () {
