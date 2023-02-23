@@ -37,7 +37,7 @@ get_arguments () {
         file_pattern="${OPTARG}" ;;
       o)
         sample_sheet="${OPTARG}" ;;
-      [?])
+      *)
         echo "Error: invalid parameter."
         usage
         ;;
@@ -83,7 +83,10 @@ check_exsistence () {
 }
 
 generate_centrifuge_sample_sheet () {
-  for file in $matches; do fid="$(echo ${file} | xargs basename | cut -d "_" -f 1)";printf "1\t${file}\tNA\tresults/03_centrifuge/${fid}.centrifuge\tresults/03_centrifuge/${fid}.centrifuge.report\n" >> "${sample_sheet}"; done
+  for file in $matches; do
+    fid="$(echo ${file} | xargs basename | cut -d "_" -f 1)"
+    printf "1\t${file}\tNA\tresults/03_centrifuge/${fid}.centrifuge\tresults/03_centrifuge/${fid}.centrifuge.report\n" >> "${sample_sheet}"
+    done
 
   echo "Completed centrifuge sample sheet."
   echo "${sample_sheet}: "
@@ -93,7 +96,7 @@ generate_centrifuge_sample_sheet () {
 
 main () {
 
-    get_arguments
+    get_arguments "$@"
 
     check_arguments
 
@@ -101,7 +104,8 @@ main () {
 
     generate_centrifuge_sample_sheet
 
-    exit 0;
+    exit 0
 }
 
-
+set -xe
+main "$@"
