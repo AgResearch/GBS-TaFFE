@@ -27,12 +27,8 @@ usage() { echo "Usage $0 [-d <results/directory>] [-p <file.name.suffix.fastq>] 
 
 get_arguments () {
 
+
   while getopts "hd:p:o:" opt; do
-    if [[ -z "${opt}" ]]; then
-      usage
-      exit 0
-    fi
-    
     case $opt in
       h)
         usage ;;
@@ -44,6 +40,9 @@ get_arguments () {
         sample_sheet="${OPTARG}" ;;
       *)
         echo "Error: invalid parameter."
+        usage
+        ;;
+      ?)
         usage
         ;;
     esac
