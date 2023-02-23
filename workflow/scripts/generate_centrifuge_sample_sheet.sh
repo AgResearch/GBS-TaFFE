@@ -47,6 +47,11 @@ get_arguments () {
         ;;
     esac
   done
+  
+  if [ $OPTIND -eq 1 ]; then 
+  usage 
+  fi
+
   shift "$((OPTIND-1))"
 }
 
