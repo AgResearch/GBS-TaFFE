@@ -96,6 +96,7 @@ generate_centrifuge_sample_sheet () {
   echo "Completed centrifuge sample sheet."
   echo "${sample_sheet}: "
   cat "${sample_sheet}" | column -t | head
+  echo "[...]"
 
 }
 
