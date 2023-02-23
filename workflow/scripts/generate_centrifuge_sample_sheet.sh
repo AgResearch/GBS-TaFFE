@@ -42,7 +42,7 @@ get_arguments () {
         echo "Error: invalid parameter."
         usage
         ;;
-      ?)
+      \?)
         usage
         ;;
     esac
