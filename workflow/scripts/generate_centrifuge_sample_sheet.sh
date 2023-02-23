@@ -23,7 +23,7 @@
 
 
 
-usage() {echo "Usage $0 [-d <results/directory>] [-p <file.name.suffix.fastq>] [-o <output/samplesheet.tsv>]" 1>&2; exit 1; }
+usage() { echo "Usage $0 [-d <results/directory>] [-p <file.name.suffix.fastq>] [-o <output/samplesheet.tsv>]" 1>&2; exit 1; }
 
 get_arguments () {
 
