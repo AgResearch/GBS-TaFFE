@@ -45,12 +45,15 @@ get_arguments () {
       \?)
         usage
         ;;
+      :)
+        usage
+        ;;
     esac
   done
   
-  if [ $OPTIND -eq 1 ]; then 
-  usage 
-  fi
+  # if [ $OPTIND -eq 1 ]; then 
+  # usage 
+  # fi
 
   shift "$((OPTIND-1))"
 }
