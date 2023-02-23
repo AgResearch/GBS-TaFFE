@@ -80,7 +80,7 @@ check_exsistence () {
     exit 1
   fi
   
-  if [[ ! -f "${sample_sheet}" ]]; then
+  if [[ -f "${sample_sheet}" ]]; then
     echo "Warning: ${sample_sheet} already exsists. Overwriting."
     echo > "${sample_sheet}"
   fi
