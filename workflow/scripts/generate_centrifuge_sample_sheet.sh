@@ -119,5 +119,5 @@ main () {
     exit 0
 }
 
-set -xe
+
 main "$@"
