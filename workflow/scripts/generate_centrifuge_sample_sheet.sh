@@ -60,6 +60,7 @@ check_arguments () {
   if [[ -z "${sample_sheet}" ]]; then
     echo "Error: -o <output/samplesheet.tsv> not given." 1>&2;
     exit 1
+  fi
 }
 
 check_exsistence () {
