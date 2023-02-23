@@ -86,12 +86,9 @@ check_exsistence () {
   fi
 
   if [[ ! -f "${sample_sheet}" ]]; then
-    touch "${sample_sheet}"
-    echo > "${sample_sheet}"
+    mkdir -p $(dirname "${sample_sheet}") && touch "${sample_sheet}"
   fi
-
-
-
+  
 }
 
 generate_centrifuge_sample_sheet () {
