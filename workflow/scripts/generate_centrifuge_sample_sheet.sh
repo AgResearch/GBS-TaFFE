@@ -83,12 +83,10 @@ check_exsistence () {
   if [[ -f "${sample_sheet}" ]]; then
     echo "Warning: ${sample_sheet} already exsists. Overwriting."
     echo > "${sample_sheet}"
-  fi
-
-  if [[ ! -f "${sample_sheet}" ]]; then
+  else
     mkdir -p $(dirname "${sample_sheet}") && touch "${sample_sheet}"
   fi
-  
+
 }
 
 generate_centrifuge_sample_sheet () {
