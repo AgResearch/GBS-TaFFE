@@ -26,8 +26,8 @@ onstart:
 	
 rule all:
     input:
-        expand('results/04_brakenGTDB/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
-        expand('results/04_brakenGTDB/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
         #expand('results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv', sample=FID),
 
 
@@ -50,8 +50,8 @@ rule centrifugeGTDB:
     input:
         sampleSheet='resources/centrifugeSampleSheet.tsv'
     output:
-        out=expand('results/03_centrifugeGTDB/{sample}.GTDB.centrifuge', sample=FID),
-        report=expand('results/03_centrifugeGTDB/{sample}.GTDB.centrifuge.report', sample=FID),
+        out=expand('results/03_centrifuge/{sample}.GTDB.centrifuge', sample=FID),
+        report=expand('results/03_centrifuge/{sample}.GTDB.centrifuge.report', sample=FID),
     log:
         'logs/centrifuge.GTDB.multi.log'
     conda:
@@ -72,9 +72,9 @@ rule centrifugeGTDB:
 
 rule centrifugeKrakenReport:
     input:
-        centrifuge='results/03_centrifugeGTDB/{samples}.GTDB.centrifuge',
+        centrifuge='results/03_centrifuge/{samples}.GTDB.centrifuge',
     output:
-        centrifugeKraken2='results/03_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report'
+        centrifugeKraken2='results/03_centrifuge/{samples}.GTDB.centrifuge.k2report'
     log:
         'logs/{samples}.centrifuge.to.kraken2.log'
     conda:
@@ -90,10 +90,10 @@ rule centrifugeKrakenReport:
 
 rule brackenCentrifugeGenus:
     input:
-        centrifugeKraken2='results/03_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report',
+        centrifugeKraken2='results/03_centrifuge/{samples}.GTDB.centrifuge.k2report',
     output:
-        braken='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.T1.bracken.genus',
-        brakenReport='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.T1.bracken.genus.report',
+        braken='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.genus',
+        brakenReport='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.genus.report',
     log:
         'logs/{samples}.centrifuge.bracken.genus.GTDB.log'
     conda:
@@ -114,10 +114,10 @@ rule brackenCentrifugeGenus:
 
 rule brackenCentrifugeSpecies:
     input:
-        centrifugeKraken2='results/03_centrifugeGTDB/{samples}.GTDB.centrifuge.k2report',
+        centrifugeKraken2='results/03_centrifuge/{samples}.GTDB.centrifuge.k2report',
     output:
-        braken='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.T1.bracken.species',
-        brakenReport='results/04_brakenGTDB/{samples}.GTDB.centrifuge.k2report.T1.bracken.species.report',
+        braken='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.species',
+        brakenReport='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.species.report',
     log:
         'logs/{samples}.centrifuge.bracken.species.GTDB.log'
     conda:
