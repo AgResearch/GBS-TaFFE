@@ -47,9 +47,9 @@ onstart:
 	
 rule all:
     input:
-        'results/00_qc/ReadsMultiQCReport.html',
-        'results/00_qc/KDRReadsMultiQCReport.html',
-        expand('results/02_kneaddata/{samples}_kneaddata.fastq', samples=FIDs),
+        #'results/00_qc/ReadsMultiQCReport.html',
+        #'results/00_qc/KDRReadsMultiQCReport.html',
+        expand('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq', samples=FIDs),
 
 
 
@@ -152,7 +152,7 @@ rule kneaddata:
         #trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         #ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
         #silvaReads = temp('results/02_kneaddata/{samples}_kneaddata_SILVA_128_LSUParc_SSUParc_ribosomal_RNA_bowtie2_contam.fastq'),
-        KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
+        #KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
     conda:
         'biobakery'
     log:
@@ -181,9 +181,9 @@ rule kneaddata:
 
 rule fastqcKDRs:
     input:
-        fastq = 'results/02_kneaddata/{samples}_kneaddata.fastq'
+        fastq = 'results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'
     output:
-        'results/00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip'
+        'results/00_qc/fastqcKDR/{samples}_kneaddata.trimmed_fastqc.zip'
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
@@ -201,7 +201,7 @@ rule fastqcKDRs:
 
 rule multiQCKDRs:
     input:
-        fastqc= expand('results/00_qc/fastqcKDR/{samples}_kneaddata_fastqc.zip', samples = FIDs)
+        fastqc= expand('results/00_qc/fastqcKDR/{samples}_kneaddata.trimmed_fastqc.zip', samples = FIDs)
     output:
         'results/00_qc/KDRReadsMultiQCReport.html'
     conda:
