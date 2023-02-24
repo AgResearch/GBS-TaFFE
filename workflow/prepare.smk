@@ -149,11 +149,10 @@ rule kneaddata:
         reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
         trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
-        trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
-        ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
-        silvaReads = temp('results/02_kneaddata/{samples}_kneaddata_SILVA_128_LSUParc_SSUParc_ribosomal_RNA_bowtie2_contam.fastq'),
+        #trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
+        #ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
+        #silvaReads = temp('results/02_kneaddata/{samples}_kneaddata_SILVA_128_LSUParc_SSUParc_ribosomal_RNA_bowtie2_contam.fastq'),
         KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
-        readStats = 'results/02_kneaddata/{samples}.read.stats.txt'
     conda:
         'biobakery'
     log:
@@ -166,17 +165,17 @@ rule kneaddata:
         'kneaddata: {wildcards.samples}\n'
     shell:
         'kneaddata '
-        '--trimmomatic-options "MINLEN:60 ILLUMINACLIP:/home/perrybe/conda-envs/biobakery/share/trimmomatic-0.39-2/adapters/illuminaAdapters.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:50 CROP:80" '
+        '--trimmomatic-options "ILLUMINACLIP:/home/perrybe/conda-envs/biobakery/share/trimmomatic-0.39-2/adapters/illuminaAdapters.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:40" '
         '--input {input.reads} '
         '-t {threads} '
         '--log-level INFO '
         '--log {log} '
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
-        '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
-        '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/SILVA_128_LSUParc_SSUParc_ribosomal_RNA '
-        '-o results/02_kneaddata && '
-        'seqkit stats -j {threads} -a results/02_kneaddata/{wildcards.samples}*.fastq > {output.readStats}'
+        '--bypass-trf '
+        #'-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
+        #'-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/SILVA_128_LSUParc_SSUParc_ribosomal_RNA '
+        '-o results/02_kneaddata '
 
 
 
