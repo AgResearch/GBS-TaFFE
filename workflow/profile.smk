@@ -40,7 +40,7 @@ rule generateCentrifugeSampleSheet:
     output:
         sampleSheet='resources/centrifugeSampleSheet.tsv',
     threads:2
-    shell:
+    shell: 
         './workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p kneaddata.trimmed.fastq -o {output.sampleSheet} '
 
 

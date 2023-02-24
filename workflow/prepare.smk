@@ -148,11 +148,11 @@ rule kneaddata:
     input:
         reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
-        trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
+        #trimReads = temp('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'),
         #trfReads = temp('results/02_kneaddata/{samples}_kneaddata.repeats.removed.fastq'),
         #ovineReads = temp('results/02_kneaddata/{samples}_kneaddata_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
         #silvaReads = temp('results/02_kneaddata/{samples}_kneaddata_SILVA_128_LSUParc_SSUParc_ribosomal_RNA_bowtie2_contam.fastq'),
-        #KDRs = 'results/02_kneaddata/{samples}_kneaddata.fastq',
+        KDRs = 'results/02_kneaddata/{samples}_kneaddata.trimmed.fastq',
     conda:
         'biobakery'
     log:
