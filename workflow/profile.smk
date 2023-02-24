@@ -9,7 +9,7 @@ configfile: "config/config.yaml"
 
 import os
 
-FID, = glob_wildcards("results/{fid}_kneaddata.fastq")
+FID, = glob_wildcards("results/02_kneaddata/{fid}_kneaddata.fastq")
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
