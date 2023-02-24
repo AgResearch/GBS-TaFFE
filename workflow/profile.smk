@@ -63,7 +63,7 @@ rule centrifugeGTDB:
     shell:
         'centrifuge ' 
         '-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB '
-        '---sample-sheet {input.sampleSheet} '
+        '--sample-sheet {input.sampleSheet} '
         '-t '
         '--threads {threads} '
         '&> {log} '
