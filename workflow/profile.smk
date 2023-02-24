@@ -26,9 +26,10 @@ onstart:
 	
 rule all:
     input:
-        expand('results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv', sample=FID),
         expand('results/04_brakenGTDB/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
         expand('results/04_brakenGTDB/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
+        expand('results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv', sample=FID),
+
 
 
 
