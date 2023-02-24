@@ -137,7 +137,7 @@ rule brackenCentrifugeSpecies:
 
 rule humann3Uniref50EC:
     input:
-        kneaddataReads='results/02_kneaddata/{samples}_kneaddata.fastq'
+        kneaddataReads='results/02_kneaddata/{samples}_kneaddata.trimmed.fastq'
     output:
         genes = 'results/03_humann3Uniref50EC/{samples}_genefamilies.tsv',
         pathways = 'results/03_humann3Uniref50EC/{samples}_pathabundance.tsv',
