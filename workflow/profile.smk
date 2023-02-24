@@ -49,7 +49,7 @@ rule centrifugeGTDB:
     input:
         sampleSheet='resources/centrifugeSampleSheet.tsv'
     output:
-        out=expand('results/03_centrifugeGTDB/{samples}.GTDB.centrifuge', sample=FID),
+        out=expand('results/03_centrifugeGTDB/{sample}.GTDB.centrifuge', sample=FID),
         report=expand('results/03_centrifugeGTDB/{sample}.GTDB.centrifuge.report', sample=FID),
     log:
         'logs/centrifuge.GTDB.multi.log'
