@@ -213,7 +213,7 @@ rule combineCentrifugeReports:
 
 rule combineBrackenGenusReports:
     input:
-        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus', sample=FID),
     output:
         'results/centrifuge.counts.bracken.T1.genus.txt'
     conda:
@@ -226,7 +226,7 @@ rule combineBrackenGenusReports:
 
 rule combineBrackenSpeciesReports:
     input:
-        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species', sample=FID),
     output:
         'results/centrifuge.counts.bracken.T1.species.txt'
     conda:
