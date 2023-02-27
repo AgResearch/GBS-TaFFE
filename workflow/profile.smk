@@ -26,11 +26,40 @@ onstart:
 	
 rule all:
     input:
+        'results/00_qc/seqkit.report.raw.txt',
+        'results/00_qc/seqkit.report.filtered.txt',
         expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
         expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
         #expand('results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv', sample=FID),
-        'results/00_qc/seqkit.report.raw.txt',
+        'results/centrifuge.counts.all.txt',
+        'results/centrifuge.counts.bracken.T1.genus.txt',
+        'results/centrifuge.counts.bracken.T1.species.txt',
+
+
+
+rule seqkitQCRaw:
+    output:
+        'results/00_qc/seqkit.report.raw.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a results/01_cutadapt/*.fastq.gz > {output} '
+
+
+
+rule seqkitQCFiltered:
+    output:
         'results/00_qc/seqkit.report.filtered.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a results/02_kneaddata/*kneaddata.trimmed.fastq > {output} '
+
+
+
+#TODO: consider using an input function to filter the seqkit summary tables for input to the profile.smk pipeline
 
 
 
@@ -169,46 +198,42 @@ rule humann3Uniref50EC:
 
 
 
-rule unblindFID:
+rule combineCentrifugeReports:
     input:
-        ''
+        expand('results/03_centrifuge/{sample}.GTDB.centrifuge.k2report', sample=FID),
     output:
-        ''
+        'results/centrifuge.counts.all.txt'
     conda:
-        ''
+        'kraken2'
     threads: 2
-    message: 'Ublinding FID to SampleID'
-
-
-
-rule mergeBrackenSpecies:
-
-
-
-rule mergeBrackenGenus:
-
-
-
-rule mergeCentrifuge:
-
-
-
-rule seqkitQCRaw:
-    output:
-        'results/00_qc/seqkit.report.raw.txt'
-    conda:
-        'seqkit'
-    threads: 12
     shell:
-        'seqkit stats -j {threads} -a results/01_cutadapt/*.fastq.gz > {output} '
+        'combine_kreports.py -o {output} -r {input} '
 
 
 
-rule seqkitQCFiltered:
+rule combineBrackenGenusReports:
+    input:
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
     output:
-        'results/00_qc/seqkit.report.filtered.txt'
+        'results/centrifuge.counts.bracken.T1.genus.txt'
     conda:
-        'seqkit'
-    threads: 12
+        'kraken2'
+    threads: 2
     shell:
-        'seqkit stats -j {threads} -a results/02_kneaddata/*kneaddata.trimmed.fastq > {output} '
+        'combine_bracken_reports.py -o {output} --files {input} '
+
+
+
+rule combineBrackenSpeciesReports:
+    input:
+        expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
+    output:
+        'results/centrifuge.counts.bracken.T1.species.txt'
+    conda:
+        'kraken2'
+    threads: 2
+    shell:
+        'combine_bracken_reports.py -o {output} --files {input} '
+
+
+
