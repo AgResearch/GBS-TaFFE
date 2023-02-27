@@ -220,7 +220,7 @@ rule combineBrackenGenusReports:
         'kraken2'
     threads: 2
     shell:
-        'combine_bracken_reports.py -o {output} --files {input} '
+        'combine_bracken_outputs.py -o {output} --files {input} '
 
 
 
@@ -233,7 +233,7 @@ rule combineBrackenSpeciesReports:
         'kraken2'
     threads: 2
     shell:
-        'combine_bracken_reports.py -o {output} --files {input} '
+        'combine_bracken_outputs.py -o {output} --files {input} '
 
 
 
