@@ -50,9 +50,6 @@ rule all:
         'results/00_qc/ReadsMultiQCReport.html',
         'results/00_qc/KDRReadsMultiQCReport.html',
         expand('results/02_kneaddata/{samples}_kneaddata.trimmed.fastq', samples=FIDs),
-        'results/00_qc/seqkit.report.raw.txt',
-        'results/00_qc/seqkit.report.filtered.txt',
-
 
 
 
@@ -220,28 +217,5 @@ rule multiQCKDRs:
 
 
 
-rule seqkitQCRaw:
-    input:
-        'results/00_qc/ReadsMultiQCReport.html'
-    output:
-        'results/00_qc/seqkit.report.raw.txt'
-    conda:
-        'seqkit'
-    threads: 12
-    shell:
-        'seqkit stats -j {threads} -a results/01_cutadapt/*.fastq.gz > {output} '
-
-
-
-rule seqkitQCFiltered:
-    input:
-        'results/00_qc/KDRReadsMultiQCReport.html'
-    output:
-        'results/00_qc/seqkit.report.filtered.txt'
-    conda:
-        'seqkit'
-    threads: 12
-    shell:
-        'seqkit stats -j {threads} -a results/02_kneaddata/*kneaddata.trimmed.fastq > {output} '
 
 

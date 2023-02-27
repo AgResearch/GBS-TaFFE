@@ -29,7 +29,8 @@ rule all:
         expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report', sample=FID),
         expand('results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report', sample=FID),
         #expand('results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv', sample=FID),
-
+        'results/00_qc/seqkit.report.raw.txt',
+        'results/00_qc/seqkit.report.filtered.txt'
 
 
 
@@ -192,3 +193,22 @@ rule mergeCentrifuge:
 
 
 
+rule seqkitQCRaw:
+    output:
+        'results/00_qc/seqkit.report.raw.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a results/01_cutadapt/*.fastq.gz > {output} '
+
+
+
+rule seqkitQCFiltered:
+    output:
+        'results/00_qc/seqkit.report.filtered.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a results/02_kneaddata/*kneaddata.trimmed.fastq > {output} '
