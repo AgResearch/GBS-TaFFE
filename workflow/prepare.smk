@@ -233,7 +233,7 @@ rule seqkitQCRaw:
 
 
 
-rule seqkitQCRaw:
+rule seqkitQCFiltered:
     input:
         'results/00_qc/KDRReadsMultiQCReport.html'
     output:

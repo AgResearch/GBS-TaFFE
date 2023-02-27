@@ -167,3 +167,28 @@ rule humann3Uniref50EC:
         '--remove-temp-output '
 
 
+
+rule unblindFID:
+    input:
+        ''
+    output:
+        ''
+    conda:
+        ''
+    threads: 2
+    message: 'Ublinding FID to SampleID'
+
+
+
+rule mergeBrackenSpecies:
+
+
+
+rule mergeBrackenGenus:
+
+
+
+rule mergeCentrifuge:
+
+
+
