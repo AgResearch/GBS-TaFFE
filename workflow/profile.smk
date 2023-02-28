@@ -244,4 +244,5 @@ rule formatCombinedCentrifugeReport:
         'results/centrifuge.counts.all.txt'
     threads: 2
     shell:
-        'workflow/scripts/ TODO'
+        'workflow/scripts/reformat_centrifuge_count_matrix.sh -i {input} -p results/03_centrifuge && '
+        'mv results/03_centrifuge/clean.counts.all.txt {output} '
