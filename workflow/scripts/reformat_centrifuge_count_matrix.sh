@@ -71,24 +71,20 @@ check_exsistence () {
 
 substitute_ids () {
   sample_id_key="${out_path}"/sample.id.key.txt
-
   if [[ -f "${sample_id_key}" ]]; then
     echo "Warning: Overwriting old ${sample_id_key}."
     echo > "${sample_id_key}"
   fi
-
   cat "${count_matrix}" | grep "#S" | sed "s/#S//g" | column -t | tr -s " " | awk '{gsub("[^:]*/", "", $2); print $0}' > "${sample_id_key}"
   
   updated_count_matrix="${out_path}"/clean.count.matrix.txt
-
   if [[ -f "${updated_count_matrix}" ]]; then
     echo "Warning: Overwriting old ${updated_count_matrix}."
     echo > "${updated_count_matrix}"
   fi
-
   printf 's/\t%s_/\t%s_/g\n' $(<"${sample_id_key}") > .patterns.sed
   cat "${count_matrix}" | grep "#perc" | sed "s/#//g" | sed -f .patterns.sed > "${updated_count_matrix}"
-  #cat "${count_matrix}" | grep -v "#" >> "${updated_count_matrix}"
+  cat "${count_matrix}" | grep -v "#" >> "${updated_count_matrix}"
 
 }
 
