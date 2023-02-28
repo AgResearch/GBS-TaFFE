@@ -22,7 +22,7 @@ usage() { echo "Usage $0 [-i <kraken.format.count.matrix.txt>] [-p <output/path>
 
 get_arguments () {
 
-  while getopts ":hi:" opt; do
+  while getopts ":hi:p:" opt; do
     case $opt in
       h)
         usage ;;
