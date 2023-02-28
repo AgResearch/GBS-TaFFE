@@ -18,7 +18,7 @@
 #   1. Reformatted count matrix
 #   2. #id sample key
 
-usage() { echo "Usage $0 [-i <kraken.format.count.matrix.txt>] [-o <output/path>]" 1>&2; exit 1; }
+usage() { echo "Usage $0 [-i <kraken.format.count.matrix.txt>] [-p <output/path>]" 1>&2; exit 1; }
 
 get_arguments () {
 
@@ -31,6 +31,7 @@ get_arguments () {
       p)
         out_path="${OPTARG}" ;;
       \?)
+        echo "Unknown paramter: -${OPTARG}"
         usage
         ;;
     esac
@@ -93,12 +94,12 @@ substitute_ids () {
 }
 
 main () {
+
   get_arguments "$@"
   check_arguments
   check_exsistence
 
   substitute_ids
-
 
 }
 
