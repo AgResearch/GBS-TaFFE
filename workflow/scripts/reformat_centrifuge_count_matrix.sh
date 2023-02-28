@@ -18,7 +18,7 @@
 #   1. Reformatted count matrix
 #   2. #id sample key
 
-usage() { echo "Usage $0 [-i <kraken.format.count.matrix.txt>] -o <output/path>" 1>&2; exit 1; }
+usage() { echo "Usage $0 [-i <kraken.format.count.matrix.txt>] [-o <output/path>]" 1>&2; exit 1; }
 
 get_arguments () {
 
@@ -102,10 +102,4 @@ main () {
 
 }
 
-
-if [[ "$@" -gt 1 ]]; then
-  main "$@"
-else
-  usage;
-  exit 1;
-fi
+main "$@"
