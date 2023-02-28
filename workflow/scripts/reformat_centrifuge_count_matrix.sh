@@ -87,7 +87,7 @@ substitute_ids () {
   fi
 
   printf 's/\t%s_/\t%s_/g\n' $(<"${sample_id_key}") > .patterns.sed
-  cat "${count_matrix}" | grep "#perc" | sed "s/#//g" | sed -f .patterns.sed "${updated_count_matrix}" > "${updated_count_matrix}"
+  cat "${count_matrix}" | grep "#perc" | sed "s/#//g" | sed -f .patterns.sed > "${updated_count_matrix}"
   #cat "${count_matrix}" | grep -v "#" >> "${updated_count_matrix}"
 
 }
