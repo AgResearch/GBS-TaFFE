@@ -1,18 +1,21 @@
 #!/bin/bash
-
 ### Wrapper script for launching snakemake workflows ###
-clear
 echo "Launching snakemake workflow..."
 sleep 3
 echo "Beginning executing on: $(date)"
 
 source activate snakemake
 
-snakemake --profile config/slurm
+echo "Preparing fastq for profiling."
+snakemake --profile config/slurm --snakefile workflow/prepare.smk
 
-snakemake --report snakemakeReport.html
+echo "Preparations completed."
 
-snakemake --rulegraph | dot -T svg > rulegraph.svg
+echo "Starting profiling..."
+snakemake --profile config/slurm --snakefile workflow/profile.smk
+echo "profiling completed."
+
+##snakemake --rulegraph | dot -T svg > rulegraph.svg
 
 source deactivate
 
