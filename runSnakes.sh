@@ -17,6 +17,6 @@ echo "profiling completed."
 
 ##snakemake --rulegraph | dot -T svg > rulegraph.svg
 
-source deactivate
+conda deactivate
 
-echo "snakemake run completed: $(date)
+echo "snakemake run completed: $(date)"
