@@ -2,8 +2,7 @@ ref
 .snakemake
 resources
 test
-.config
-.cache
+config/config.yaml
 .git
 .java
 fastq/*.gz
