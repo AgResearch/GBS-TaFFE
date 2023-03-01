@@ -17,4 +17,3 @@ snakemake --rulegraph | dot -T svg > rulegraph.svg
 source deactivate
 
 echo "snakemake run completed: $(date)
-
