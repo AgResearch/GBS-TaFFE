@@ -90,7 +90,7 @@ rule cutadapt: # demultiplexing GBS reads
     threads: 32
     resources:
         mem_gb=64,
-        partition='inv-iranui-fast'
+        time="12:00:00"
     message:
         'Demultiplexing lanes...'
     shell:
