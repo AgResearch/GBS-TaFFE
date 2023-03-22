@@ -21,7 +21,8 @@
 # Column 4 - centrifuge output file
 # Column 5 - centrifuge report file
 
-
+# Example Usage:
+# './workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p kneaddata.trimmed.fastq -o {output.sampleSheet} '
 
 usage() { echo "Usage $0 [-d <results/directory>] [-p <file.name.suffix.fastq>] [-o <output/samplesheet.tsv>]" 1>&2; exit 1; }
 
