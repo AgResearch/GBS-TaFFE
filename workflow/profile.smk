@@ -160,7 +160,7 @@ rule brackenCentrifugeSpecies:
         braken='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species',
         brakenReport='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report',
     log:
-        'logs/centrifuge.bracken.species.{samples}.GTDB.log'
+        'logs/centrifuge.bracken.species.{sample}.GTDB.log'
     conda:
         'kraken2'
     threads: 2 
@@ -319,7 +319,7 @@ rule humann3Uniref50EC:
     resources:
         mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) + 12),
     message:
-        "humann3 profiling with uniref50EC: {wildcards.samples}\n"
+        "humann3 profiling with uniref50EC: {wildcards.sample}\n"
     shell:
         "humann3 "
         "--memory-use maximum "
@@ -330,6 +330,6 @@ rule humann3Uniref50EC:
         "--input-format fastq "
         "--output results/03_humann3Uniref50EC "
         "--input {input.kneaddataReads} "
-        "--output-basename {wildcards.samples} "
+        "--output-basename {wildcards.sample} "
         "--o-log {log} "
         "--remove-temp-output "
