@@ -214,17 +214,17 @@ checkpoint kneaddata:
 
 
 def get_seqkitKneaddataTrimReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/02_kneaddata/{samples}.trimmed.fastq", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}.trimmed.fastq", samples = passed)
 
 
 rule seqkitKneaddataTrimReads: #TODO expand these
     input:
-        trimReads = get_seqkitKneaddataTrimReads_passing_samples,
+        trimReads = get_seqkitKneaddataTrimReads_passing_samples
     output:
         'results/00_QC/seqkit.report.KDTrim.txt'
     benchmark:
