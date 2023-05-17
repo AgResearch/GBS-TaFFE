@@ -261,7 +261,7 @@ rule seqkitKneaddataTRFReads:
         'results/00_QC/seqkit.report.KDTRF.txt'
     benchmark:
         'benchmarks/seqkitKneaddataTRFReads.{samples}.txt'
-     conda:
+    conda:
         'seqkit'
     threads: 12
     shell:
@@ -275,7 +275,7 @@ rule seqkitKneaddataHostReads:
         'results/00_QC/seqkit.report.KDOvine.txt'
     benchmark:
         'benchmarks/seqkitKneaddataHostReads.{samples}.txt'
-     conda:
+    conda:
         'seqkit'
     threads: 12
     shell:
@@ -331,7 +331,7 @@ rule seqkitMaskingPrinseqReads:
         'results/00_QC/seqkit.report.prinseq.txt'
     benchmark:
         'benchmarks/seqkitMaskingPrinseqReads.{samples}.txt'
-     conda:
+    conda:
         'seqkit'
     threads: 12
     shell:
