@@ -8,6 +8,7 @@
 configfile: "config/config.yaml"
 
 import os
+import pandas as pd
 
 library_keyfile=f"resources/{config['gquery']['libraries']}.keyfile.tsv"
 # if no keyfile present in resources/, spew keyfile for GBS library
