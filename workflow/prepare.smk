@@ -279,7 +279,7 @@ rule seqkitKneaddataHostReads:
         'seqkit'
     threads: 12
     shell:
-        'seqkit stats -j {threads} -a {input.ovineReads} > {output} '
+        'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
 
 def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
