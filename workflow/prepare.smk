@@ -45,7 +45,7 @@ onstart:
 	
 rule all:
     input:
-        'results/00_QC/ReadsMultiQCReport.html',
+        #'results/00_QC/ReadsMultiQCReport.html',
         'results/00_QC/seqkit.report.KDTrim.txt',
         'results/00_QC/seqkit.report.KDTRF.txt',
         'results/00_QC/seqkit.report.KDOvine.txt',
