@@ -107,7 +107,7 @@ rule cutadapt: # demultiplexing GBS reads
 # STANDARD READ FILTERING AND QC RULES
 rule fastqc:
     input:
-        fastq = 'downsampled/{sample}.fastq.gz'
+        fastq = 'results/01_cutadapt/{samples}.fastq.gz'
     output:
         html = 'results/00_QC/fastqc/{sample}_fastqc.html',
         zip = 'results/00_QC/fastqc/{sample}_fastqc.zip'
@@ -127,7 +127,7 @@ rule fastqc:
 
 rule bbduk:
     input:
-        reads = 'downsampled/{sample}.fastq.gz',
+        reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
         bbdukReads = 'results/01_readMasking/{sample}.bbduk.fastq.gz'
     log:
