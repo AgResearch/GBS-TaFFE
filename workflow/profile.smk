@@ -9,6 +9,10 @@ configfile: "config/config.yaml"
 
 import os
 
+wildcard_constraints:
+    sample="[^a-zA-Z0-9$]+"
+
+
 FID, = glob_wildcards("results/02_kneaddata/{FID}.fastq")
 
 onstart:
@@ -36,8 +40,6 @@ rule all:
 
         expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
 
-wildcard_constraints:
-    sample="[a-zA-Z0-9]+"
 
 localrules: generateCentrifugeSampleSheet
 
