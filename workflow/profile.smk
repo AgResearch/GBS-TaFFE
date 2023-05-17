@@ -5,15 +5,27 @@
 # Maintainer: Benjamin J Perry
 # Email: ben.perry@agresearch.co.nz
 
+
 configfile: "config/config.yaml"
 
+
 import os
+
 
 wildcard_constraints:
     sample="[^a-zA-Z0-9$]+"
 
 
-FID, = glob_wildcards("results/02_kneaddata/{FID}.fastq")
+def get_passing_FIDs(wildcards):
+    qc_stats = pd.read_csv("results/00_QC/seqkit.report.raw.txt", delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return passed
+
+
+FID, = get_passing_FIDs
+
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
