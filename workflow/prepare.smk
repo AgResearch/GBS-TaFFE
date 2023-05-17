@@ -123,7 +123,7 @@ rule fastqc:
         'benchmarks/fastqc.{samples}.txt'
     threads: 2
     message:
-        'Running QC on reads: {wildcards.sample}\n'
+        'Running QC on reads: {wildcards.samples}\n'
     shell:
         'fastqc '
         '-o results/00_QC/fastqc/ '
@@ -174,13 +174,13 @@ rule prinseq:
         'prinseq++ '
         '-threads {threads} '
         '-fastq {input}  '
-        '-out_name results/01_readMasking/{wildcards.sample} '
+        '-out_name results/01_readMasking/{wildcards.samples} '
         '-min_len 40 '
         '-lc_entropy=0.5 '
         '-lc_dust=0.5 '
         '-out_gz '
         '2>&1 | tee {log} && '
-        'mv results/01_readMasking/{wildcards.sample}_good_out.fastq.gz {output.maskedReads} '
+        'mv results/01_readMasking/{wildcards.samples}_good_out.fastq.gz {output.maskedReads} '
 
 
 rule kneaddata:
@@ -203,12 +203,12 @@ rule kneaddata:
         mem_gb=8,
         time='02:00:00'
     message:
-        'kneaddata: {wildcards.sample}\n'
+        'kneaddata: {wildcards.samples}\n'
     shell:
         'kneaddata '
         '--trimmomatic-options "ILLUMINACLIP:/home/perrybe/conda-envs/biobakery/share/trimmomatic-0.39-2/adapters/illuminaAdapters.fa:2:30:10 MINLEN:40" '
         '--input {input} '
-        '--output-prefix {wildcards.sample} '
+        '--output-prefix {wildcards.samples} '
         '-t {threads} '
         '--log-level DEBUG '
         '--log {log} '
@@ -231,7 +231,7 @@ rule fastqcKDRs:
         'benchmarks/fastqcKDRs.{samples}.txt'
     threads: 2
     message:
-        'Running QC on reads: {wildcards.sample}\n'
+        'Running QC on reads: {wildcards.samples}\n'
     shell:
         'fastqc '
         '-o results/00_QC/fastqcKDR/ '
