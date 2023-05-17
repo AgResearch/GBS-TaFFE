@@ -27,7 +27,7 @@ def getFIDs(keyfile):
     keys=pd.read_csv(keyfile, sep='\t', header=0)
     return keys['factid'].tolist()
 
-print(f"Extracting factid for {config['gquery']['libraries']}...")
+#print(f"Extracting factid for {config['gquery']['libraries']}...")
 
 FIDs = getFIDs(library_keyfile)
 
