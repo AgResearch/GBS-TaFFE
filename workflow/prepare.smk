@@ -245,9 +245,9 @@ def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
     return expand("results/02_kneaddata/{samples}.repeats.removed.fastq", samples = passed)
 
 
-rule get_seqkitKneaddataTRFReads_passing_samples:
+rule seqkitKneaddataTRFReads:
     input:
-        trfReads = expand('results/02_kneaddata/{samples}.repeats.removed.fastq', samples = FIDs),
+        trfReads = get_seqkitKneaddataTRFReads_passing_samples
     output:
         'results/00_QC/seqkit.report.KDTRF.txt'
     benchmark:
