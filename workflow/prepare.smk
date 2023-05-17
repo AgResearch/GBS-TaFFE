@@ -198,13 +198,12 @@ rule kneaddata:
         '--output-prefix {wildcards.sample} '
         '-t {threads} '
         '--log-level DEBUG '
-        #'--log {log} '
+        '--log {log} '
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
         '-db /home/perrybe/quickQC/cow_rumens/SMK-PROFILE/ref/ARS_UCD1.3 '
         '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/02_kneaddata '
-        '2>&1 | tee {log} '
 
 
 rule fastqcKDRs:
@@ -275,13 +274,15 @@ rule seqkitKneaddataSILVAReads:
 
 
 rule seqkitRaw:
+    input:
+        expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs)
     output:
         'results/00_QC/seqkit.report.raw.txt'
     conda:
         'seqkit'
     threads: 12
     shell:
-        'seqkit stats -j {threads} -a fastq/*.fastq.gz > {output} '
+        'seqkit stats -j {threads} -a {input} > {output} '
 
 
 rule seqkitMaskingBBDukReads:
