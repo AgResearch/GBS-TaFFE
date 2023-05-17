@@ -63,9 +63,11 @@ localrules: generateBarcodes
 rule generateBarcodes:
     output:
         barcodes = 'resources/gquery.barcodes.fasta'
-    threads: 2
     log:
         'logs/1_gqueryGenerateBarcodes.log'
+    benchmark:
+        "benchmarks/generateBarcodes.txt"
+    threads: 2
     params:
         libraries = config['gquery']['libraries'],
     message:
@@ -88,6 +90,8 @@ rule cutadapt: # demultiplexing GBS reads
     conda:
         'cutadapt'
         # 'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
+    benchmark:
+        'benchmarks/cutadapt.txt'
     threads: 32
     resources:
         mem_gb=64,
@@ -104,6 +108,7 @@ rule cutadapt: # demultiplexing GBS reads
         r'-o "results/01_cutadapt/{{name}}.fastq.gz" '
         '-' # indicates stdin
 
+
 # STANDARD READ FILTERING AND QC RULES
 rule fastqc:
     input:
@@ -114,6 +119,8 @@ rule fastqc:
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
+    benchmark:
+        'benchmarks/fastqc.{samples}.txt'
     threads: 2
     message:
         'Running QC on reads: {wildcards.sample}\n'
@@ -132,6 +139,8 @@ rule bbduk:
         bbdukReads = 'results/01_readMasking/{samples}.bbduk.fastq.gz'
     log:
         'logs/bbduk/{samples}.bbduk.log'
+    benchmark:
+        'benchmarks/bbduk.{samples}.txt'
     conda:
         'bbduk'
     threads:4
@@ -156,6 +165,8 @@ rule prinseq:
         badReads = temp('results/01_readMasking/{samples}_bad_out.fastq.gz'),
     log:
         'logs/prinseq/{samples}.prinseq.log'
+    benchmark:
+        'benchmarks/prinseq.{samples}.txt'
     conda:
         'prinseqPP'
     threads:4
@@ -185,6 +196,8 @@ rule kneaddata:
         'biobakery'
     log:
         'logs/kneaddata/{samples}.kneaddata.log'
+    benchmark:
+        'benchmarks/kneaddata.{samples}.txt'
     threads: 8
     resources:
         mem_gb=8,
@@ -214,6 +227,8 @@ rule fastqcKDRs:
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
+    benchmark:
+        'benchmarks/fastqcKDRs.{samples}.txt'
     threads: 2
     message:
         'Running QC on reads: {wildcards.sample}\n'
@@ -230,6 +245,8 @@ rule seqkitKneaddataTrimReads: #TODO expand these
         trimReads = expand('results/02_kneaddata/{samples}.trimmed.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDTrim.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddataTrimReads.{samples}.txt'
     conda:
         'seqkit'
     threads: 12
@@ -242,7 +259,9 @@ rule seqkitKneaddataTRFReads:
         trfReads = expand('results/02_kneaddata/{samples}.repeats.removed.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDTRF.txt'
-    conda:
+    benchmark:
+        'benchmarks/seqkitKneaddataTRFReads.{samples}.txt'
+     conda:
         'seqkit'
     threads: 12
     shell:
@@ -254,7 +273,9 @@ rule seqkitKneaddataHostReads:
         HostReads = expand('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDOvine.txt'
-    conda:
+    benchmark:
+        'benchmarks/seqkitKneaddataHostReads.{samples}.txt'
+     conda:
         'seqkit'
     threads: 12
     shell:
@@ -266,6 +287,8 @@ rule seqkitKneaddataSILVAReads:
         silvaReads = expand('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDSILVA138.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddataSILVAReads.{samples}.txt'
     conda:
         'seqkit'
     threads: 12
@@ -278,6 +301,8 @@ rule seqkitRaw:
         expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs)
     output:
         'results/00_QC/seqkit.report.raw.txt'
+    benchmark:
+        'benchmarks/seqkitRaw.{samples}.txt'
     conda:
         'seqkit'
     threads: 12
@@ -290,6 +315,8 @@ rule seqkitMaskingBBDukReads:
         bbdukReads = expand('results/01_readMasking/{samples}.bbduk.fastq.gz', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.bbduk.txt'
+    benchmark:
+        'benchmarks/seqkitMaskingBBDukReads.{samples}.txt'
     conda:
         'seqkit'
     threads: 12
@@ -302,7 +329,9 @@ rule seqkitMaskingPrinseqReads:
         prinseqReads = expand('results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.prinseq.txt'
-    conda:
+    benchmark:
+        'benchmarks/seqkitMaskingPrinseqReads.{samples}.txt'
+     conda:
         'seqkit'
     threads: 12
     shell:
@@ -314,6 +343,8 @@ rule seqkitKneaddata:
         KDRs = expand('results/02_kneaddata/{samples}.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDR.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddata.{samples}.txt'
     conda:
         'seqkit'
     threads: 12
