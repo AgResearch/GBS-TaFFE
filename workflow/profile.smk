@@ -16,15 +16,16 @@ wildcard_constraints:
     sample="[^a-zA-Z0-9$]+"
 
 
-def get_passing_FIDs(wildcards):
-    qc_stats = pd.read_csv("results/00_QC/seqkit.report.raw.txt", delimiter = "\s+")
+def get_passing_FIDs(seqkitRawOut):
+    import pandas as pd
+    qc_stats = pd.read_csv(seqkitRawOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return passed
 
 
-FID, = get_passing_FIDs
+FID, = get_passing_FIDs("results/00_QC/seqkit.report.raw.txt")
 
 
 onstart:
