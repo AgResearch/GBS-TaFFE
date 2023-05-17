@@ -237,12 +237,12 @@ rule seqkitKneaddataTrimReads: #TODO expand these
 
 
 def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/02_kneaddata/{samples}.repeats.removed.fastq", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}.repeats.removed.fastq", samples = passed)
 
 
 rule get_seqkitKneaddataTRFReads_passing_samples:
@@ -260,12 +260,12 @@ rule get_seqkitKneaddataTRFReads_passing_samples:
 
 
 def get_seqkitKneaddataHostReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq", samples = passed)
 
 
 rule seqkitKneaddataHostReads:
@@ -283,12 +283,12 @@ rule seqkitKneaddataHostReads:
 
 
 def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq", samples = passed)
 
 
 rule seqkitKneaddataSILVAReads:
@@ -306,12 +306,12 @@ rule seqkitKneaddataSILVAReads:
 
 
 def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
 
 
 rule seqkitMaskingBBDukReads:
@@ -329,12 +329,12 @@ rule seqkitMaskingBBDukReads:
 
 
 def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
 
 
 rule seqkitMaskingPrinseqReads:
@@ -352,12 +352,12 @@ rule seqkitMaskingPrinseqReads:
 
 
 def get_seqkitKneaddata_passing_samples(wildcards):
-    with checkpoints.seqkitRaw.get().output[0].open as file:
-        qc_stats = pd.read_csv(file, delimiter = "\s+")
-        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-        return expand("results/02_kneaddata/{samples}.fastq", samples = passed)
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}.fastq", samples = passed)
 
 
 rule seqkitKneaddata:
