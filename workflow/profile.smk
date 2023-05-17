@@ -36,8 +36,8 @@ rule all:
 
         expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
 
-
-
+wildcard_constraints:
+    sample="[a-zA-Z0-9]+"
 
 localrules: generateCentrifugeSampleSheet
 
@@ -155,10 +155,10 @@ rule taxpastaCentrifugeBiom:
 
 rule brackenCentrifugeSpecies:
     input:
-        centrifugeKraken2='results/03_centrifuge/{samples}.GTDB.centrifuge.k2report',
+        centrifugeKraken2='results/03_centrifuge/{sample}.GTDB.centrifuge.k2report',
     output:
-        braken='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.species',
-        brakenReport='results/04_braken/{samples}.GTDB.centrifuge.k2report.T1.bracken.species.report',
+        braken='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species',
+        brakenReport='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report',
     log:
         'logs/centrifuge.bracken.species.{samples}.GTDB.log'
     conda:
