@@ -24,7 +24,7 @@ def get_passing_FIDs(seqkitRawOut):
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
-FID, = get_passing_FIDs("results/00_QC/seqkit.report.raw.txt")
+FID = get_passing_FIDs("results/00_QC/seqkit.report.raw.txt")
 
 
 onstart:
