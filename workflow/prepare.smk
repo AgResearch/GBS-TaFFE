@@ -109,8 +109,8 @@ rule fastqc:
     input:
         fastq = 'results/01_cutadapt/{samples}.fastq.gz'
     output:
-        html = 'results/00_QC/fastqc/{sample}_fastqc.html',
-        zip = 'results/00_QC/fastqc/{sample}_fastqc.zip'
+        html = 'results/00_QC/fastqc/{samples}_fastqc.html',
+        zip = 'results/00_QC/fastqc/{samples}_fastqc.zip'
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
@@ -129,9 +129,9 @@ rule bbduk:
     input:
         reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
-        bbdukReads = 'results/01_readMasking/{sample}.bbduk.fastq.gz'
+        bbdukReads = 'results/01_readMasking/{samples}.bbduk.fastq.gz'
     log:
-        'logs/bbduk/{sample}.bbduk.log'
+        'logs/bbduk/{samples}.bbduk.log'
     conda:
         'bbduk'
     threads:4
@@ -150,12 +150,12 @@ rule bbduk:
 
 rule prinseq:
     input:
-        'results/01_readMasking/{sample}.bbduk.fastq.gz'
+        'results/01_readMasking/{samples}.bbduk.fastq.gz'
     output:
-        maskedReads = 'results/01_readMasking/{sample}.bbduk.prinseq.fastq.gz',
-        badReads = temp('results/01_readMasking/{sample}_bad_out.fastq.gz'),
+        maskedReads = 'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz',
+        badReads = temp('results/01_readMasking/{samples}_bad_out.fastq.gz'),
     log:
-        'logs/prinseq/{sample}.prinseq.log'
+        'logs/prinseq/{samples}.prinseq.log'
     conda:
         'prinseqPP'
     threads:4
@@ -174,17 +174,17 @@ rule prinseq:
 
 rule kneaddata:
     input:
-        'results/01_readMasking/{sample}.bbduk.prinseq.fastq.gz'
+        'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'
     output:
-        trimReads = temp('results/02_kneaddata/{sample}.trimmed.fastq'),
-        trfReads = temp('results/02_kneaddata/{sample}.repeats.removed.fastq'),
-        ovineReads = temp('results/02_kneaddata/{sample}_ARS_UCD1.3_bowtie2_contam.fastq'),
-        silvaReads = temp('results/02_kneaddata/{sample}_SLIVA138.1_bowtie2_contam.fastq'),
-        KDRs ='results/02_kneaddata/{sample}.fastq',
+        trimReads = temp('results/02_kneaddata/{samples}.trimmed.fastq'),
+        trfReads = temp('results/02_kneaddata/{samples}.repeats.removed.fastq'),
+        ovineReads = temp('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq'),
+        silvaReads = temp('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
+        KDRs ='results/02_kneaddata/{samples}.fastq',
     conda:
         'biobakery'
     log:
-        'logs/kneaddata/{sample}.kneaddata.log'
+        'logs/kneaddata/{samples}.kneaddata.log'
     threads: 8
     resources:
         mem_gb=8,
@@ -209,9 +209,9 @@ rule kneaddata:
 
 rule fastqcKDRs:
     input:
-        fastq = 'results/02_kneaddata/{sample}.fastq'
+        fastq = 'results/02_kneaddata/{samples}.fastq'
     output:
-        'results/00_QC/fastqcKDR/{sample}_fastqc.zip'
+        'results/00_QC/fastqcKDR/{samples}_fastqc.zip'
     conda:
         'fastqc'
         # 'docker://biocontainers/fastqc:v0.11.9_cv8'
@@ -228,7 +228,7 @@ rule fastqcKDRs:
 
 rule seqkitKneaddataTrimReads: #TODO expand these
     input:
-        trimReads = expand('results/02_kneaddata/{sample}.trimmed.fastq', sample = FIDs),
+        trimReads = expand('results/02_kneaddata/{samples}.trimmed.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDTrim.txt'
     conda:
@@ -240,7 +240,7 @@ rule seqkitKneaddataTrimReads: #TODO expand these
 
 rule seqkitKneaddataTRFReads:
     input:
-        trfReads = expand('results/02_kneaddata/{sample}.repeats.removed.fastq', sample = FIDs),
+        trfReads = expand('results/02_kneaddata/{samples}.repeats.removed.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDTRF.txt'
     conda:
@@ -252,7 +252,7 @@ rule seqkitKneaddataTRFReads:
 
 rule seqkitKneaddataHostReads:
     input:
-        HostReads = expand('results/02_kneaddata/{sample}_ARS_UCD1.3_bowtie2_contam.fastq', sample = FIDs),
+        HostReads = expand('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDOvine.txt'
     conda:
@@ -264,7 +264,7 @@ rule seqkitKneaddataHostReads:
 
 rule seqkitKneaddataSILVAReads:
     input:
-        silvaReads = expand('results/02_kneaddata/{sample}_SLIVA138.1_bowtie2_contam.fastq', sample = FIDs),
+        silvaReads = expand('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDSILVA138.txt'
     conda:
@@ -286,7 +286,7 @@ rule seqkitRaw:
 
 rule seqkitMaskingBBDukReads:
     input:
-        bbdukReads = expand('results/01_readMasking/{sample}.bbduk.fastq.gz', sample = FIDs),
+        bbdukReads = expand('results/01_readMasking/{samples}.bbduk.fastq.gz', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.bbduk.txt'
     conda:
@@ -298,7 +298,7 @@ rule seqkitMaskingBBDukReads:
 
 rule seqkitMaskingPrinseqReads:
     input:
-        prinseqReads = expand('results/01_readMasking/{sample}.bbduk.prinseq.fastq.gz', sample = FIDs),
+        prinseqReads = expand('results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.prinseq.txt'
     conda:
@@ -310,7 +310,7 @@ rule seqkitMaskingPrinseqReads:
 
 rule seqkitKneaddata:
     input:
-        KDRs = expand('results/02_kneaddata/{sample}.fastq', sample = FIDs),
+        KDRs = expand('results/02_kneaddata/{samples}.fastq', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.KDR.txt'
     conda:
