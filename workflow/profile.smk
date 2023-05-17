@@ -9,7 +9,7 @@ configfile: "config/config.yaml"
 
 import os
 
-FID, = glob_wildcards("results/02_kneaddata/{fid}_kneaddata.trimmed.fastq")
+FID, = glob_wildcards("results/02_kneaddata/{FID}_kneaddata.trimmed.fastq")
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
@@ -34,7 +34,7 @@ rule all:
         "results/bracken.k2.counts.tsv",
         "results/bracken.k2.counts.biom",
 
-        expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FIDs),
+        expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
 
 
 
@@ -54,8 +54,8 @@ rule centrifugeGTDB:
     input:
         sampleSheet = "resources/centrifugeSampleSheet.tsv",
     output:
-        out = expand("results/03_centrifuge/{sample}.GTDB.centrifuge", sample = FIDs),
-        report = expand("results/03_centrifuge/{sample}.GTDB.centrifuge.report", sample = FIDs),
+        out = expand("results/03_centrifuge/{sample}.GTDB.centrifuge", sample = FID),
+        report = expand("results/03_centrifuge/{sample}.GTDB.centrifuge.report", sample = FID),
     log:
         "logs/centrifuge.GTDB.multi.log",
     conda:
@@ -115,7 +115,7 @@ rule brackenCentrifugeGenus:
 
 rule taxpastaCentrifugeTable:
     input:
-        expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
+        expand("results/03_centrifuge/{sample}.centrifuge", sample = FID),
     output:
         "results/centrifuge.counts.tsv",
     conda:
@@ -136,7 +136,7 @@ rule taxpastaCentrifugeTable:
 
 rule taxpastaCentrifugeBiom:
     input:
-        expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
+        expand("results/03_centrifuge/{sample}.centrifuge", sample = FID),
     output:
         "results/centrifuge.counts.biom",
     conda:
@@ -206,7 +206,7 @@ rule kraken2GTDB:
 
 rule taxpastaKraken2:
     input:
-        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
+        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FID),
     output:
         "results/kraken2.counts.tsv",
     conda:
@@ -226,7 +226,7 @@ rule taxpastaKraken2:
 
 rule taxpastaKraken2Biom:
     input:
-        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
+        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FID),
     output:
         "results/kraken2.counts.biom",
     conda:
@@ -267,7 +267,7 @@ rule brackenSpecies:
 
 rule taxpastaKraken2Bracken:
     input:
-        expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
+        expand("results/03_brackenSpecies/{sample}.bracken", sample = FID),
     output:
         "results/bracken.k2.counts.tsv",
     conda:
@@ -287,7 +287,7 @@ rule taxpastaKraken2Bracken:
 
 rule taxpastaKraken2BrackenBiom:
     input:
-        expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
+        expand("results/03_brackenSpecies/{sample}.bracken", sample = FID),
     output:
         "results/bracken.k2.counts.biom",
     conda:

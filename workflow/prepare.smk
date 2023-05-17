@@ -27,6 +27,7 @@ def getFIDs(keyfile):
     return keys['factid'].tolist()
 
 print(f"Extracting factid for {config['gquery']['libraries']}...")
+
 FIDs = getFIDs(library_keyfile)
 
 onstart:
@@ -40,8 +41,6 @@ onstart:
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
     print("Found: ")
-    for entry in FIDs:
-        print(entry)
 
 	
 rule all:
@@ -83,8 +82,7 @@ rule generateBarcodes:
 rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = rules.generateBarcodes.output.barcodes,
-        lane01 = config['novaseq']['lane01'],
-        lane02 = config['novaseq']['lane02'],
+        run = config['novaseq']
     output:
         expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     conda:
@@ -97,7 +95,7 @@ rule cutadapt: # demultiplexing GBS reads
     message:
         'Demultiplexing lanes...'
     shell:
-        'zcat {input.lane01} {input.lane02} | '
+        'zcat {input.run} | '
         'cutadapt '
         '-j {threads} '
         '--discard-untrimmed '
