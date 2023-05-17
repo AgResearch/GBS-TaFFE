@@ -42,10 +42,12 @@ onstart:
     os.system('echo "  CONDA VERSION: $(conda --version)"')
     print("Found: ")
 
+
+wildcard_constraints:
+    samples="[a-zA-Z0-9]+"
 	
 rule all:
     input:
-        #'results/00_QC/ReadsMultiQCReport.html',
         'results/00_QC/seqkit.report.KDTrim.txt',
         'results/00_QC/seqkit.report.KDTRF.txt',
         'results/00_QC/seqkit.report.KDOvine.txt',
@@ -108,30 +110,21 @@ rule cutadapt: # demultiplexing GBS reads
         r'-o "results/01_cutadapt/{{name}}.fastq.gz" '
         '-' # indicates stdin
 
+checkpoint seqkitRaw:
+    input:
+        expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs)
+    output:
+        'results/00_QC/seqkit.report.raw.txt'
+    benchmark:
+        'benchmarks/seqkitRaw.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a {input} > {output} '
+
 
 # STANDARD READ FILTERING AND QC RULES
-rule fastqc:
-    input:
-        fastq = 'results/01_cutadapt/{samples}.fastq.gz'
-    output:
-        html = 'results/00_QC/fastqc/{samples}_fastqc.html',
-        zip = 'results/00_QC/fastqc/{samples}_fastqc.zip'
-    conda:
-        'fastqc'
-        # 'docker://biocontainers/fastqc:v0.11.9_cv8'
-    benchmark:
-        'benchmarks/fastqc.{samples}.txt'
-    threads: 2
-    message:
-        'Running QC on reads: {wildcards.samples}\n'
-    shell:
-        'fastqc '
-        '-o results/00_QC/fastqc/ '
-        '-q '
-        '-t {threads} '
-        '{input.fastq}'
-
-
 rule bbduk:
     input:
         reads = 'results/01_cutadapt/{samples}.fastq.gz',
@@ -183,7 +176,7 @@ rule prinseq:
         'mv results/01_readMasking/{wildcards.samples}_good_out.fastq.gz {output.maskedReads} '
 
 
-rule kneaddata:
+checkpoint kneaddata:
     input:
         'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'
     output:
@@ -219,30 +212,18 @@ rule kneaddata:
         '-o results/02_kneaddata '
 
 
-rule fastqcKDRs:
-    input:
-        fastq = 'results/02_kneaddata/{samples}.fastq'
-    output:
-        'results/00_QC/fastqcKDR/{samples}_fastqc.zip'
-    conda:
-        'fastqc'
-        # 'docker://biocontainers/fastqc:v0.11.9_cv8'
-    benchmark:
-        'benchmarks/fastqcKDRs.{samples}.txt'
-    threads: 2
-    message:
-        'Running QC on reads: {wildcards.samples}\n'
-    shell:
-        'fastqc '
-        '-o results/00_QC/fastqcKDR/ '
-        '-q '
-        '-t {threads} '
-        '{input.fastq}'
+def get_seqkitKneaddataTrimReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/02_kneaddata/{samples}.trimmed.fastq", samples = passed)
 
 
 rule seqkitKneaddataTrimReads: #TODO expand these
     input:
-        trimReads = expand('results/02_kneaddata/{samples}.trimmed.fastq', samples = FIDs),
+        trimReads = get_seqkitKneaddataTrimReads_passing_samples,
     output:
         'results/00_QC/seqkit.report.KDTrim.txt'
     benchmark:
@@ -254,7 +235,16 @@ rule seqkitKneaddataTrimReads: #TODO expand these
         'seqkit stats -j {threads} -a {input.trimReads} > {output} '
 
 
-rule seqkitKneaddataTRFReads:
+def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/02_kneaddata/{samples}.repeats.removed.fastq", samples = passed)
+
+
+rule get_seqkitKneaddataTRFReads_passing_samples:
     input:
         trfReads = expand('results/02_kneaddata/{samples}.repeats.removed.fastq', samples = FIDs),
     output:
@@ -268,9 +258,18 @@ rule seqkitKneaddataTRFReads:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
 
+def get_seqkitKneaddataHostReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq", samples = passed)
+
+
 rule seqkitKneaddataHostReads:
     input:
-        HostReads = expand('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq', samples = FIDs),
+        HostReads = get_seqkitKneaddataHostReads_passing_samples,
     output:
         'results/00_QC/seqkit.report.KDOvine.txt'
     benchmark:
@@ -282,9 +281,18 @@ rule seqkitKneaddataHostReads:
         'seqkit stats -j {threads} -a {input.ovineReads} > {output} '
 
 
+def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq", samples = passed)
+
+
 rule seqkitKneaddataSILVAReads:
     input:
-        silvaReads = expand('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq', samples = FIDs),
+        silvaReads = get_seqkitKneaddataSILVAReads_passing_samples,
     output:
         'results/00_QC/seqkit.report.KDSILVA138.txt'
     benchmark:
@@ -296,23 +304,18 @@ rule seqkitKneaddataSILVAReads:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
 
-rule seqkitRaw:
-    input:
-        expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs)
-    output:
-        'results/00_QC/seqkit.report.raw.txt'
-    benchmark:
-        'benchmarks/seqkitRaw.txt'
-    conda:
-        'seqkit'
-    threads: 12
-    shell:
-        'seqkit stats -j {threads} -a {input} > {output} '
+def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
 
 
 rule seqkitMaskingBBDukReads:
     input:
-        bbdukReads = expand('results/01_readMasking/{samples}.bbduk.fastq.gz', samples = FIDs),
+        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
     output:
         'results/00_QC/seqkit.report.bbduk.txt'
     benchmark:
@@ -324,9 +327,18 @@ rule seqkitMaskingBBDukReads:
         'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
 
+def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
+
+
 rule seqkitMaskingPrinseqReads:
     input:
-        prinseqReads = expand('results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz', samples = FIDs),
+        prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
     output:
         'results/00_QC/seqkit.report.prinseq.txt'
     benchmark:
@@ -338,9 +350,18 @@ rule seqkitMaskingPrinseqReads:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
 
 
+def get_seqkitKneaddata_passing_samples(wildcards):
+    with checkpoints.seqkitRaw.get().output[0].open as file:
+        qc_stats = pd.read_csv(file, delimiter = "\s+")
+        qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+        qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+        passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+        return expand("results/02_kneaddata/{samples}.fastq", samples = passed)
+
+
 rule seqkitKneaddata:
     input:
-        KDRs = expand('results/02_kneaddata/{samples}.fastq', samples = FIDs),
+        KDRs = get_seqkitKneaddata_passing_samples,
     output:
         'results/00_QC/seqkit.report.KDR.txt'
     benchmark:
