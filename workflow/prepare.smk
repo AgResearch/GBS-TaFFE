@@ -246,7 +246,7 @@ rule seqkitKneaddataTrimReads: #TODO expand these
     output:
         'results/00_QC/seqkit.report.KDTrim.txt'
     benchmark:
-        'benchmarks/seqkitKneaddataTrimReads.{samples}.txt'
+        'benchmarks/seqkitKneaddataTrimReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -260,7 +260,7 @@ rule seqkitKneaddataTRFReads:
     output:
         'results/00_QC/seqkit.report.KDTRF.txt'
     benchmark:
-        'benchmarks/seqkitKneaddataTRFReads.{samples}.txt'
+        'benchmarks/seqkitKneaddataTRFReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -274,7 +274,7 @@ rule seqkitKneaddataHostReads:
     output:
         'results/00_QC/seqkit.report.KDOvine.txt'
     benchmark:
-        'benchmarks/seqkitKneaddataHostReads.{samples}.txt'
+        'benchmarks/seqkitKneaddataHostReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -288,7 +288,7 @@ rule seqkitKneaddataSILVAReads:
     output:
         'results/00_QC/seqkit.report.KDSILVA138.txt'
     benchmark:
-        'benchmarks/seqkitKneaddataSILVAReads.{samples}.txt'
+        'benchmarks/seqkitKneaddataSILVAReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -302,7 +302,7 @@ rule seqkitRaw:
     output:
         'results/00_QC/seqkit.report.raw.txt'
     benchmark:
-        'benchmarks/seqkitRaw.{samples}.txt'
+        'benchmarks/seqkitRaw.txt'
     conda:
         'seqkit'
     threads: 12
@@ -316,7 +316,7 @@ rule seqkitMaskingBBDukReads:
     output:
         'results/00_QC/seqkit.report.bbduk.txt'
     benchmark:
-        'benchmarks/seqkitMaskingBBDukReads.{samples}.txt'
+        'benchmarks/seqkitMaskingBBDukReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -330,7 +330,7 @@ rule seqkitMaskingPrinseqReads:
     output:
         'results/00_QC/seqkit.report.prinseq.txt'
     benchmark:
-        'benchmarks/seqkitMaskingPrinseqReads.{samples}.txt'
+        'benchmarks/seqkitMaskingPrinseqReads.txt'
     conda:
         'seqkit'
     threads: 12
@@ -344,7 +344,7 @@ rule seqkitKneaddata:
     output:
         'results/00_QC/seqkit.report.KDR.txt'
     benchmark:
-        'benchmarks/seqkitKneaddata.{samples}.txt'
+        'benchmarks/seqkitKneaddata.txt'
     conda:
         'seqkit'
     threads: 12
