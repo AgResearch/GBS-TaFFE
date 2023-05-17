@@ -21,8 +21,7 @@ def get_passing_FIDs(seqkitRawOut):
     qc_stats = pd.read_csv(seqkitRawOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return passed
+    return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
 FID, = get_passing_FIDs("results/00_QC/seqkit.report.raw.txt")
