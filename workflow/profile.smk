@@ -24,7 +24,7 @@ def get_passing_FIDs(seqkitRawOut):
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
-FID, = glob_wildcards("results/02_kneaddata/{FID}.fastq")
+FID, = glob_wildcards("results/02_kneaddata/{sample}.fastq")
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
