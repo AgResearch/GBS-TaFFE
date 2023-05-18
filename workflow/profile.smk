@@ -113,7 +113,7 @@ rule taxpastaCentrifugeTable:
     output:
         "results/centrifuge.counts.tsv",
     benchmark:
-        "benchmarks/taxpastaCentrifugeTable.{sample}.txt"
+        "benchmarks/taxpastaCentrifugeTable.txt"
     conda:
         "taxpasta"
     threads: 2
@@ -136,7 +136,7 @@ rule taxpastaCentrifugeBiom:
     output:
         "results/centrifuge.counts.biom",
     benchmark:
-        "benchmarks/taxpastaCentrifugeBiom.{sample}.txt"
+        "benchmarks/taxpastaCentrifugeBiom.txt"
     conda:
         "taxpasta"
     threads: 2
@@ -212,7 +212,7 @@ rule taxpastaKraken2:
     output:
         "results/kraken2.counts.tsv",
     benchmark:
-        "benchmarks/taxpastaKraken2.{sample}.txt"
+        "benchmarks/taxpastaKraken2.txt"
     conda:
         "taxpasta"
     shell:
@@ -234,7 +234,7 @@ rule taxpastaKraken2Biom:
     output:
         "results/kraken2.counts.biom",
     benchmark:
-        "benchmarks/taxpastaKraken2Biom.{sample}.txt"
+        "benchmarks/taxpastaKraken2Biom.txt"
     conda:
         "taxpasta"
     shell:
@@ -279,7 +279,7 @@ rule taxpastaKraken2Bracken:
     output:
         "results/bracken.k2.counts.tsv",
     benchmark:
-        "benchmarks/taxpastaKraken2Bracken.{sample}.txt"
+        "benchmarks/taxpastaKraken2Bracken.txt"
     conda:
         "taxpasta"
     shell:
@@ -301,7 +301,7 @@ rule taxpastaKraken2BrackenBiom:
     output:
         "results/bracken.k2.counts.biom",
     benchmark:
-        "benchmarks/taxpastaKraken2BrackenBiom.{sample}.txt"
+        "benchmarks/taxpastaKraken2BrackenBiom.txt"
     conda:
         "taxpasta"
     shell:
