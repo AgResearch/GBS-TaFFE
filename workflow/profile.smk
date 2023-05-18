@@ -71,6 +71,8 @@ rule centrifugeGTDB:
         report = expand("results/03_centrifuge/{sample}.GTDB.centrifuge.report", sample = FIDs),
     log:
         "logs/centrifuge.GTDB.multi.log",
+    benchmark:
+        "benchmarks/centrifugeGTDB.txt"
     conda:
         "centrifuge"
     threads: 32
@@ -93,6 +95,8 @@ rule centrifugeKrakenReport:
         centrifugeKraken2 = "results/03_centrifuge/{sample}.centrifuge",
     log:
         "logs/centrifugeKrakenReport/{sample}.centrifuge.to.kraken2.log",
+    benchmark:
+        "benchmarks/centrifugeKrakenReport.{sample}.txt"
     conda:
         "centrifuge"
     threads: 2
@@ -108,6 +112,8 @@ rule taxpastaCentrifugeTable:
         expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
     output:
         "results/centrifuge.counts.tsv",
+    benchmark:
+        "benchmarks/taxpastaCentrifugeTable.{sample}.txt"
     conda:
         "taxpasta"
     threads: 2
@@ -129,6 +135,8 @@ rule taxpastaCentrifugeBiom:
         expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
     output:
         "results/centrifuge.counts.biom",
+    benchmark:
+        "benchmarks/taxpastaCentrifugeBiom.{sample}.txt"
     conda:
         "taxpasta"
     threads: 2
@@ -151,6 +159,8 @@ rule brackenCentrifugeSpecies:
         brakenReport='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.species.report',
     log:
         'logs/centrifuge.bracken.species.{sample}.GTDB.log'
+    benchmark:
+        "benchmarks/brackenCentrifugeSpecies.{sample}.txt"
     conda:
         'kraken2'
     threads: 2 
@@ -175,6 +185,8 @@ rule kraken2GTDB:
         k2ReportGTDB = "results/03_kraken2GTDB/{sample}.kraken2",
     log:
         "logs/kraken2GTDB.{sample}.GTDB.log",
+    benchmark:
+        "benchmarks/kraken2GTDB.{sample}.txt"
     conda:
         "kraken2"
     threads: 18
@@ -199,6 +211,8 @@ rule taxpastaKraken2:
         expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
     output:
         "results/kraken2.counts.tsv",
+    benchmark:
+        "benchmarks/taxpastaKraken2.{sample}.txt"
     conda:
         "taxpasta"
     shell:
@@ -219,7 +233,9 @@ rule taxpastaKraken2Biom:
         expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
     output:
         "results/kraken2.counts.biom",
-    conda:
+    benchmark:
+        "benchmarks/taxpastaKraken2Biom.{sample}.txt"
+     conda:
         "taxpasta"
     shell:
         "taxpasta merge "
@@ -240,6 +256,8 @@ rule brackenSpecies:
         bReport = "results/03_brackenSpecies/{sample}.br",
     log:
         "logs/brackenSpecies.{sample}.log",
+    benchmark:
+        "benchmarks/brackenSpecies.{sample}.txt"
     conda:
         "kraken2"
     threads: 2
@@ -260,6 +278,8 @@ rule taxpastaKraken2Bracken:
         expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
     output:
         "results/bracken.k2.counts.tsv",
+    benchmark:
+        "benchmarks/taxpastaKraken2Bracken.{sample}.txt"
     conda:
         "taxpasta"
     shell:
@@ -280,6 +300,8 @@ rule taxpastaKraken2BrackenBiom:
         expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
     output:
         "results/bracken.k2.counts.biom",
+    benchmark:
+        "benchmarks/taxpastaKraken2BrackenBiom.{sample}.txt"
     conda:
         "taxpasta"
     shell:
@@ -303,6 +325,8 @@ rule humann3Uniref50EC:
         pathwaysCoverage = "results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv",
     log:
         "logs/humann3.{sample}.uniref50EC.log",
+    benchmark:
+        "benchmarks/humann3Uniref50EC.{sample}.txt"
     conda:
         "biobakery"
     threads: 16
