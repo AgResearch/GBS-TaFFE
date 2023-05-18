@@ -56,11 +56,13 @@ localrules:
 
 
 rule generateCentrifugeSampleSheet:
+    input:
+        shell_script = 'workflow/scripts/generate_centrifuge_sample_sheet.sh'
     output:
         sampleSheet = "resources/centrifugeSampleSheet.tsv",
     threads: 2
     shell:
-        "./workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p .fastq -o {output.sampleSheet} "
+        "./{input.shell_script} -d results/02_kneaddata -p .fastq -o {output.sampleSheet} "
 
 
 rule centrifugeGTDB:
