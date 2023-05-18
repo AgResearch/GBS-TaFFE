@@ -92,7 +92,7 @@ check_exsistence () {
 
 generate_centrifuge_sample_sheet () {
   for file in $matches; do
-    fid="$(echo ${file} | xargs basename | cut -d "_" -f 1)"
+    fid="$(echo ${file} | xargs basename | cut -d "_" -f 1 | cut -d "." -f 1)"
     printf "1\t${file}\tNA\tresults/03_centrifuge/${fid}.GTDB.centrifuge\tresults/03_centrifuge/${fid}.GTDB.centrifuge.report\n" >> "${sample_sheet}"
     done
 
