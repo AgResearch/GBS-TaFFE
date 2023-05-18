@@ -48,7 +48,7 @@ rule all:
         "results/kraken2.counts.biom",
         "results/bracken.k2.counts.biom",
 
-        expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
+        expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FIDs),
 
 
 localrules:
