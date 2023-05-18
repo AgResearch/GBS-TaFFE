@@ -12,8 +12,8 @@ configfile: "config/config.yaml"
 import os
 
 
-# wildcard_constraints:
-#     sample="[^a-zA-Z0-9$]+"
+wildcard_constraints:
+     sample="[^a-zA-Z0-9$]+"
 
 
 def get_passing_FIDs(seqkitRawOut):
