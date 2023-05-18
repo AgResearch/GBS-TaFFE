@@ -40,7 +40,7 @@ onstart:
 	
 rule all:
     input:
-        "results/centrifuge.counts.tsv",
+        #"results/centrifuge.counts.tsv",
         #"results/centrifuge.counts.biom",
 
         "results/kraken2.counts.tsv",
