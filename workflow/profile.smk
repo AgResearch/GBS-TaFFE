@@ -235,7 +235,7 @@ rule taxpastaKraken2Biom:
         "results/kraken2.counts.biom",
     benchmark:
         "benchmarks/taxpastaKraken2Biom.{sample}.txt"
-     conda:
+    conda:
         "taxpasta"
     shell:
         "taxpasta merge "
