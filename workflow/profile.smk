@@ -12,8 +12,8 @@ configfile: "config/config.yaml"
 import os
 
 
-wildcard_constraints:
-    sample="[^a-zA-Z0-9$]+"
+# wildcard_constraints:
+#     sample="[^a-zA-Z0-9$]+"
 
 
 def get_passing_FIDs(seqkitRawOut):
@@ -40,13 +40,14 @@ onstart:
 	
 rule all:
     input:
+        "results/kraken2.counts.tsv",
+        "results/bracken.k2.counts.tsv",
+
         #"results/centrifuge.counts.tsv",
         #"results/centrifuge.counts.biom",
 
-        "results/kraken2.counts.tsv",
         #"results/kraken2.counts.biom",
 
-        "results/bracken.k2.counts.tsv",
         #"results/bracken.k2.counts.biom",
 
         #expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
