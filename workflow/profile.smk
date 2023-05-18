@@ -24,7 +24,7 @@ def get_passing_FIDs(seqkitRawOut):
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
-FID, = glob_wildcards("results/02_kneaddata/{sample}.fastq")
+(FIDs,) = glob_wildcards("results/02_kneaddata/{sample}.fastq")
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
@@ -52,23 +52,24 @@ rule all:
         #expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FID),
 
 
-localrules: generateCentrifugeSampleSheet
+localrules:
+    generateCentrifugeSampleSheet,
 
 
 rule generateCentrifugeSampleSheet:
     output:
-        sampleSheet='resources/centrifugeSampleSheet.tsv',
-    threads:2
-    shell: 
-        './workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p fastq -o {output.sampleSheet} '
+        sampleSheet = "resources/centrifugeSampleSheet.tsv",
+    threads: 2
+    shell:
+        "./workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p fastq -o {output.sampleSheet} "
 
 
 rule centrifugeGTDB:
     input:
         sampleSheet = "resources/centrifugeSampleSheet.tsv",
     output:
-        out = expand("results/03_centrifuge/{sample}.GTDB.centrifuge", sample = FID),
-        report = expand("results/03_centrifuge/{sample}.GTDB.centrifuge.report", sample = FID),
+        out = expand("results/03_centrifuge/{sample}.GTDB.centrifuge", sample = FIDs),
+        report = expand("results/03_centrifuge/{sample}.GTDB.centrifuge.report", sample = FIDs),
     log:
         "logs/centrifuge.GTDB.multi.log",
     conda:
@@ -79,7 +80,7 @@ rule centrifugeGTDB:
         time = "06:00:00",
     shell:
         "centrifuge "
-        "-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB " #TODO config
+        "-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB "
         "--sample-sheet {input.sampleSheet} "
         "-t "
         "--threads {threads} "
@@ -92,43 +93,20 @@ rule centrifugeKrakenReport:
     output:
         centrifugeKraken2 = "results/03_centrifuge/{sample}.centrifuge",
     log:
-        "logs/centrifuge.to.kraken2.{sample}.log",
+        "logs/centrifugeKrakenReport/{sample}.centrifuge.to.kraken2.log",
     conda:
         "centrifuge"
     threads: 2
     shell:
         "centrifuge-kreport "
-        "-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB " #TODO config
+        "-x /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/centrifuge/GTDB "
         "{input.centrifuge} > "
         "{output.centrifugeKraken2}"
 
 
-rule brackenCentrifugeGenus:
-    input:
-        centrifugeKraken2='results/03_centrifuge/{sample}.GTDB.centrifuge.k2report',
-    output:
-        braken='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus',
-        brakenReport='results/04_braken/{sample}.GTDB.centrifuge.k2report.T1.bracken.genus.report',
-    log:
-        'logs/centrifuge.bracken.genus.{sample}.GTDB.log'
-    conda:
-        'kraken2'
-    threads: 2 
-    shell:
-        'bracken '
-        '-d /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/kraken/GTDB ' #TODO config
-        '-i {input.centrifugeKraken2} '
-        '-o {output.braken} '
-        '-w {output.brakenReport} '
-        '-r 80 '
-        '-l G '
-        '-t 1 '
-        '&> {log} '
-
-
 rule taxpastaCentrifugeTable:
     input:
-        expand("results/03_centrifuge/{sample}.centrifuge", sample = FID),
+        expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
     output:
         "results/centrifuge.counts.tsv",
     conda:
@@ -139,7 +117,7 @@ rule taxpastaCentrifugeTable:
         "-p centrifuge "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/centrifuge " #TODO config
+        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/centrifuge "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -149,7 +127,7 @@ rule taxpastaCentrifugeTable:
 
 rule taxpastaCentrifugeBiom:
     input:
-        expand("results/03_centrifuge/{sample}.centrifuge", sample = FID),
+        expand("results/03_centrifuge/{sample}.centrifuge", sample = FIDs),
     output:
         "results/centrifuge.counts.biom",
     conda:
@@ -160,7 +138,7 @@ rule taxpastaCentrifugeBiom:
         "-p centrifuge "
         "-o {output} "
         "--output-format BIOM "
-        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/centrifuge " #TODO config
+        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/centrifuge "
         "--add-name "
         "--summarise-at genus "
         "{input} "
@@ -219,7 +197,7 @@ rule kraken2GTDB:
 
 rule taxpastaKraken2:
     input:
-        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FID),
+        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
     output:
         "results/kraken2.counts.tsv",
     conda:
@@ -239,7 +217,7 @@ rule taxpastaKraken2:
 
 rule taxpastaKraken2Biom:
     input:
-        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FID),
+        expand("results/03_kraken2GTDB/{sample}.kraken2", sample = FIDs),
     output:
         "results/kraken2.counts.biom",
     conda:
@@ -280,7 +258,7 @@ rule brackenSpecies:
 
 rule taxpastaKraken2Bracken:
     input:
-        expand("results/03_brackenSpecies/{sample}.bracken", sample = FID),
+        expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
     output:
         "results/bracken.k2.counts.tsv",
     conda:
@@ -300,7 +278,7 @@ rule taxpastaKraken2Bracken:
 
 rule taxpastaKraken2BrackenBiom:
     input:
-        expand("results/03_brackenSpecies/{sample}.bracken", sample = FID),
+        expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
     output:
         "results/bracken.k2.counts.biom",
     conda:
