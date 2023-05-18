@@ -60,7 +60,7 @@ rule generateCentrifugeSampleSheet:
         sampleSheet = "resources/centrifugeSampleSheet.tsv",
     threads: 2
     shell:
-        "./workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p fastq -o {output.sampleSheet} "
+        "./workflow/scripts/generate_centrifuge_sample_sheet.sh -d results/02_kneaddata -p .fastq -o {output.sampleSheet} "
 
 
 rule centrifugeGTDB:
@@ -189,10 +189,11 @@ rule kraken2GTDB:
         "benchmarks/kraken2GTDB.{sample}.txt"
     conda:
         "kraken2"
-    threads: 18
+    threads: 16
     resources:
         # dynamic memory allocation: start with 400G and increment by 20G with every failed attempt 
-        mem_gb = lambda wildcards, attempt: 360 + ((attempt - 1) * 20),
+        mem_gb = lambda wildcards, attempt: 340 + ((attempt - 1) * 20),
+        time = "00:20:00",
     shell:
         "kraken2 "
         "--use-names "
@@ -331,7 +332,8 @@ rule humann3Uniref50EC:
         "biobakery"
     threads: 16
     resources:
-        mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) + 12),
+        mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) + 8),
+        time = "00:20:00",
     message:
         "humann3 profiling with uniref50EC: {wildcards.sample}\n"
     shell:
