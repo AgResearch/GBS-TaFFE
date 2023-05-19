@@ -79,7 +79,7 @@ rule centrifugeGTDB:
         "centrifuge"
     threads: 32
     resources:
-        mem_gb = lambda wildcards, attempt: 140 + ((attempt - 1) + 20),
+        mem_gb = lambda wildcards, attempt: 160 + ((attempt - 1) + 20),
         time = "06:00:00",
     shell:
         "centrifuge "
