@@ -51,7 +51,10 @@ rule all:
     input:
         'results/00_QC/seqkit.report.KDTrim.txt',
         'results/00_QC/seqkit.report.KDTRF.txt',
-        'results/00_QC/seqkit.report.KDOvine.txt',
+        'results/00_QC/seqkit.report.KDOvis.txt',
+        'results/00_QC/seqkit.report.KDBos.txt',
+        'results/00_QC/seqkit.report.KDCapra.txt',
+        'results/00_QC/seqkit.report.KDCervus.txt',
         'results/00_QC/seqkit.report.KDSILVA138.txt',
         'results/00_QC/seqkit.report.raw.txt',
         'results/00_QC/seqkit.report.bbduk.txt',
