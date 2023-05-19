@@ -189,7 +189,7 @@ checkpoint kneaddata:
         ovineReads = temp('results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
         bosReads = temp('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq'),
         capraReads = temp('results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq'),
-        cervusReads = temp('results/02_kneaddata/{samples}_mCerEla1.1_bowtie2_contam.fastq'),
+        cervusReads = temp('results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq'),
         silvaReads = temp('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
         KDRs ='results/02_kneaddata/{samples}.fastq',
     conda:
