@@ -130,7 +130,7 @@ rule bbduk:
     input:
         reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
-        bbdukReads = 'results/01_readMasking/{samples}.bbduk.fastq.gz'
+        bbdukReads = temp('results/01_readMasking/{samples}.bbduk.fastq.gz')
     log:
         'logs/bbduk/{samples}.bbduk.log'
     benchmark:
@@ -155,7 +155,7 @@ rule prinseq:
     input:
         'results/01_readMasking/{samples}.bbduk.fastq.gz'
     output:
-        maskedReads = 'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz',
+        maskedReads = temp('results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'),
         badReads = temp('results/01_readMasking/{samples}_bad_out.fastq.gz'),
     log:
         'logs/prinseq/{samples}.prinseq.log'
@@ -183,7 +183,10 @@ checkpoint kneaddata:
     output:
         trimReads = temp('results/02_kneaddata/{samples}.trimmed.fastq'),
         trfReads = temp('results/02_kneaddata/{samples}.repeats.removed.fastq'),
-        ovineReads = temp('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq'),
+        ovineReads = temp('results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq'),
+        bosReads = temp('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq'),
+        capraReads = temp('results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq'),
+        cervusReads = temp('results/02_kneaddata/{samples}_mCerEla1.1_bowtie2_contam.fastq'),
         silvaReads = temp('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
         KDRs ='results/02_kneaddata/{samples}.fastq',
     conda:
@@ -208,7 +211,10 @@ checkpoint kneaddata:
         '--log {log} '
         '--trimmomatic /home/perrybe/conda-envs/biobakery/share/trimmomatic '
         '--sequencer-source TruSeq3 '
+        '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
         '-db /home/perrybe/quickQC/cow_rumens/SMK-PROFILE/ref/ARS_UCD1.3 '
+        '-db /bifo/scratch/2022-BJP-GTDB_Benchmarking/methane/RE-RRS-GTDB/ref/CAPRA_ARS1.2 '
+        '-db /bifo/scratch/2022-BJP-GTDB_Benchmarking/methane/RE-RRS-GTDB/ref/mCerEla1 '
         '-db /bifo/scratch/2022-BJP-GTDB/2022-BJP-GTDB/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/02_kneaddata '
 
@@ -259,7 +265,29 @@ rule seqkitKneaddataTRFReads:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
 
-def get_seqkitKneaddataHostReads_passing_samples(wildcards):
+def get_seqkitKneaddataOvisReads_passing_samples(wildcards):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq", samples = passed)
+
+
+rule seqkitKneaddataOvisReads:
+    input:
+        HostReads = get_seqkitKneaddataOvisReads_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.KDOvis.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddataHostReads.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a {input.HostReads} > {output} '
+
+def get_seqkitKneaddataBosReads_passing_samples(wildcards):
     file = checkpoints.seqkitRaw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
@@ -268,13 +296,58 @@ def get_seqkitKneaddataHostReads_passing_samples(wildcards):
     return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq", samples = passed)
 
 
-rule seqkitKneaddataHostReads:
+rule seqkitKneaddataBosReads:
     input:
-        HostReads = get_seqkitKneaddataHostReads_passing_samples,
+        HostReads = get_seqkitKneaddataBosReads_passing_samples,
     output:
-        'results/00_QC/seqkit.report.KDOvine.txt'
+        'results/00_QC/seqkit.report.KDBos.txt'
     benchmark:
         'benchmarks/seqkitKneaddataHostReads.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a {input.HostReads} > {output} '
+
+
+def get_seqkitKneaddataCapraReads_passing_samples(wildcards):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq", samples = passed)
+
+
+rule seqkitKneaddataCapraReads:
+    input:
+        HostReads = get_seqkitKneaddataCapraReads_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.KDCapra.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddataCapraReads.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a {input.HostReads} > {output} '
+
+def get_seqkitKneaddataCervusReads_passing_samples(wildcards):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq", samples = passed)
+
+
+rule seqkitKneaddataCervusReads:
+    input:
+        HostReads = get_seqkitKneaddataCervusReads_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.KDCervus.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddataCervusReads.txt'
     conda:
         'seqkit'
     threads: 12
