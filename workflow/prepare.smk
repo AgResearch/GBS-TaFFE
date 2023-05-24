@@ -95,7 +95,7 @@ rule cutadapt: # demultiplexing GBS reads
         expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs),
     conda:
         'cutadapt'
-        # 'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
+        # 'docker://quay.io/biocontainers/prinseq-plus-plus:1.2.4--h7ff8a90_2'
     benchmark:
         'benchmarks/cutadapt.txt'
     threads: 32
@@ -154,7 +154,7 @@ rule bbduk:
         '2>&1 | tee {log}'
 
 
-rule prinseq:
+checkpoint prinseq:
     input:
         'results/01_readMasking/{samples}.bbduk.fastq.gz'
     output:
@@ -180,7 +180,29 @@ rule prinseq:
         'mv results/01_readMasking/{wildcards.samples}_good_out.fastq.gz {output.maskedReads} '
 
 
-checkpoint kneaddata:
+def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
+
+
+rule seqkitMaskingPrinseqReads:
+    input:
+        prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.prinseq.txt'
+    benchmark:
+        'benchmarks/seqkitMaskingPrinseqReads.txt'
+    conda:
+        'seqkit'
+    threads: 12
+    shell:
+        'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
+
+rule kneaddata:
     input:
         'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'
     output:
@@ -223,7 +245,7 @@ checkpoint kneaddata:
 
 
 def get_seqkitKneaddataTrimReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -246,7 +268,7 @@ rule seqkitKneaddataTrimReads: #TODO expand these
 
 
 def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -269,7 +291,7 @@ rule seqkitKneaddataTRFReads:
 
 
 def get_seqkitKneaddataOvisReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -291,7 +313,7 @@ rule seqkitKneaddataOvisReads:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
 def get_seqkitKneaddataBosReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -314,7 +336,7 @@ rule seqkitKneaddataBosReads:
 
 
 def get_seqkitKneaddataCapraReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -336,7 +358,7 @@ rule seqkitKneaddataCapraReads:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
 def get_seqkitKneaddataCervusReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -359,7 +381,7 @@ rule seqkitKneaddataCervusReads:
 
 
 def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -382,7 +404,7 @@ rule seqkitKneaddataSILVAReads:
 
 
 def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
@@ -404,31 +426,8 @@ rule seqkitMaskingBBDukReads:
         'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
 
-def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
-
-
-rule seqkitMaskingPrinseqReads:
-    input:
-        prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
-    output:
-        'results/00_QC/seqkit.report.prinseq.txt'
-    benchmark:
-        'benchmarks/seqkitMaskingPrinseqReads.txt'
-    conda:
-        'seqkit'
-    threads: 12
-    shell:
-        'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
-
-
 def get_seqkitKneaddata_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
