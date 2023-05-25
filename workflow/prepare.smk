@@ -44,9 +44,6 @@ onstart:
     print("Found: ")
 
 
-wildcard_constraints:
-    samples="[a-zA-Z0-9]+"
-	
 rule all:
     input:
         'results/00_QC/seqkit.report.KDTrim.txt',
@@ -127,6 +124,8 @@ checkpoint seqkitRaw:
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
+
+rule sana: #TODO: Implement sanity check rule at that start to clean fastq files
 
 # STANDARD READ FILTERING AND QC RULES
 rule bbduk:
