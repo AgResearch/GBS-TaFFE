@@ -9,22 +9,22 @@ cluster:
     --job-name=smk-{rule}-{wildcards}
     --time={resources.time}
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
+    --verbose
 default-resources:
   - account=agresearch03843
   - partition=large,milan
   - time="02:00:00"
   - mem_gb=8
 restart-times: 5
-local-cores: 12
-latency-wait: 600
-jobs: 1000
+local-cores: 6
+latency-wait: 6000
+jobs: 100
 keep-going: True
 rerun-incomplete: True
-printshellcmds: False
+printshellcmds: True
 scheduler: greedy
 use-conda: True
 use-singularity: True
 reason: True
 conda-frontend: conda
 rerun-trigger: mtime
-quiet: progress
