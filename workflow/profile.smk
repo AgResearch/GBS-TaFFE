@@ -17,7 +17,7 @@ def get_passing_FIDs(seqkitOut):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
@@ -39,9 +39,9 @@ onstart:
 	
 rule all:
     input:
-        #"results/kraken2.counts.tsv",
+        "results/kraken2.counts.tsv",
         #"results/bracken.k2.counts.tsv",
-        "results/centrifuge.counts.tsv",
+        #"results/centrifuge.counts.tsv",
         #"results/centrifuge.counts.biom",
         #"results/kraken2.counts.biom",
         #"results/bracken.k2.counts.biom",
@@ -68,7 +68,7 @@ wildcard_constraints:
 rule centrifugeGTDB:
     input:
 #        sampleSheet = "resources/centrifugeSampleSheet.tsv",
-        KDRs = "results/02_kneaddata/{sample}.fastq",
+        KDRs = "results/02_kneaddata/{sample}.fastq.gz",
     output:
         out = "results/03_centrifuge/{sample}.GTDB.centrifuge",
         report = "results/03_centrifuge/{sample}.GTDB.centrifuge.report",
@@ -207,7 +207,7 @@ rule brackenCentrifugeSpecies:
 #KRAKEN2 RULES
 rule kraken2GTDB:
     input:
-        KDRs = "results/02_kneaddata/{sample}.fastq",
+        KDRs = "results/02_kneaddata/{sample}.fastq.gz",
     output:
         k2OutputGTDB = "results/03_kraken2GTDB/{sample}.k2",
         k2ReportGTDB = "results/03_kraken2GTDB/{sample}.kraken2",
@@ -220,7 +220,7 @@ rule kraken2GTDB:
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
-        time = lambda wildcards, attempt: 12 + ((attempt - 1) * 5),
+        time = lambda wildcards, attempt: 15 + ((attempt - 1) * 5),
         partition = "milan"
     shell:
         "kraken2 "
@@ -312,7 +312,7 @@ rule brackenSpecies:
         "-w {output.bReport} "
         "-r 80 "
         "-l S "
-        "-t 10 " # Necessary to get floating point counts to sum to 1.0 in taxpasta
+        # "-t 10 "
         "&> {log} "
 
 
@@ -371,7 +371,7 @@ rule taxpastaKraken2BrackenBiom:
 # HUMANN# RULES
 rule humann3Uniref50EC:
     input:
-        kneaddataReads = "results/02_kneaddata/{sample}.fastq",
+        kneaddataReads = "results/02_kneaddata/{sample}.fastq.gz",
     output:
         genes = "results/03_humann3Uniref50EC/{sample}_genefamilies.tsv",
         pathways = "results/03_humann3Uniref50EC/{sample}_pathabundance.tsv",

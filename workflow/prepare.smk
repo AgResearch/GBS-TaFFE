@@ -11,9 +11,6 @@ import os
 import pandas as pd
 
 
-FIDs, = glob_wildcards('results/01_cutadapt/{samples}.fastq.gz')
-
-
 onstart:
     print(f"Working directory: {os.getcwd()}")
     print("TOOLS: ")
@@ -25,6 +22,13 @@ onstart:
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
     print("Found: ")
+
+
+wildcard_constraints:
+    samples="\w+"
+
+
+FIDs, = glob_wildcards('results/01_cutadapt/{samples}.fastq.gz')
 
 
 rule all:
@@ -42,9 +46,32 @@ rule all:
         'results/00_QC/seqkit.report.KDR.txt',
 
 
+rule sana:
+    input:
+        "results/01_cutadapt/{samples}.fastq.gz",
+    output:
+        temp("results/01_readMasking/{samples}.sana.fastq.gz"),
+    log:
+        "logs/sana.{samples}.log"
+    conda:
+        "seqkit"
+    benchmark:
+        "benchmarks/sana.{samples}.log"
+    threads: 8
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
+        partition = "large,milan",
+    shell:
+        "seqkit sana "
+        "-j {threads} "
+        "{input} "
+        "| gzip --fast -c > {output} 2> {log} "
+
+
 checkpoint seqkitRaw:
     input:
-        expand('results/01_cutadapt/{samples}.fastq.gz', samples = FIDs),
+        expand('results/01_readMasking/{samples}.sana.fastq.gz', samples = FIDs),
     output:
         'results/00_QC/seqkit.report.raw.txt'
     benchmark:
@@ -54,11 +81,11 @@ checkpoint seqkitRaw:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
+    threads: 32
     resources:
-        mem_gb=2,
-        time="00:60:00",
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
         partition="large,milan"
-    threads: 12
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
@@ -66,22 +93,17 @@ checkpoint seqkitRaw:
 # STANDARD READ FILTERING AND QC RULES
 rule bbduk:
     input:
-        reads = 'results/01_cutadapt/{samples}.fastq.gz',
+        reads = 'results/01_readMasking/{samples}.sana.fastq.gz',
     output:
         bbdukReads = temp('results/01_readMasking/{samples}.bbduk.fastq.gz')
     log:
         'logs/bbduk/{samples}.bbduk.log'
-#    benchmark:
-#        'benchmarks/bbduk.{samples}.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/bbmap:39.01--h5c4e2a8_0' 
     conda:
-        #'env/bbduk.yaml'
         'bbduk'
-    threads:4
+    threads: 8
     resources:
-        mem_gb=1,
-        time="00:01:00",
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
         partition='large,milan',
     shell:
         'bbduk.sh '
@@ -96,6 +118,37 @@ rule bbduk:
         '2>&1 | tee {log}'
 
 
+
+def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
+
+
+rule seqkitMaskingBBDukReads:
+    input:
+        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.bbduk.txt'
+    benchmark:
+        'benchmarks/seqkitMaskingBBDukReads.txt'
+    #container:
+    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
+    conda:
+        #'env/seqkit.yaml'
+        'seqkit'
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
+        partition='large,milan',
+    shell:
+        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
+
+
 rule prinseq:
     input:
         'results/01_readMasking/{samples}.bbduk.fastq.gz'
@@ -104,18 +157,13 @@ rule prinseq:
         badReads = temp('results/01_readMasking/{samples}_bad_out.fastq.gz'),
     log:
         'logs/prinseq/{samples}.prinseq.log'
-#    benchmark:
-#        'benchmarks/prinseq.{samples}.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/prinseq-plus-plus:1.2.4--h7ff8a90_2' 
     conda:
-        #'env/prinseqPP.yaml'
         'prinseqpp'
+    threads: 8
     resources:
-        mem_gb=1,
-        time="00:04:00",
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 10 + ((attempt - 1) * 10),
         partition='large,milan',
-    threads:4
     shell:
         'prinseq++ '
         '-threads {threads} '
@@ -129,37 +177,14 @@ rule prinseq:
         'mv results/01_readMasking/{wildcards.samples}_good_out.fastq.gz {output.maskedReads} '
 
 
-rule sana:
-    input:
-        maskedReads = 'results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'
-    output:
-        sanitised = temp('results/01_readMasking/{samples}.bbduk.prinseq.sana.fastq.gz'),
-    log:
-        'logs/sasna.{samples}.log'
-#    benchmark:
-#        'benchmarks/prinseq.{samples}.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/prinseq-plus-plus:1.2.4--h7ff8a90_2' 
-    conda:
-        #'env/prinseqPP.yaml'
-        'seqkit'
-    resources:
-        mem_gb=1,
-        time="00:01:00",
-        partition='large,milan',
-    threads:4
-    shell:
-        'seqkit sana {input.maskedReads} > {output.sanitised} '
-        '2> {log}'
-
-
 def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
     file = checkpoints.seqkitRaw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/01_readMasking/{samples}.bbduk.prinseq.sana.fastq.gz", samples = passed)
+    return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
+
 
 checkpoint seqkitMaskingPrinseqReads:
     input:
@@ -173,11 +198,11 @@ checkpoint seqkitMaskingPrinseqReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
 
@@ -193,20 +218,17 @@ rule kneaddata:
         capraReads = temp('results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq'),
         cervusReads = temp('results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq'),
         silvaReads = temp('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
-        KDRs ='results/02_kneaddata/{samples}.fastq',
-    #container:
-    #    'docker://quay.io/biocontainers/kneaddata:0.10.0--pyhdfd78af_0'
+        KDRs = temp('results/02_kneaddata/{samples}.fastq'),
     conda:
-        #'env/biobakery.yaml'
         'kneaddata'
     log:
         'logs/kneaddata/{samples}.kneaddata.log'
-#    benchmark:
-#        'benchmarks/kneaddata.{samples}.txt'
-    threads: 8
+    benchmark:
+        'benchmarks/kneaddata.{samples}.txt'
+    threads: 18
     resources:
-        mem_gb=24,
-        time="00:14:00",
+        mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
         partition='large,milan',
     message:
         'kneaddata: {wildcards.samples}\n'
@@ -226,15 +248,77 @@ rule kneaddata:
         '-db /nesi/nobackup/agresearch03843/CERVUS/mCerEla1 '
         '-db /nesi/nobackup/agresearch03843/SILVA138/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/02_kneaddata '
+        '&& '
+        'touch {output.KDRs} {output.trimReads} {output.trfReads} {output.ovineReads} {output.bosReads} {output.capraReads} {output.cervusReads} {output.silvaReads} '
+
+
+rule gzip_KDR_temps:
+    input:
+        trimReads = 'results/02_kneaddata/{samples}.trimmed.fastq',
+        trfReads = 'results/02_kneaddata/{samples}.repeats.removed.fastq',
+        ovineReads = 'results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq',
+        bosReads = 'results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq',
+        capraReads = 'results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq',
+        cervusReads = 'results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq',
+        silvaReads = 'results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq',
+        KDRs ='results/02_kneaddata/{samples}.fastq',
+    output:
+        trimReads = temp('results/02_kneaddata/{samples}.trimmed.fastq.gz'),
+        trfReads = temp('results/02_kneaddata/{samples}.repeats.removed.fastq.gz'),
+        ovineReads = temp('results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq.gz'),
+        bosReads = temp('results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq.gz'),
+        capraReads = temp('results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq.gz'),
+        cervusReads = temp('results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq.gz'),
+        silvaReads = temp('results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq.gz'),
+        KDRs ='results/02_kneaddata/{samples}.fastq.gz',
+    conda:
+        "pigz"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 15 + ((attempt - 1) * 12),
+        partition='large,milan',
+    shell:
+        "pigz -p 12 {input.KDRs} {input.trimReads} {input.trfReads} {input.ovineReads} {input.bosReads} {input.capraReads} {input.cervusReads} {input.silvaReads} "
+
+
+def get_seqkitKneaddata_passing_samples(wildcards):
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/02_kneaddata/{samples}.fastq.gz", samples = passed)
+
+
+checkpoint seqkitKneaddata:
+    input:
+        KDRs = get_seqkitKneaddata_passing_samples,
+    output:
+        'results/00_QC/seqkit.report.KDR.txt'
+    benchmark:
+        'benchmarks/seqkitKneaddata.txt'
+    #container:
+    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
+    conda:
+        #'env/seqkit.yaml'
+        'seqkit'
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
+    shell:
+        'seqkit stats -j {threads} -a {input.KDRs} > {output} '
 
 
 def get_seqkitKneaddataTrimReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}.trimmed.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}.trimmed.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataTrimReads: 
@@ -249,11 +333,11 @@ rule seqkitKneaddataTrimReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.trimReads} > {output} '
 
@@ -262,9 +346,9 @@ def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}.repeats.removed.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}.repeats.removed.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataTRFReads:
@@ -279,11 +363,11 @@ rule seqkitKneaddataTRFReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
@@ -292,9 +376,9 @@ def get_seqkitKneaddataOvisReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataOvisReads:
@@ -309,11 +393,11 @@ rule seqkitKneaddataOvisReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -321,9 +405,9 @@ def get_seqkitKneaddataBosReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataBosReads:
@@ -338,11 +422,11 @@ rule seqkitKneaddataBosReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -351,9 +435,9 @@ def get_seqkitKneaddataCapraReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataCapraReads:
@@ -368,11 +452,11 @@ rule seqkitKneaddataCapraReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -380,9 +464,9 @@ def get_seqkitKneaddataCervusReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataCervusReads:
@@ -397,11 +481,11 @@ rule seqkitKneaddataCervusReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -410,9 +494,9 @@ def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq", samples = passed)
+    return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq.gz", samples = passed)
 
 
 rule seqkitKneaddataSILVAReads:
@@ -427,70 +511,11 @@ rule seqkitKneaddataSILVAReads:
     conda:
         #'env/seqkit.yaml'
         'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
     threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
+        partition='large,milan',
     shell:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
-
-def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
-    file = checkpoints.seqkitRaw.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
-
-
-rule seqkitMaskingBBDukReads:
-    input:
-        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
-    output:
-        'results/00_QC/seqkit.report.bbduk.txt'
-    benchmark:
-        'benchmarks/seqkitMaskingBBDukReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
-    conda:
-        #'env/seqkit.yaml'
-        'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
-    threads: 32
-    shell:
-        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
-
-
-def get_seqkitKneaddata_passing_samples(wildcards):
-    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 50000]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/02_kneaddata/{samples}.fastq", samples = passed)
-
-
-rule seqkitKneaddata:
-    input:
-        KDRs = get_seqkitKneaddata_passing_samples,
-    output:
-        'results/00_QC/seqkit.report.KDR.txt'
-    benchmark:
-        'benchmarks/seqkitKneaddata.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
-    conda:
-        #'env/seqkit.yaml'
-        'seqkit'
-    resources:
-        mem_gb=4,
-        time="00:90:00",
-        partition="large,milan"
-    threads: 32
-    shell:
-        'seqkit stats -j {threads} -a {input.KDRs} > {output} '
