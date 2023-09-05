@@ -11,9 +11,9 @@ cluster:
     --output=logs/{rule}/{rule}-{wildcards}-%j.out
     --parsable
 default-resources:
-  - account=agresearch03843
-  - partition=large,milan
-  - time="02:00:00"
+  - account=2023-bjp-buccal
+  - partition=compute
+  - time=120
   - mem_gb=8
 restart-times: 3
 local-cores: 6

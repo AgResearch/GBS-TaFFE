@@ -1,6 +1,5 @@
 ref
 .snakemake
-resources
 test
 config/config.yaml
 .git
