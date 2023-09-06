@@ -28,7 +28,7 @@ rule all:
 rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = "resources/{library}.barcodes.fasta",
-        run = "fastq/{library}.fastq.gz",
+        # run = "fastq/{library}.fastq.gz",
     output:
         demuxed = directory("results/{library}"),
     container:
@@ -44,7 +44,7 @@ rule cutadapt: # demultiplexing GBS reads
         'Demultiplexing lanes...'
     shell:
         'mkdir -p {output.demuxed} && '
-        'zcat {input.run} | '
+        'zcat fastq/{wildcards.library}*.fastq.gz | '
         'cutadapt '
         '-j {threads} '
         '--discard-untrimmed '
