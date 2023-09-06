@@ -38,7 +38,7 @@ rule cutadapt: # demultiplexing GBS reads
     threads: 32
     resources:
         mem_gb=24,
-        time="01:00:00",
+        time=240,
 	partition="compute"
     message:
         'Demultiplexing lanes...'
