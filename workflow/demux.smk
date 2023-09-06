@@ -44,7 +44,7 @@ rule cutadapt: # demultiplexing GBS reads
         'Demultiplexing lanes...'
     shell:
         'mkdir -p {output.demuxed} && '
-        'zcat fastq/{wildcards.library}*.fastq.gz | '
+        'zcat fastq/{wildcards.library}*.gz | '
         'cutadapt '
         '-j {threads} '
         '--discard-untrimmed '
