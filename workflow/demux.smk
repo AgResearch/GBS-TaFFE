@@ -37,9 +37,9 @@ rule cutadapt: # demultiplexing GBS reads
         'benchmarks/cutadapt.{library}.txt'
     threads: 32
     resources:
-        mem_gb=8,
+        mem_gb=24,
         time="01:00:00",
-	partition="large,milan"
+	partition="compute"
     message:
         'Demultiplexing lanes...'
     shell:
