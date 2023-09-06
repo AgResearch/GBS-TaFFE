@@ -104,7 +104,7 @@ rule bbduk:
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
-        partition='large,milan',
+        partition='compute',
     shell:
         'bbduk.sh '
         'threads={threads} '
@@ -144,7 +144,7 @@ rule seqkitMaskingBBDukReads:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
@@ -163,7 +163,7 @@ rule prinseq:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 10 + ((attempt - 1) * 10),
-        partition='large,milan',
+        partition='compute',
     shell:
         'prinseq++ '
         '-threads {threads} '
@@ -202,7 +202,7 @@ checkpoint seqkitMaskingPrinseqReads:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
 
@@ -229,7 +229,7 @@ rule kneaddata:
     resources:
         mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
-        partition='large,milan',
+        partition='compute',
     message:
         'kneaddata: {wildcards.samples}\n'
     shell:
@@ -284,7 +284,7 @@ rule gzip_KDR_temps:
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 15 + ((attempt - 1) * 12),
-        partition='large,milan',
+        partition='compute',
     shell:
         "pigz -p 12 "
         "{input.KDRs} "
@@ -322,7 +322,7 @@ checkpoint seqkitKneaddata:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.KDRs} > {output} '
 
@@ -352,7 +352,7 @@ rule seqkitKneaddataTrimReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.trimReads} > {output} '
 
@@ -382,7 +382,7 @@ rule seqkitKneaddataTRFReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
@@ -412,7 +412,7 @@ rule seqkitKneaddataOvisReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -441,7 +441,7 @@ rule seqkitKneaddataOvisReads:
 #     resources:
 #         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
 #         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-#         partition='large,milan',
+#         partition='compute',
 #     shell:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -471,7 +471,7 @@ rule seqkitKneaddataOvisReads:
 #     resources:
 #         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
 #         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-#         partition='large,milan',
+#         partition='compute',
 #     shell:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -500,7 +500,7 @@ rule seqkitKneaddataOvisReads:
 #     resources:
 #         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
 #         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-#         partition='large,milan',
+#         partition='compute',
 #     shell:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
@@ -530,7 +530,7 @@ rule seqkitKneaddataSILVAReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='large,milan',
+        partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
