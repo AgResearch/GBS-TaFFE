@@ -61,7 +61,7 @@ rule sana:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
-        partition = "large,milan",
+        partition='compute',
     shell:
         "seqkit sana "
         "-j {threads} "
@@ -85,7 +85,7 @@ checkpoint seqkitRaw:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
-        partition="large,milan"
+        partition="compute"
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
