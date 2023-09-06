@@ -234,19 +234,19 @@ rule kneaddata:
         'kneaddata: {wildcards.samples}\n'
     shell:
         'kneaddata '
-        '--trimmomatic-options "ILLUMINACLIP:/nesi/nobackup/agresearch03843/illuminaAdapters.fa:2:30:10 MINLEN:40" '
+        '--trimmomatic-options "ILLUMINACLIP:resources/illuminaAdapters.fa:2:30:10 MINLEN:40" '
         '-un {input} '
         '--output-prefix {wildcards.samples} '
         '-t {threads} '
         '--log-level DEBUG '
         '--log {log} '
-        '--trimmomatic /home/perrybe/.conda/envs/kneaddata/share/trimmomatic-0.39-2 '
+        '--trimmomatic ~/.conda/envs/kneaddata/share/trimmomatic-0.39-2 '
         '--sequencer-source TruSeq3 '
-        '-db /nesi/nobackup/agresearch03843/RAMBV2/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
+        '-db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
         # '-db /nesi/nobackup/agresearch03843/ARSUCD1/ARS_UCD1.3 '
         # '-db /nesi/nobackup/agresearch03843/CAPRA/CAPRA_ARS1.2 '
         # '-db /nesi/nobackup/agresearch03843/CERVUS/mCerEla1 '
-        '-db /nesi/nobackup/agresearch03843/SILVA138/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
+        '-db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/02_kneaddata '
         '&& '
         'touch {output.KDRs} '
