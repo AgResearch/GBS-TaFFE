@@ -27,6 +27,7 @@ onstart:
 wildcard_constraints:
     samples="\w+"
 
+min_reads = 1
 
 FIDs, = glob_wildcards('results/01_cutadapt/{samples}.fastq.gz')
 
@@ -52,7 +53,7 @@ rule sana:
     output:
         temp("results/01_readMasking/{samples}.sana.fastq.gz"),
     log:
-        "logs/sana.{samples}.log"
+        "logs/sana/sana.{samples}.log"
     conda:
         "seqkit"
     benchmark:
@@ -119,11 +120,11 @@ rule bbduk:
 
 
 
-def get_seqkitMaskingBBDukReads_passing_samples(wildcards):
+def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitRaw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed)
 
@@ -177,11 +178,11 @@ rule prinseq:
         'mv results/01_readMasking/{wildcards.samples}_good_out.fastq.gz {output.maskedReads} '
 
 
-def get_seqkitMaskingPrinseqReads_passing_samples(wildcards):
+def get_seqkitMaskingPrinseqReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitRaw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed)
 
@@ -297,11 +298,11 @@ rule gzip_KDR_temps:
         "{input.silvaReads} "
 
 
-def get_seqkitKneaddata_passing_samples(wildcards):
+def get_seqkitKneaddata_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/02_kneaddata/{samples}.fastq.gz", samples = passed)
 
@@ -327,11 +328,11 @@ checkpoint seqkitKneaddata:
         'seqkit stats -j {threads} -a {input.KDRs} > {output} '
 
 
-def get_seqkitKneaddataTrimReads_passing_samples(wildcards):
+def get_seqkitKneaddataTrimReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/02_kneaddata/{samples}.trimmed.fastq.gz", samples = passed)
 
@@ -357,11 +358,11 @@ rule seqkitKneaddataTrimReads:
         'seqkit stats -j {threads} -a {input.trimReads} > {output} '
 
 
-def get_seqkitKneaddataTRFReads_passing_samples(wildcards):
+def get_seqkitKneaddataTRFReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/02_kneaddata/{samples}.repeats.removed.fastq.gz", samples = passed)
 
@@ -387,11 +388,11 @@ rule seqkitKneaddataTRFReads:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
 
-def get_seqkitKneaddataOvisReads_passing_samples(wildcards):
+def get_seqkitKneaddataOvisReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq.gz", samples = passed)
 
@@ -416,11 +417,11 @@ rule seqkitKneaddataOvisReads:
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
-# def get_seqkitKneaddataBosReads_passing_samples(wildcards):
+# def get_seqkitKneaddataBosReads_passing_samples(wildcards, minReads=min_reads):
 #     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
 #     qc_stats = pd.read_csv(file, delimiter = "\s+")
 #     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
 #     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 #     return expand("results/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq.gz", samples = passed)
 
@@ -446,11 +447,11 @@ rule seqkitKneaddataOvisReads:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
 
-# def get_seqkitKneaddataCapraReads_passing_samples(wildcards):
+# def get_seqkitKneaddataCapraReads_passing_samples(wildcards, minReads=min_reads):
 #     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
 #     qc_stats = pd.read_csv(file, delimiter = "\s+")
 #     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
 #     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 #     return expand("results/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq.gz", samples = passed)
 
@@ -475,11 +476,11 @@ rule seqkitKneaddataOvisReads:
 #     shell:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
-# def get_seqkitKneaddataCervusReads_passing_samples(wildcards):
+# def get_seqkitKneaddataCervusReads_passing_samples(wildcards, minReads=min_reads):
 #     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
 #     qc_stats = pd.read_csv(file, delimiter = "\s+")
 #     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
 #     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 #     return expand("results/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq.gz", samples = passed)
 
@@ -505,11 +506,11 @@ rule seqkitKneaddataOvisReads:
 #         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
 
-def get_seqkitKneaddataSILVAReads_passing_samples(wildcards):
+def get_seqkitKneaddataSILVAReads_passing_samples(wildcards, minReads=min_reads):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
     return expand("results/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq.gz", samples = passed)
 
