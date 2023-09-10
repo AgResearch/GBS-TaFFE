@@ -15,10 +15,10 @@ default-resources:
   - partition=compute
   - time=120
   - mem_gb=8
-restart-times: 3
+restart-times: 2
 local-cores: 6
 latency-wait: 600
-jobs: 50
+jobs: 500
 keep-going: True
 rerun-incomplete: True
 printshellcmds: False

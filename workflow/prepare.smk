@@ -27,7 +27,8 @@ onstart:
 wildcard_constraints:
     samples="\w+"
 
-min_reads = 1
+# Global minimum read count for processing
+min_reads = 25000
 
 FIDs, = glob_wildcards('results/01_cutadapt/{samples}.fastq.gz')
 
