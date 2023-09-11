@@ -213,7 +213,7 @@ rule kraken2GTDB:
         k2OutputGTDB = "results/03_kraken2GTDB/{sample}.k2",
         k2ReportGTDB = "results/03_kraken2GTDB/{sample}.kraken2",
     log:
-        "logs/kraken2/kraken2GTDB.{sample}.GTDB.log",
+        "logs/kraken2GTDB/kraken2GTDB.{sample}.GTDB.log",
     benchmark:
         "benchmarks/kraken2GTDB.{sample}.txt"
     conda:
