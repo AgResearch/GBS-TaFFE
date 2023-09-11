@@ -12,12 +12,13 @@ configfile: "config/config.yaml"
 import os
 import pandas as pd
 
+min_reads = 25000
 
-def get_passing_FIDs(seqkitOut):
+def get_passing_FIDs(seqkitOut, minReads=min_reads):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > 75000]
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
 
