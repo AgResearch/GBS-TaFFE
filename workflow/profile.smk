@@ -221,7 +221,7 @@ rule kraken2GTDB:
     resources:
         mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 15 + ((attempt - 1) * 5),
-        partition = "milan"
+        partition = "compute,hugemem"
     shell:
         "kraken2 "
         "--use-names "
@@ -248,7 +248,7 @@ rule taxpastaKraken2:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "large,milan"
+        partition = "compute,hugemem"
     shell:
         "taxpasta merge "
         "-p kraken2 "
