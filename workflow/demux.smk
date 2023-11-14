@@ -7,7 +7,7 @@
 
 import os
 
-LIBRARIES, = glob_wildcards("resources/{library}.barcodes.fasta")
+LIBRARIES, = glob_wildcards("resources/{library}.cutadapt.barcodes.fasta")
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
@@ -23,12 +23,11 @@ onstart:
 
 rule all:
     input:
-        expand("results/{library}", library=LIBRARIES),
+        expand("results/01_cutadapt/{library}", library=LIBRARIES),
 
 rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = "resources/{library}.barcodes.fasta",
-        # run = "fastq/{library}.fastq.gz",
     output:
         demuxed = directory("results/{library}"),
     container:
@@ -39,9 +38,7 @@ rule cutadapt: # demultiplexing GBS reads
     resources:
         mem_gb=24,
         time=240,
-	partition="compute"
-    message:
-        'Demultiplexing lanes...'
+	    partition="compute"
     shell:
         'mkdir -p {output.demuxed} && '
         'zcat fastq/{wildcards.library}*.gz | '
