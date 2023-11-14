@@ -1,1 +1,1 @@
-# RE-RRS-GTDB Workflow
+# Analysing RE-RRSeq with GTDB taxonomic framework
