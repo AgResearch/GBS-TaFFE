@@ -6,9 +6,16 @@ echo "Beginning executing on: $(date)"
 
 source activate snakemake
 
-echo "Preparing fastq for profiling."
-snakemake --profile config/slurm --snakefile workflow/prepare.smk
+echo "Demultiplexing SQ libraries"
+#snakemake --profile config/slurm --snakefile workflow/demux.smk
+echo "Demultiplexing completed"
 
+echo "Preparing fastq for profiling."
+
+echo "Collecting SQ runs: $(ls results/SQ*).."
+
+
+snakemake --profile config/slurm --snakefile workflow/prepare.smk
 echo "Preparations completed."
 
 echo "Starting profiling..."

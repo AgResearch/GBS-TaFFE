@@ -1,0 +1,9 @@
+name: seqkit
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+  - r
+dependencies:
+  - seqkit=2.2.0=h9ee0642_0
+
