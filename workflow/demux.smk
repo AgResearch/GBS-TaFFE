@@ -32,7 +32,7 @@ rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = "resources/{library}.cutadapt.barcodes.fasta",
     output:
-        demuxed = directory("results/{library}"),
+        demuxed = directory("results/01_cutadapt/{library}"),
     container:
         'docker://quay.io/biocontainers/cutadapt:4.1--py310h1425a21_1'
     benchmark:
