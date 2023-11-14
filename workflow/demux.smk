@@ -5,9 +5,12 @@
 # Maintainer: Benjamin J Perry
 # Email: ben.perry@agresearch.co.nz
 
+
 import os
 
+
 LIBRARIES, = glob_wildcards("resources/{library}.cutadapt.barcodes.fasta")
+
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
@@ -25,9 +28,10 @@ rule all:
     input:
         expand("results/01_cutadapt/{library}", library=LIBRARIES),
 
+
 rule cutadapt: # demultiplexing GBS reads
     input:
-        barcodes = "resources/{library}.barcodes.fasta",
+        barcodes = "resources/{library}.cutadapt.barcodes.fasta",
     output:
         demuxed = directory("results/{library}"),
     container:
