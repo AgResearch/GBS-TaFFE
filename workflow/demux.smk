@@ -41,7 +41,7 @@ rule cutadapt: # demultiplexing GBS reads
     resources:
         mem_gb=24,
         time=240,
-	    partition="compute"
+	    partition="compute,hugemem"
     shell:
         'mkdir -p {output.demuxed} && '
         'zcat fastq/{wildcards.library}*.gz | '
