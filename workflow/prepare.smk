@@ -545,7 +545,7 @@ rule kraken2GTDB:
 
 rule taxpastaKraken2:
     input:
-        expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs),
+        expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs, library = LIBRARY),
     output:
         "results/{library}/kraken2.{library}.genus.counts.tsv",
     benchmark:
