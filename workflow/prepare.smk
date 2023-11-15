@@ -32,13 +32,13 @@ min_reads = 25000
 
 input_fastq_pattern = os.path.join('results/01_cutadapt', config["LIBRARY"], '{samples}.fastq.gz')
 print(input_fastq_pattern)
-
 FIDs, = glob_wildcards(input_fastq_pattern)
 
+LIBRARY = config["LIBRARY"]
 
 rule all:
     input:
-        expand('{library}/results/00_QC/seqkit.report.raw.txt', library = config["LIBRARY"]),
+        expand('{library}/results/00_QC/seqkit.report.raw.txt', library = LIBRARY),
         # 'results/00_QC/seqkit.report.KDTrim.txt',
         # 'results/00_QC/seqkit.report.KDTRF.txt',
         # 'results/00_QC/seqkit.report.KDOvis.txt',
@@ -54,11 +54,11 @@ rule all:
 
 rule seqkitRaw:
     input:
-        expand('results/01_cutadapt/{library}/{samples}.fastq.gz', library = config["LIBRARY"], samples = FIDs),
+        expand('results/01_cutadapt/{library}/{samples}.fastq.gz', samples = FIDs),
     output:
-        expand('{library}/results/00_QC/seqkit.report.raw.txt', library = config["LIBRARY"])
+        '{library}/results/00_QC/seqkit.report.raw.txt'
     benchmark:
-        expand('{library}/benchmarks/seqkitRaw.txt', library = config["LIBRARY"])
+        '{library}/benchmarks/seqkitRaw.txt'
     #container:
     #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0' 
     conda:
