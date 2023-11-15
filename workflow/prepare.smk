@@ -55,7 +55,7 @@ rule all:
 
 rule seqkitRaw:
     input:
-        expand('results/01_cutadapt/{library}/{samples}.fastq.gz', library = LIBRARY, samples = FIDs),
+        expand('results/{library}/01_cutadapt/{samples}.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
         'results/{library}/00_QC/seqkit.report.raw.txt'
     benchmark:
