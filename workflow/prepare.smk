@@ -78,7 +78,8 @@ rule bbduk:
     log:
         'logs/{library}/bbduk/{samples}.bbduk.log'
     conda:
-        'envs/bbduk.yaml'
+        'bbduk'
+        #'envs/bbduk.yaml' TODO: fix broken recipe
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
@@ -106,7 +107,8 @@ rule prinseq:
     log:
         'logs/{library}/prinseq/{samples}.prinseq.log'
     conda:
-        'envs/prinseqPP.yaml'
+        'prinseqpp'
+        #'envs/prinseqPP.yaml' TODO: fix broken recipe
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
