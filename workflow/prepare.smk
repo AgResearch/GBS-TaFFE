@@ -60,7 +60,7 @@ checkpoint seqkitRaw:
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitRaw.txt')
     conda:
-        'envs/seqkit.yaml
+        'envs/seqkit.yaml'
         #'seqkit'
     threads: 32
     resources:
