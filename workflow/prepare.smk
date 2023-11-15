@@ -61,12 +61,11 @@ checkpoint seqkitRaw:
         os.path.join('benchmarks', LIBRARY, 'seqkitRaw.txt')
     conda:
         'envs/seqkit.yaml'
-        #'seqkit'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
-        partition="compute"
+        partition="compute,hugemem"
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
@@ -79,12 +78,12 @@ rule bbduk:
     log:
         'logs/{library}/bbduk/{samples}.bbduk.log'
     conda:
-        'bbduk'
+        'envs/bbduk.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'bbduk.sh '
         'threads={threads} '
@@ -107,7 +106,7 @@ rule prinseq:
     log:
         'logs/{library}/prinseq/{samples}.prinseq.log'
     conda:
-        'prinseqpp'
+        'envs/prinseqPP.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -143,13 +142,12 @@ checkpoint seqkitMaskingPrinseqReads:
     benchmark:
         os.path.join("benchmarks", LIBRARY, "seqkitMaskingPrinseqReads.txt")
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'envs/seqkit.yaml'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
 
@@ -160,24 +158,23 @@ def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, l
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed, library=lib)
+    return expand(os.path.join("results", lib, "01_readMasking/{samples}.bbduk.fastq.gz"), samples = passed)
 
 
 rule seqkitMaskingBBDukReads:
     input:
         bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.bbduk.txt'
+        os.path.join("results", LIBRARY, "00_QC", "seqkit.report.bbduk.txt")
     benchmark:
-        'benchmarks/{library}/seqkitMaskingBBDukReads.txt'
+        os.path.join("benchmarks", LIBRARY, "seqkitMaskingBBDukReads.txt")
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'envs/seqkit.yaml'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem'
     shell:
         'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
