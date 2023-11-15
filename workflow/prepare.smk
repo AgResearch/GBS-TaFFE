@@ -29,7 +29,7 @@ wildcard_constraints:
 
 # Global minimum read count for processing
 min_reads = 25000
-LIBRARY, = config["LIBRARY"]
+LIBRARY = config["LIBRARY"]
 
 input_fastq_pattern = os.path.join('results', config["LIBRARY"], '01_cutadapt', '{samples}.fastq.gz')
 print(input_fastq_pattern)
