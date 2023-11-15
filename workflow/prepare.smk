@@ -39,17 +39,18 @@ FIDs, = glob_wildcards(input_fastq_pattern)
 
 rule all:
     input:
-        'results/00_QC/seqkit.report.KDTrim.txt',
-        'results/00_QC/seqkit.report.KDTRF.txt',
-        'results/00_QC/seqkit.report.KDOvis.txt',
-        'results/00_QC/seqkit.report.KDBos.txt',
-        'results/00_QC/seqkit.report.KDCapra.txt',
-        'results/00_QC/seqkit.report.KDCervus.txt',
-        'results/00_QC/seqkit.report.KDSILVA138.txt',
-        'results/00_QC/seqkit.report.raw.txt',
-        'results/00_QC/seqkit.report.bbduk.txt',
-        'results/00_QC/seqkit.report.prinseq.txt',
-        'results/00_QC/seqkit.report.KDR.txt',
+        '{LIBRARY}/results/00_QC/seqkit.report.raw.txt',
+        # 'results/00_QC/seqkit.report.KDTrim.txt',
+        # 'results/00_QC/seqkit.report.KDTRF.txt',
+        # 'results/00_QC/seqkit.report.KDOvis.txt',
+        # 'results/00_QC/seqkit.report.KDBos.txt',
+        # 'results/00_QC/seqkit.report.KDCapra.txt',
+        # 'results/00_QC/seqkit.report.KDCervus.txt',
+        # 'results/00_QC/seqkit.report.KDSILVA138.txt',
+        # 'results/00_QC/seqkit.report.raw.txt',
+        # 'results/00_QC/seqkit.report.bbduk.txt',
+        # 'results/00_QC/seqkit.report.prinseq.txt',
+        # 'results/00_QC/seqkit.report.KDR.txt',
 
 
 checkpoint seqkitRaw:
