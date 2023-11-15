@@ -1,4 +1,4 @@
 # pipeline config file
 # include pipeline parameters here
 
-library: DEFAULT
+LIBRARY: DEFAULT
