@@ -39,21 +39,20 @@ LIBRARY = config["LIBRARY"]
 rule all:
     input:
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
-        expand("results/{library}/kraken2.{library}.genus.counts.tsv",  library = LIBRARY)
-        # 'results/00_QC/seqkit.report.KDTrim.txt',
-        # 'results/00_QC/seqkit.report.KDTRF.txt',
-        # 'results/00_QC/seqkit.report.KDOvis.txt',
-        # 'results/00_QC/seqkit.report.KDBos.txt',
-        # 'results/00_QC/seqkit.report.KDCapra.txt',
-        # 'results/00_QC/seqkit.report.KDCervus.txt',
-        # 'results/00_QC/seqkit.report.KDSILVA138.txt',
-        # 'results/00_QC/seqkit.report.raw.txt',
-        # 'results/00_QC/seqkit.report.bbduk.txt',
-        # 'results/00_QC/seqkit.report.prinseq.txt',
-        # 'results/00_QC/seqkit.report.KDR.txt',
+        expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
+        expand("results/{library}/kraken2.{library}.genus.counts.tsv",  library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDOvis.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDBos.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDCapra.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDCervus.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.bbduk.txt', library = LIBRARY),
 
 
-rule seqkitRaw:
+checkpoint seqkitRaw:
+    priority: 1000
     input:
         expand('results/{library}/01_cutadapt/{samples}.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
@@ -97,36 +96,6 @@ rule bbduk:
         'trimq=20 '
         'out={output.bbdukReads} '
         '2>&1 | tee {log}'
-
-
-def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
-    file = checkpoints.seqkitRaw.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed, library=lib)
-
-
-rule seqkitMaskingBBDukReads:
-    input:
-        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
-    output:
-        'results/{library}/00_QC/seqkit.report.bbduk.txt'
-    benchmark:
-        'benchmarks/{library}/seqkitMaskingBBDukReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
-    conda:
-        #'env/seqkit.yaml'
-        'seqkit'
-    threads: 32
-    resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
-        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
-        partition='compute',
-    shell:
-        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
 
 rule prinseq:
@@ -173,8 +142,6 @@ checkpoint seqkitMaskingPrinseqReads:
         'results/{library}/00_QC/seqkit.report.prinseq.txt'
     benchmark:
         'benchmarks/{library}/seqkitMaskingPrinseqReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -185,6 +152,33 @@ checkpoint seqkitMaskingPrinseqReads:
         partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
+
+def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/{library}/01_readMasking/{samples}.bbduk.fastq.gz", samples = passed, library=lib)
+
+
+rule seqkitMaskingBBDukReads:
+    input:
+        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
+    output:
+        'results/{library}/00_QC/seqkit.report.bbduk.txt'
+    benchmark:
+        'benchmarks/{library}/seqkitMaskingBBDukReads.txt'
+    conda:
+        #'env/seqkit.yaml'
+        'seqkit'
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
+        partition='compute',
+    shell:
+        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
 
 rule kneaddata:
@@ -291,8 +285,6 @@ rule seqkitKneaddata:
         'results/{library}/00_QC/seqkit.report.KDR.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddata.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -321,8 +313,6 @@ rule seqkitKneaddataTrimReads:
         'results/{library}/00_QC/seqkit.report.KDTrim.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataTrimReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -351,8 +341,6 @@ rule seqkitKneaddataTRFReads:
         'results/{library}/00_QC/seqkit.report.KDTRF.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataTRFReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -381,8 +369,6 @@ rule seqkitKneaddataOvisReads:
         'results/{library}/00_QC/seqkit.report.KDOvis.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataHostReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -410,8 +396,6 @@ rule seqkitKneaddataBosReads:
         'results/{library}/00_QC/seqkit.report.KDBos.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataHostReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -440,8 +424,6 @@ rule seqkitKneaddataCapraReads:
         'results/{library}/00_QC/seqkit.report.KDCapra.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataCapraReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -469,8 +451,6 @@ rule seqkitKneaddataCervusReads:
         'results/{library}/00_QC/seqkit.report.KDCervus.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataCervusReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -499,8 +479,6 @@ rule seqkitKneaddataSILVAReads:
         'results/{library}/00_QC/seqkit.report.KDSILVA138.txt'
     benchmark:
         'benchmarks/{library}/seqkitKneaddataSILVAReads.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -543,9 +521,18 @@ rule kraken2GTDB:
         " | tee {log} 2>&1 "
 
 
+def get_prinseq_passing_samples_for_taxpasta(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = passed, library = lib)
+
 rule taxpastaKraken2:
     input:
-        expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs, library = LIBRARY),
+        get_prinseq_passing_samples_for_taxpasta,
+        #expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs, library = LIBRARY),
     output:
         "results/{library}/kraken2.{library}.genus.counts.tsv",
     benchmark:
