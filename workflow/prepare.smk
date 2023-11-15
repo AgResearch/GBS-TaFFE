@@ -132,7 +132,7 @@ def get_seqkitMaskingPrinseqReads_passing_samples(wildcards, minReads=min_reads,
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/01_readMasking/{samples}.bbduk.prinseq.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "/01_readMasking/{samples}.bbduk.prinseq.fastq.gz"), samples = passed)
 
 
 checkpoint seqkitMaskingPrinseqReads:
