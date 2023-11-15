@@ -39,7 +39,7 @@ LIBRARY = config["LIBRARY"]
 rule all:
     input:
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
-        expand("results/{library}/kraken2.{library}.genus.counts.tsv")
+        expand("results/{library}/kraken2.{library}.genus.counts.tsv",  library = LIBRARY)
         # 'results/00_QC/seqkit.report.KDTrim.txt',
         # 'results/00_QC/seqkit.report.KDTRF.txt',
         # 'results/00_QC/seqkit.report.KDOvis.txt',
