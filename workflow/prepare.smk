@@ -31,6 +31,7 @@ wildcard_constraints:
 min_reads = 25000
 
 input_fastq_pattern = os.path.join('results/01_cutadapt', config["LIBRARY"], '{samples}.fastq.gz')
+print(input_fastq_pattern)
 
 FIDs, = glob_wildcards(input_fastq_pattern)
 
