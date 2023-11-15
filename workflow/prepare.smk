@@ -51,7 +51,7 @@ rule all:
         # 'results/00_QC/seqkit.report.KDR.txt',
 
 
-checkpoint seqkitRaw:
+rule seqkitRaw:
     input:
         expand('results/01_cutadapt/{config[LIBRARY]}/{samples}.fastq.gz', samples = FIDs),
     output:
