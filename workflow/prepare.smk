@@ -30,7 +30,9 @@ wildcard_constraints:
 # Global minimum read count for processing
 min_reads = 25000
 
-FIDs, = glob_wildcards('results/01_cutadapt/{samples}.fastq.gz')
+LIBRARY = config["library"]
+
+FIDs, = glob_wildcards('results/01_cutadapt/{LIBRARY}/{samples}.fastq.gz')
 
 
 rule all:
@@ -48,36 +50,13 @@ rule all:
         'results/00_QC/seqkit.report.KDR.txt',
 
 
-rule sana:
-    input:
-        "results/01_cutadapt/{samples}.fastq.gz",
-    output:
-        temp("results/01_readMasking/{samples}.sana.fastq.gz"),
-    log:
-        "logs/sana/sana.{samples}.log"
-    conda:
-        "seqkit"
-    benchmark:
-        "benchmarks/sana.{samples}.log"
-    threads: 8
-    resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
-        time = lambda wildcards, attempt: 8 + ((attempt - 1) * 10),
-        partition='compute',
-    shell:
-        "seqkit sana "
-        "-j {threads} "
-        "{input} "
-        "| gzip --fast -c > {output} 2> {log} "
-
-
 checkpoint seqkitRaw:
     input:
-        expand('results/01_readMasking/{samples}.sana.fastq.gz', samples = FIDs),
+        expand('results/01_cutadapt/{LIBRARY}/{samples}.fastq.gz', samples = FIDs),
     output:
-        'results/00_QC/seqkit.report.raw.txt'
+        '{LIBRARY}/results/00_QC/seqkit.report.raw.txt'
     benchmark:
-        'benchmarks/seqkitRaw.txt'
+        '{LIBRARY}/benchmarks/seqkitRaw.txt'
     #container:
     #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0' 
     conda:
@@ -94,7 +73,7 @@ checkpoint seqkitRaw:
 
 rule bbduk:
     input:
-        reads = 'results/01_readMasking/{samples}.sana.fastq.gz',
+        reads = 'results/01_cutadapt/{samples}.fastq.gz',
     output:
         bbdukReads = temp('results/01_readMasking/{samples}.bbduk.fastq.gz')
     log:
@@ -306,7 +285,7 @@ def get_seqkitKneaddata_passing_samples(wildcards, minReads=min_reads):
     return expand("results/02_kneaddata/{samples}.fastq.gz", samples = passed)
 
 
-checkpoint seqkitKneaddata:
+rule seqkitKneaddata:
     input:
         KDRs = get_seqkitKneaddata_passing_samples,
     output:
@@ -534,3 +513,59 @@ rule seqkitKneaddataSILVAReads:
     shell:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
+
+#KRAKEN2 RULES
+rule kraken2GTDB:
+    input:
+        KDRs = "results/02_kneaddata/{samples}.fastq.gz",
+    output:
+        k2OutputGTDB = "results/03_kraken2GTDB/{samples}.k2",
+        k2ReportGTDB = "results/03_kraken2GTDB/{samples}.kraken2",
+    log:
+        "logs/kraken2GTDB/kraken2GTDB.{samples}.GTDB.log",
+    benchmark:
+        "benchmarks/kraken2GTDB.{samples}.txt"
+    conda:
+        "kraken2"
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        partition = "compute,hugemem"
+    shell:
+        "kraken2 "
+        "--use-names "
+        "--db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB "
+        "-t {threads} "
+        "--report {output.k2ReportGTDB} "
+        "--report-minimizer-data "
+        "{input.KDRs} "
+        "--output {output.k2OutputGTDB} "
+        "2>&1 | tee {log} "
+
+
+rule taxpastaKraken2:
+    input:
+        expand("results/03_kraken2GTDB/{samples}.kraken2", sample = FIDs),
+    output:
+        "results/kraken2.counts.tsv",
+    benchmark:
+        "benchmarks/taxpastaKraken2.txt"
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at genus "
+        "{input} "
