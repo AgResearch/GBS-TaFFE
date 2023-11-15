@@ -139,9 +139,9 @@ checkpoint seqkitMaskingPrinseqReads:
     input:
         prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.prinseq.txt'
+        'results/{wildcards.library}/00_QC/seqkit.report.prinseq.txt'
     benchmark:
-        'benchmarks/{library}/seqkitMaskingPrinseqReads.txt'
+        'benchmarks/{wildcards.library}/seqkitMaskingPrinseqReads.txt'
     conda:
         #'env/seqkit.yaml'
         'seqkit'
