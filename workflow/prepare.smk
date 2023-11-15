@@ -56,9 +56,9 @@ checkpoint seqkitRaw:
     input:
         expand('results/{library}/01_cutadapt/{samples}.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
-        os.path.join('results', LIBRARY, '/00_QC/seqkit.report.raw.txt')
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.raw.txt')
     benchmark:
-        os.path.join('benchmarks', LIBRARY, '/seqkitRaw.txt')
+        os.path.join('benchmarks', LIBRARY, 'seqkitRaw.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
