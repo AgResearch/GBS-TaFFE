@@ -32,7 +32,9 @@ min_reads = 25000
 
 LIBRARY = config["library"]
 
-FIDs, = glob_wildcards('results/01_cutadapt/{LIBRARY}/{samples}.fastq.gz')
+input_fastq_pattern = os.join.path('results/01_cutadapt', LIBRARY, "{samples}.fastq.gz")
+
+FIDs, = glob_wildcards(input_fastq_pattern)
 
 
 rule all:
