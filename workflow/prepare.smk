@@ -139,9 +139,9 @@ checkpoint seqkitMaskingPrinseqReads:
     input:
         prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
     output:
-        expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY)
     benchmark:
-        expand('benchmarks/{library}/seqkitMaskingPrinseqReads.txt', library = LIBRARY),
+        expand('benchmarks/{library}/seqkitMaskingPrinseqReads.txt', library = LIBRARY)
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -152,6 +152,7 @@ checkpoint seqkitMaskingPrinseqReads:
         partition='compute',
     shell:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
+
 
 def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
     file = checkpoints.seqkitRaw.get().output[0]
