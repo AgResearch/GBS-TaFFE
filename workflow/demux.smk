@@ -25,14 +25,14 @@ onstart:
 
 rule all:
     input:
-        expand("results/01_cutadapt/{library}", library=LIBRARIES),
+        expand("results/{library}/01_cutadapt", library=LIBRARIES),
 
 
 rule cutadapt: # demultiplexing GBS reads
     input:
         barcodes = "resources/{library}.cutadapt.barcodes.fasta",
     output:
-        demuxed = directory("results/01_cutadapt/{library}"),
+        demuxed = directory("results/{library}/01_cutadapt"),
     conda:
         'cutadapt-4.4'
     benchmark:

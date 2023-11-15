@@ -59,8 +59,6 @@ rule seqkitRaw:
         '{library}/results/00_QC/seqkit.report.raw.txt'
     benchmark:
         '{library}/benchmarks/seqkitRaw.txt'
-    #container:
-    #    'docker://quay.io/biocontainers/seqkit:2.2.0--h9ee0642_0' 
     conda:
         #'env/seqkit.yaml'
         'seqkit'
