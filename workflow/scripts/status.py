@@ -21,4 +21,3 @@ elif output in failure_states:
     print("failed")
 else:
     print("running")
-    
