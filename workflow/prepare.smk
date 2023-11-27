@@ -282,7 +282,7 @@ rule seqkitKneaddata:
     input:
         KDRs = get_seqkitKneaddata_passing_samples,
     output:
-        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDR.txt')
+        os.path.join('results', LIBRARY, '00_QC' ,'seqkit.report.KDR.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddata.txt')
     conda:
@@ -310,7 +310,7 @@ rule seqkitKneaddataTrimReads:
     input:
         trimReads = get_seqkitKneaddataTrimReads_passing_samples
     output:
-        os.path.join('results', LIBRARY, 'seqkit.report.KDTrim.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDTrim.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataTrimReads.txt')
     conda:
@@ -338,7 +338,7 @@ rule seqkitKneaddataTRFReads:
     input:
         trfReads = get_seqkitKneaddataTRFReads_passing_samples
     output:
-        os.path.join('results', LIBRARY, 'seqkit.report.KDTRF.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDTRF.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataTRFReads.txt')
     conda:
@@ -366,7 +366,7 @@ rule seqkitKneaddataOvisReads:
     input:
         HostReads = get_seqkitKneaddataOvisReads_passing_samples,
     output:
-        os.path.join('results', LIBRARY, 'seqkit.report.KDOvis.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDOvis.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataHostReads.txt')
     conda:
@@ -394,7 +394,7 @@ rule seqkitKneaddataBosReads:
     input:
         HostReads = get_seqkitKneaddataBosReads_passing_samples,
     output:
-        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDBos.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDBos.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataHostReads.txt')
     conda:
@@ -422,7 +422,7 @@ rule seqkitKneaddataCapraReads:
     input:
         HostReads = get_seqkitKneaddataCapraReads_passing_samples,
     output:
-        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDCapra.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDCapra.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataCapraReads.txt')
     conda:
@@ -450,7 +450,7 @@ rule seqkitKneaddataCervusReads:
     input:
         HostReads = get_seqkitKneaddataCervusReads_passing_samples,
     output:
-        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDCervus.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDCervus.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataCervusReads.txt')
     conda:
@@ -478,7 +478,7 @@ rule seqkitKneaddataSILVAReads:
     input:
         silvaReads = get_seqkitKneaddataSILVAReads_passing_samples,
     output:
-        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDSILVA138.txt')
+        os.path.join('results', LIBRARY, '00_QC', 'seqkit.report.KDSILVA138.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataSILVAReads.txt')
     conda:
