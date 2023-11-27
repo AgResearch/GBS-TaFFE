@@ -40,7 +40,7 @@ rule all:
     input:
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
-        expand("results/{library}/kraken2.{library}.genus.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.genus.counts.tsv",  library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDOvis.txt', library = LIBRARY),
@@ -79,7 +79,7 @@ rule bbduk:
         'logs/{library}/bbduk/{samples}.bbduk.log'
     conda:
         'bbduk'
-        #'envs/bbduk.yaml' TODO: fix broken recipe
+        #'envs/bbduk.yaml' TODO: fix broken
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
@@ -108,7 +108,7 @@ rule prinseq:
         'logs/{library}/prinseq/{samples}.prinseq.log'
     conda:
         'prinseqpp'
-        #'envs/prinseqPP.yaml' TODO: fix broken recipe
+        #'envs/prinseqPP.yaml' TODO: fix broken 
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -206,19 +206,19 @@ rule kneaddata:
         partition='compute',
     shell:
         'kneaddata '
-        '--trimmomatic-options "ILLUMINACLIP:resources/illuminaAdapters.fa:2:30:10 MINLEN:40" '
+        '--trimmomatic-options "ILLUMINACLIP:resources/adapters.fasta:2:30:10 MINLEN:40" '
         '-un {input} '
         '--output-prefix {wildcards.samples} '
         '-t {threads} '
         '--log-level DEBUG '
         '--log {log} '
-        '--trimmomatic ~/.conda/envs/kneaddata/share/trimmomatic-0.39-2 '
+        '--trimmomatic ~/.conda/envs/kneaddata/share/trimmomatic-0.39-2 ' #TODO Check Path
         '--sequencer-source TruSeq3 '
-        '-db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
-        '-db /nesi/nobackup/agresearch03843/ARSUCD1/ARS_UCD1.3 '
-        '-db /nesi/nobackup/agresearch03843/CAPRA/CAPRA_ARS1.2 '
-        '-db /nesi/nobackup/agresearch03843/CERVUS/mCerEla1 '
-        '-db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
+        '-db /agr/scratch/projects/2023-mbie-rumen-gbs/RAMBV2/Rambv2/GCF_016772045.1-ARS-UI-Ramb-v2.0 '
+        '-db /agr/scratch/projects/2023-mbie-rumen-gbs/ARSUCD1/ARS_UCD1.3 '
+        '-db /agr/scratch/projects/2023-mbie-rumen-gbs/CAPRA/CAPRA_ARS1.2 '
+        '-db /agr/scratch/projects/2023-mbie-rumen-gbs/CERVUS/mCerEla1 '
+        '-db /agr/scratch/projects/2023-mbie-rumen-gbs/SILVA138/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/{wildcards.library}/02_kneaddata '
         '&& '
         'touch {output.KDRs} '
@@ -275,16 +275,16 @@ def get_seqkitKneaddata_passing_samples(wildcards, minReads=min_reads, lib=LIBRA
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddata:
     input:
         KDRs = get_seqkitKneaddata_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDR.txt'
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDR.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddata.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddata.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -303,16 +303,16 @@ def get_seqkitKneaddataTrimReads_passing_samples(wildcards, minReads=min_reads, 
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}.trimmed.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}.trimmed.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataTrimReads: 
     input:
         trimReads = get_seqkitKneaddataTrimReads_passing_samples
     output:
-        'results/{library}/00_QC/seqkit.report.KDTrim.txt'
+        os.path.join('results', LIBRARY, 'seqkit.report.KDTrim.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataTrimReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataTrimReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -331,16 +331,16 @@ def get_seqkitKneaddataTRFReads_passing_samples(wildcards, minReads=min_reads, l
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}.repeats.removed.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}.repeats.removed.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataTRFReads:
     input:
         trfReads = get_seqkitKneaddataTRFReads_passing_samples
     output:
-        'results/{library}/00_QC/seqkit.report.KDTRF.txt'
+        os.path.join('results', LIBRARY, 'seqkit.report.KDTRF.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataTRFReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataTRFReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -359,16 +359,16 @@ def get_seqkitKneaddataOvisReads_passing_samples(wildcards, minReads=min_reads, 
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}_GCF_016772045.1-ARS-UI-Ramb-v2.0_bowtie2_contam.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataOvisReads:
     input:
         HostReads = get_seqkitKneaddataOvisReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDOvis.txt'
+        os.path.join('results', LIBRARY, 'seqkit.report.KDOvis.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataHostReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataHostReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -380,22 +380,23 @@ rule seqkitKneaddataOvisReads:
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
+
 def get_seqkitKneaddataBosReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}_ARS_UCD1.3_bowtie2_contam.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataBosReads:
     input:
         HostReads = get_seqkitKneaddataBosReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDBos.txt'
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDBos.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataHostReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataHostReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -414,16 +415,16 @@ def get_seqkitKneaddataCapraReads_passing_samples(wildcards, minReads=min_reads,
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}_CAPRA_ARS1.2_bowtie2_contam.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataCapraReads:
     input:
         HostReads = get_seqkitKneaddataCapraReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDCapra.txt'
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDCapra.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataCapraReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataCapraReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -435,22 +436,23 @@ rule seqkitKneaddataCapraReads:
     shell:
         'seqkit stats -j {threads} -a {input.HostReads} > {output} '
 
+
 def get_seqkitKneaddataCervusReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
     file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}_mCerEla1_bowtie2_contam.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataCervusReads:
     input:
         HostReads = get_seqkitKneaddataCervusReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDCervus.txt'
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDCervus.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataCervusReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataCervusReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -469,16 +471,16 @@ def get_seqkitKneaddataSILVAReads_passing_samples(wildcards, minReads=min_reads,
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq.gz", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq.gz"), samples = passed)
 
 
 rule seqkitKneaddataSILVAReads:
     input:
         silvaReads = get_seqkitKneaddataSILVAReads_passing_samples,
     output:
-        'results/{library}/00_QC/seqkit.report.KDSILVA138.txt'
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.KDSILVA138.txt')
     benchmark:
-        'benchmarks/{library}/seqkitKneaddataSILVAReads.txt'
+        os.path.join('benchmarks', LIBRARY, 'seqkitKneaddataSILVAReads.txt')
     conda:
         #'env/seqkit.yaml'
         'seqkit'
@@ -512,7 +514,7 @@ rule kraken2GTDB:
     shell:
         "kraken2 "
         "--use-names "
-        "--db /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB "
+        "--db /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB " 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
@@ -527,16 +529,17 @@ def get_prinseq_passing_samples_for_taxpasta(wildcards, minReads=min_reads, lib=
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = passed, library = lib)
+    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.kraken2"), samples = passed)
+
 
 rule taxpastaKraken2:
     input:
         get_prinseq_passing_samples_for_taxpasta,
         #expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs, library = LIBRARY),
     output:
-        "results/{library}/kraken2.{library}.genus.counts.tsv",
+        os.path.join("results", LIBRARY, "kraken2.genus.counts.tsv")
     benchmark:
-        "benchmarks/{library}/taxpastaKraken2.txt"
+        os.path.join("results", LIBRARY, "taxpastaKraken2.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -549,7 +552,7 @@ rule taxpastaKraken2:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxonomy "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
