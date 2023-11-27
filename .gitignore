@@ -13,3 +13,4 @@ snakemake.report.html
 snakemakeReport.html
 results
 benchmarks
+resources/SQ*
