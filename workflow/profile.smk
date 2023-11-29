@@ -20,6 +20,7 @@ wildcard_constraints:
 # Global minimum read count for processing
 min_reads = 25000
 LIBRARY = config["LIBRARY"]
+kdr_seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.KDR.txt")
 
 
 def get_passing_KDR_files(wildcards, seqkitOut = "results/00_QC/seqkit.report.KDR.txt", minReads=min_reads, lib=LIBRARY):
@@ -31,7 +32,7 @@ def get_passing_KDR_files(wildcards, seqkitOut = "results/00_QC/seqkit.report.KD
     return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.kraken2"), samples = passed)
 
 
-def get_passing_FIDs(seqkitOut = "results/00_QC/seqkit.report.KDR.txt", minReads=min_reads, lib=LIBRARY):
+def get_passing_FIDs(seqkitOut = kdr_seqkit_report, minReads=min_reads, lib=LIBRARY):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
