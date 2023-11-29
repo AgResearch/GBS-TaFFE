@@ -38,9 +38,9 @@ FIDs, = glob_wildcards(input_fastq_pattern)
 
 rule all:
     input:
+        expand('results/{library}/02_kneaddata/{samples}.fastq.gz', library = LIBRARY, samples = FIDs)
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
-        expand("results/{library}/kraken2.genus.counts.tsv",  library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDOvis.txt', library = LIBRARY),
@@ -492,69 +492,3 @@ rule seqkitKneaddataSILVAReads:
     shell:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
-
-#KRAKEN2 RULES
-rule kraken2GTDB:
-    input:
-        KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
-    output:
-        k2OutputGTDB = "results/{library}/03_kraken2GTDB/{samples}.k2",
-        k2ReportGTDB = "results/{library}/03_kraken2GTDB/{samples}.kraken2",
-    log:
-        "logs/{library}/kraken2GTDB/kraken2GTDB.{samples}.GTDB.log",
-    benchmark:
-        "benchmarks/{library}/kraken2GTDB.{samples}.txt"
-    conda:
-        "kraken2"
-    threads: 32
-    resources:
-        mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "compute,hugemem"
-    shell:
-        "kraken2 "
-        "--use-names "
-        "--db /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB " 
-        "-t {threads} "
-        "--report {output.k2ReportGTDB} "
-        "--report-minimizer-data "
-        "{input.KDRs} "
-        "--output {output.k2OutputGTDB} "
-        " | tee {log} 2>&1 "
-
-
-def get_prinseq_passing_samples_for_taxpasta(wildcards, minReads=min_reads, lib=LIBRARY):
-    file = checkpoints.seqkitMaskingPrinseqReads.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.kraken2"), samples = passed)
-
-
-rule taxpastaKraken2:
-    input:
-        get_prinseq_passing_samples_for_taxpasta,
-        #expand("results/{library}/03_kraken2GTDB/{samples}.kraken2", samples = FIDs, library = LIBRARY),
-    output:
-        os.path.join("results", LIBRARY, "kraken2.genus.counts.tsv")
-    benchmark:
-        os.path.join("results", LIBRARY, "taxpastaKraken2.txt")
-    conda:
-        "taxpasta"
-    threads: 2
-    resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
-        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
-    shell:
-        "taxpasta merge "
-        "-p kraken2 "
-        "-o {output} "
-        "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
-        "--add-name "
-        "--add-rank "
-        "--add-lineage "
-        "--summarise-at genus "
-        "{input} "
