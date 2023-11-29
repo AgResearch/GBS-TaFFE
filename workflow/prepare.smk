@@ -38,7 +38,7 @@ FIDs, = glob_wildcards(input_fastq_pattern)
 
 rule all:
     input:
-        expand('results/{library}/02_kneaddata/{samples}.fastq.gz', library = LIBRARY, samples = FIDs)
+        expand('results/{library}/02_kneaddata/{samples}.fastq.gz', library = LIBRARY, samples = FIDs),
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
