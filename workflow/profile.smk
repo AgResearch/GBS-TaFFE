@@ -38,7 +38,7 @@ def get_passing_FIDs(wildcards, seqkitOut = "results/00_QC/seqkit.report.KDR.txt
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
 
-FIDs = get_passing_FIDs(seqkitOut = "results/00_QC/seqkit.report.KDR.txt", minReads = min_reads, lib = LIBRARY)
+FIDs = get_passing_FIDs()
 
 onstart:
     print(f"Working directory: {os.getcwd()}")
