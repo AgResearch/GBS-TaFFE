@@ -31,7 +31,7 @@ def get_passing_KDR_files(wildcards, seqkitOut = "results/00_QC/seqkit.report.KD
     return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.kraken2"), samples = passed)
 
 
-def get_passing_FIDs(seqkitOut, minReads=min_reads):
+def get_passing_FIDs(wildcards, seqkitOut = "results/00_QC/seqkit.report.KDR.txt", minReads=min_reads, lib=LIBRARY):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
