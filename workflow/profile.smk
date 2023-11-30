@@ -29,7 +29,7 @@ def get_passing_KDR_files(wildcards, seqkitOut = kdr_seqkit_report, minReads=min
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.kraken2"), samples = passed)
+    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.GTDB207.kraken2"), samples = passed)
 
 
 def get_passing_FIDs(seqkitOut = kdr_seqkit_report, minReads=min_reads, lib=LIBRARY):
@@ -55,25 +55,29 @@ onstart:
 	
 rule all:
     input:
-        expand("results/{library}/kraken2.genus.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.genus.counts.biom",  library = LIBRARY),
-        #"results/bracken.k2.counts.tsv",
-        #"results/bracken.k2.counts.biom",
-        #expand("results/03_centrifuge/{sample}.centrifuge", sample=FIDs),
+        expand("results/{library}/kraken2.GTDB207.kingdom.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.phylum.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.order.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.class.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.family.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.genus.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.species.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB207.genus.counts.biom",  library = LIBRARY),
+        
         #expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FIDs),
 
 
 #KRAKEN2 RULES
-rule kraken2GTDB:
+rule kraken2_GTDB207:
     input:
         KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2GTDB/{samples}.k2",
-        k2ReportGTDB = "results/{library}/03_kraken2GTDB/{samples}.kraken2",
+        k2OutputGTDB = "results/{library}/03_kraken2GTDB/{samples}.GTDB207.k2",
+        k2ReportGTDB = "results/{library}/03_kraken2GTDB/{samples}.GTDB207.kraken2",
     log:
-        "logs/{library}/kraken2GTDB/kraken2GTDB.{samples}.GTDB.log",
+        "logs/{library}/kraken2_GTDB207/kraken2GTDB.{samples}.GTDB207.log",
     benchmark:
-        "benchmarks/{library}/kraken2GTDB.{samples}.txt"
+        "benchmarks/{library}/kraken2_GTDB207.{samples}.txt"
     conda:
         "kraken2"
     threads: 32
@@ -94,13 +98,150 @@ rule kraken2GTDB:
 
 
 
-rule taxpastaKraken2:
+rule taxpasta_Kraken2_GTDB207_kingdom:
     input:
         get_passing_KDR_files,
     output:
-        os.path.join("results", LIBRARY, "kraken2.genus.counts.tsv")
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.kingdom.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpastaKraken2.txt")
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_kingdom.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at kingdom "
+        "{input} "
+
+
+rule taxpasta_Kraken2_GTDB207_phylum:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.phylum.counts.tsv")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_phylum.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at phylum "
+        "{input} "
+
+
+
+
+rule taxpasta_Kraken2_GTDB207_order:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.order.counts.tsv")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_order.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at order "
+        "{input} "
+
+
+rule taxpasta_Kraken2_GTDB207_class:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.class.counts.tsv")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_class.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at class "
+        "{input} "
+
+
+rule taxpasta_Kraken2_GTDB207_family:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.family.counts.tsv")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_family.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at family "
+        "{input} "
+
+
+rule taxpasta_Kraken2_GTDB207_genus:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.genus.counts.tsv")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_genus.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -121,13 +262,40 @@ rule taxpastaKraken2:
         "{input} "
 
 
-rule taxpastaKraken2Biom:
+rule taxpasta_Kraken2_GTDB207_species:
     input:
         get_passing_KDR_files,
     output:
-        os.path.join("results", LIBRARY, "kraken2.genus.counts.biom")
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.species.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpastaKraken2Biom.txt")
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_species.txt")
+    conda:
+        "taxpasta"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute,hugemem"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy /agr/scratch/projects/2023-mbie-rumen-gbs/kraken2-GTDB/GTDB/taxonomy "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at species "
+        "{input} "
+
+
+rule taxpasta_Kraken2_GTDB207_Biom:
+    input:
+        get_passing_KDR_files,
+    output:
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.genus.counts.biom")
+    benchmark:
+        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_Biom.txt")
     conda:
         "taxpasta"
     threads: 2
