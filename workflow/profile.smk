@@ -112,7 +112,7 @@ rule kraken2_GTDB207:
     resources:
         mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "compute,hugemem"
+        partition = "hugemem"
     shell:
         "kraken2 "
         "--use-names "
@@ -139,7 +139,7 @@ rule taxpasta_Kraken2_GTDB207_kingdom:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -166,7 +166,7 @@ rule taxpasta_Kraken2_GTDB207_phylum:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -195,7 +195,7 @@ rule taxpasta_Kraken2_GTDB207_order:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -222,7 +222,7 @@ rule taxpasta_Kraken2_GTDB207_class:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -249,7 +249,7 @@ rule taxpasta_Kraken2_GTDB207_family:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -276,7 +276,7 @@ rule taxpasta_Kraken2_GTDB207_genus:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -303,7 +303,7 @@ rule taxpasta_Kraken2_GTDB207_species:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -330,7 +330,7 @@ rule taxpasta_Kraken2_GTDB207_Biom:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -359,7 +359,7 @@ rule kraken2_GTDB214:
     resources:
         mem_gb = lambda wildcards, attempt: 324 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "compute,hugemem"
+        partition = "hugemem"
     shell:
         "kraken2 "
         "--use-names "
@@ -386,7 +386,7 @@ rule taxpasta_Kraken2_GTDB214_kingdom:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -413,7 +413,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -442,7 +442,7 @@ rule taxpasta_Kraken2_GTDB214_order:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -469,7 +469,7 @@ rule taxpasta_Kraken2_GTDB214_class:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -496,7 +496,7 @@ rule taxpasta_Kraken2_GTDB214_family:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -523,7 +523,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -550,7 +550,7 @@ rule taxpasta_Kraken2_GTDB214_species:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
@@ -577,7 +577,7 @@ rule taxpasta_Kraken2_GTDB214_Biom:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "taxpasta merge "
         "-p kraken2 "
