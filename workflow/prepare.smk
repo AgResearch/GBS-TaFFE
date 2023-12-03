@@ -38,13 +38,14 @@ FIDs, = glob_wildcards(input_fastq_pattern)
 
 rule all:
     input:
-        expand('results/{library}/00_QC/seqkit.report.KDR.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.bbduk.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.KDR.txt', library = LIBRARY),
+# QC reports
         expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.bbduk.txt', library = LIBRARY),
 
 
 checkpoint seqkitRaw:
@@ -151,33 +152,6 @@ checkpoint seqkitMaskingPrinseqReads:
         'seqkit stats -j {threads} -a {input.prinseqReads} > {output} '
 
 
-def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
-    file = checkpoints.seqkitRaw.get().output[0]
-    qc_stats = pd.read_csv(file, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "01_readMasking/{samples}.bbduk.fastq.gz"), samples = passed)
-
-
-rule seqkitMaskingBBDukReads:
-    input:
-        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
-    output:
-        os.path.join("results", LIBRARY, "00_QC", "seqkit.report.bbduk.txt")
-    benchmark:
-        os.path.join("benchmarks", LIBRARY, "seqkitMaskingBBDukReads.txt")
-    conda:
-        'envs/seqkit.yaml'
-    threads: 32
-    resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
-        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
-        partition='compute,hugemem'
-    shell:
-        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
-
-
 rule kneaddata:
     input:
         'results/{library}/01_readMasking/{samples}.bbduk.prinseq.fastq.gz'
@@ -264,6 +238,33 @@ rule gzip_KDR_temps:
         #"{input.capraReads} "
         #"{input.cervusReads} "
         "{input.silvaReads} "
+
+
+def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.seqkitRaw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand(os.path.join("results", lib, "01_readMasking/{samples}.bbduk.fastq.gz"), samples = passed)
+
+
+rule seqkitMaskingBBDukReads:
+    input:
+        bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
+    output:
+        os.path.join("results", LIBRARY, "00_QC", "seqkit.report.bbduk.txt")
+    benchmark:
+        os.path.join("benchmarks", LIBRARY, "seqkitMaskingBBDukReads.txt")
+    conda:
+        'envs/seqkit.yaml'
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 30),
+        partition='compute,hugemem'
+    shell:
+        'seqkit stats -j {threads} -a {input.bbdukReads} > {output} '
 
 
 def get_seqkitKneaddata_passing_samples(wildcards, minReads=min_reads, lib=LIBRARY):
