@@ -122,7 +122,7 @@ rule kraken2_GTDB207:
         "--report-minimizer-data "
         "{input.KDRs} "
         "--output {output.k2OutputGTDB} "
-        " | tee {log} 2>&1 "
+        " > {log} "
 
 
 
@@ -369,7 +369,7 @@ rule kraken2_GTDB214:
         "--report-minimizer-data "
         "{input.KDRs} "
         "--output {output.k2OutputGTDB} "
-        " | tee {log} 2>&1 "
+        " > {log} "
 
 
 
