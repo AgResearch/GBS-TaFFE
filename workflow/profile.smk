@@ -63,7 +63,7 @@ onstart:
 rule all:
     input:
         #GTDB207
-        # expand("results/{library}/kraken2.GTDB207.kingdom.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/kraken2.GTDB207.domain.counts.tsv",  library = LIBRARY),
         # expand("results/{library}/kraken2.GTDB207.phylum.counts.tsv",  library = LIBRARY),
         # expand("results/{library}/kraken2.GTDB207.order.counts.tsv",  library = LIBRARY),
         # expand("results/{library}/kraken2.GTDB207.class.counts.tsv",  library = LIBRARY),
@@ -72,7 +72,7 @@ rule all:
         # expand("results/{library}/kraken2.GTDB207.species.counts.tsv",  library = LIBRARY),
         # expand("results/{library}/kraken2.GTDB207.genus.counts.biom",  library = LIBRARY),
         #GTDB214
-        expand("results/{library}/kraken2.GTDB214.kingdom.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
@@ -126,11 +126,11 @@ rule kraken2_GTDB207:
 
 
 
-rule taxpasta_Kraken2_GTDB207_kingdom:
+rule taxpasta_Kraken2_GTDB207_domain:
     input:
         get_passing_KDR_files_GTDB207,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB207.kingdom.counts.tsv")
+        os.path.join("results", LIBRARY, "kraken2.GTDB207.domain.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB207_kingdom.txt")
     conda:
@@ -149,7 +149,7 @@ rule taxpasta_Kraken2_GTDB207_kingdom:
         "--add-name "
         "--add-rank "
         "--add-lineage "
-        "--summarise-at kingdom "
+        "--summarise-at Domain "
         "{input} "
 
 
@@ -373,11 +373,11 @@ rule kraken2_GTDB214:
 
 
 
-rule taxpasta_Kraken2_GTDB214_kingdom:
+rule taxpasta_Kraken2_GTDB214_domain:
     input:
         get_passing_KDR_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.kingdom.counts.tsv")
+        os.path.join("results", LIBRARY, "kraken2.GTDB214.domain.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_kingdom.txt")
     conda:
@@ -396,7 +396,7 @@ rule taxpasta_Kraken2_GTDB214_kingdom:
         "--add-name "
         "--add-rank "
         "--add-lineage "
-        "--summarise-at kingdom "
+        "--summarise-at domain "
         "{input} "
 
 
