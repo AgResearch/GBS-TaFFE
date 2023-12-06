@@ -109,7 +109,7 @@ rule prinseq:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 10 + ((attempt - 1) * 10),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'prinseq++ '
         '-threads {threads} '
@@ -146,7 +146,7 @@ rule kneaddata:
     resources:
         mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'kneaddata '
         '--trimmomatic-options "ILLUMINACLIP:resources/adapters.fasta:2:30:10 MINLEN:40" '
@@ -199,7 +199,7 @@ rule gzip_KDR_temps:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 8),
         time = lambda wildcards, attempt: 16 + ((attempt - 1) * 16),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         "pigz -p 12 "
         "{input.KDRs} "
@@ -237,7 +237,7 @@ rule seqkitKneaddata:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'seqkit stats -j {threads} -a {input.KDRs} > {output.report} && '
         'touch {output.token} '
@@ -323,7 +323,7 @@ rule seqkitKneaddataTrimReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'seqkit stats -j {threads} -a {input.trimReads} > {output} '
 
@@ -352,7 +352,7 @@ rule seqkitKneaddataTRFReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'seqkit stats -j {threads} -a {input.trfReads} > {output} '
 
@@ -381,7 +381,7 @@ rule seqkitKneaddataSILVAReads:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 30),
-        partition='compute',
+        partition='compute,hugemem',
     shell:
         'seqkit stats -j {threads} -a {input.silvaReads} > {output} '
 
