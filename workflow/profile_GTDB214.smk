@@ -18,28 +18,19 @@ wildcard_constraints:
 
 
 # Global minimum read count for processing
-min_reads = 25000
+min_reads = 50000
 LIBRARY = config["LIBRARY"]
-kdr_seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.KDR.txt")
+seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
 
-
-def get_passing_KDR_files_GTDB207(wildcards, seqkitOut = kdr_seqkit_report, minReads=min_reads, lib=LIBRARY):
+def get_passing_files_GTDB214(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.GTDB207.kraken2"), samples = passed)
+    return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
 
-def get_passing_KDR_files_GTDB214(wildcards, seqkitOut = kdr_seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2GTDB/{samples}.GTDB214.kraken2"), samples = passed)
-
-def get_passing_FIDs(seqkitOut = kdr_seqkit_report, minReads=min_reads, lib=LIBRARY):
+def get_passing_FIDs(seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
     import pandas as pd
     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
@@ -59,19 +50,10 @@ onstart:
     os.system('echo "  PYTHON VERSION: $(python --version)"')
     os.system('echo "  CONDA VERSION: $(conda --version)"')
 
-	
+
 rule all:
     input:
-        #GTDB207
-        # expand("results/{library}/kraken2.GTDB207.domain.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.phylum.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.order.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.class.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.family.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.genus.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.species.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/kraken2.GTDB207.genus.counts.biom",  library = LIBRARY),
-        #GTDB214
+#kraken2
         expand("results/{library}/kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
@@ -80,19 +62,16 @@ rule all:
         expand("results/{library}/kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
-
-
-        # "results/04_functional/humann3_uniref50EC_pathabundance.rpk.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.tsv",
-        # "results/04_functional/humann3_uniref50EC_pathcoverage.rpk.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.KO.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.EC.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.pfam.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.EggNOG.tsv",
-        # "results/04_functional/humann3_uniref50EC_pathabundance.rpk.cpm.QC.tsv",
-        # "results/04_functional/humann3_uniref50EC_genefamilies.rpk.cpm.QC.tsv"
-
-        #expand("results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv", sample=FIDs),
+#human3
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.rpk.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv", library = LIBRARY),
+        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv", library = LIBRARY),
 
 
 #KRAKEN2 RULES
@@ -100,8 +79,9 @@ rule kraken2_GTDB214:
     input:
         KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2GTDB/{samples}.GTDB214.k2",
-        k2ReportGTDB = "results/{library}/03_kraken2GTDB/{samples}.GTDB214.kraken2",
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
+        k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2",
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq"),
     log:
         "logs/{library}/kraken2_GTDB214/kraken2GTDB.{samples}.GTDB214.log",
     benchmark:
@@ -116,18 +96,44 @@ rule kraken2_GTDB214:
     shell:
         "kraken2 "
         "--use-names "
+        "--gzip-compressed "
+        "--classified-out {output.k2Classified_read} "
         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
-        "{input.KDRs} "
         "--output {output.k2OutputGTDB} "
-        " > {log} "
+        "{input.KDRs} "
+        "2>&1 | tee {log} "
+
+
+rule kraken2_GTDB214_gz:
+    priority: 1000
+    input:
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
+        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq",
+    output:
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2.gz",
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq.gz"),
+    benchmark:
+        "benchmarks/{library}/kraken2_GTDB214_gz.{sample}.txt"
+    conda:
+        "pigz"
+    threads: 8
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 16),
+        time = lambda wildcards, attempt: 40 + ((attempt - 1) * 60),
+        partition = "compute,hugemem"
+    shell:
+        "pigz "
+        "-p {threads} "
+        "{input.k2OutputGTDB} " 
+        "{input.k2Classified_read} " 
 
 
 rule taxpasta_Kraken2_GTDB214_domain:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.domain.counts.tsv")
     benchmark:
@@ -154,7 +160,7 @@ rule taxpasta_Kraken2_GTDB214_domain:
 
 rule taxpasta_Kraken2_GTDB214_phylum:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.phylum.counts.tsv")
     benchmark:
@@ -181,7 +187,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
 
 rule taxpasta_Kraken2_GTDB214_order:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.order.counts.tsv")
     benchmark:
@@ -208,7 +214,7 @@ rule taxpasta_Kraken2_GTDB214_order:
 
 rule taxpasta_Kraken2_GTDB214_class:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.class.counts.tsv")
     benchmark:
@@ -235,7 +241,7 @@ rule taxpasta_Kraken2_GTDB214_class:
 
 rule taxpasta_Kraken2_GTDB214_family:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.family.counts.tsv")
     benchmark:
@@ -262,7 +268,7 @@ rule taxpasta_Kraken2_GTDB214_family:
 
 rule taxpasta_Kraken2_GTDB214_genus:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.tsv")
     benchmark:
@@ -289,7 +295,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
 
 rule taxpasta_Kraken2_GTDB214_species:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.species.counts.tsv")
     benchmark:
@@ -316,7 +322,7 @@ rule taxpasta_Kraken2_GTDB214_species:
 
 rule taxpasta_Kraken2_GTDB214_Biom:
     input:
-        get_passing_KDR_files_GTDB214,
+        get_passing_files_GTDB214,
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.biom")
     benchmark:
@@ -339,123 +345,341 @@ rule taxpasta_Kraken2_GTDB214_Biom:
         "{input} "
 
 
-# # HUMANN RULES #TODO Import code from TaFFE for aggregating and converting the outputs
-# rule humann3Uniref50EC:
-#     input:
-#         kneaddataReads = "results/02_kneaddata/{sample}.fastq.gz",
-#     output:
-#         genes = "results/03_humann3Uniref50EC/{sample}_genefamilies.tsv",
-#         pathways = "results/03_humann3Uniref50EC/{sample}_pathabundance.tsv",
-#         pathwaysCoverage = "results/03_humann3Uniref50EC/{sample}_pathcoverage.tsv",
-#     log:
-#         "logs/humann3.{sample}.uniref50EC.log",
-#     benchmark:
-#         "benchmarks/humann3Uniref50EC.{sample}.txt"
-#     conda:
-#         "biobakery"
-#     threads: 16
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) + 12),
-#         time = lambda wildcards, attempt: 24 + ((attempt - 1) + 12),
-#         partition = "large,milan"
-#     message:
-#         "humann3 profiling with uniref50EC: {wildcards.sample}\n"
-#     shell:
-#         "humann3 "
-#         "--memory-use maximum "
-#         "--threads {threads} "
-#         "--bypass-nucleotide-search "
-#         "--search-mode uniref50 "
-#         "--protein-database /nesi/nobackup/agresearch03843/biobakery/biobakery/humann3/unirefECFilt "
-#         "--input-format fastq "
-#         "--output results/03_humann3Uniref50EC "
-#         "--input {input.kneaddataReads} "
-#         "--output-basename {wildcards.sample} "
-#         "--o-log {log} "
-#         "--remove-temp-output "
+# HUMANN RULES
+rule kraken2_host_filter:
+    input:
+        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq.gz",
+    output:
+        k2OutputHosts = temp("results/{library}/04_k2_filtering/{sample}.Hosts.k2"),
+        k2_filtered_read = temp("results/{library}/04_k2_filtering/{sample}.nonhost.fastq"),
+    log:
+        "logs/{library}/kraken2/kraken2_host_filter.{sample}.GTDB214.log",
+    benchmark:
+        "benchmarks/{library}/kraken2_host_filter.{sample}.txt"
+    conda:
+        "kraken2"
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        partition = "compute,hugemem"
+    shell:
+        "kraken2 "
+        "--gzip-compressed "
+        "--unclassified-out {output.k2_filtered_read} "
+        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "-t {threads} "
+        "--output {output.k2OutputHosts} "
+        "{input.k2Classified_read} "
+        "2>&1 | tee {log} "
 
 
-
-# BRACKEN RULES #TODO Implement
-# rule brackenSpecies:
-#     input:
-#         k2ReportGTDB = "results/03_kraken2GTDB/{sample}.kraken2",
-#     output:
-#         bOutput = "results/03_brackenSpecies/{sample}.bracken",
-#         bReport = "results/03_brackenSpecies/{sample}.br",
-#     log:
-#         "logs/brackenSpecies.{sample}.log",
-#     benchmark:
-#         "benchmarks/brackenSpecies.{sample}.txt"
-#     conda:
-#         "kraken2"
-#     threads: 2
-#     resources:
-#         mem_gb = 1,
-#         time = 2,
-#         partition = "large,milan"
-#     shell:
-#         "bracken "
-#         "-d /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB "
-#         "-i {input.k2ReportGTDB} "
-#         "-o {output.bOutput} "
-#         "-w {output.bReport} "
-#         "-r 80 "
-#         "-l S "
-#         # "-t 10 "
-#         "&> {log} "
+rule kraken2_host_filter_gz:
+    priority: 1000
+    input:
+        k2_filtered_read = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq",
+    output:
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq.gz",
+    log:
+        "logs/{library}kraken2/kraken2_host_filter_gz.{sample}.log",
+    benchmark:
+        "benchmarks/{library}/kraken2_host_filter_gz.{sample}.txt"
+    conda:
+        "pigz"
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
+        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
+        partition = "compute,hugemem"
+    shell:
+        "pigz -p 12 "
+        "{input.k2_filtered_read} "
 
 
-# rule taxpastaKraken2Bracken:
-#     input:
-#         expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
-#     output:
-#         "results/bracken.k2.counts.tsv",
-#     benchmark:
-#         "benchmarks/taxpastaKraken2Bracken.txt"
-#     conda:
-#         "taxpasta"
-#     threads: 2
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
-#         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-#         partition = "large,milan"
-#     shell:
-#         "taxpasta merge "
-#         "-p bracken "
-#         "-o {output} "
-#         "--output-format TSV "
-#         "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxonomy "
-#         "--add-name "
-#         "--add-rank "
-#         "--add-lineage "
-#         "--summarise-at species "
-#         "{input} "
+rule humann3Uniref50EC:
+    input:
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq.gz",
+    output:
+        genes = "results/{library}/05_humann3Uniref50EC/{sample}.genefamilies.tsv",
+        pathways = "results/{library}/05_humann3Uniref50EC/{sample}.pathabundance.tsv",
+        pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{sample}.pathcoverage.tsv",
+    log:
+        "logs/{library}/humann3.{sample}.uniref50EC.log",
+    benchmark:
+        "benchmarks/{library}/humann3Uniref50EC.{sample}.txt"
+    conda:
+        "humann3"
+    threads: 24
+    resources:
+        mem_gb = lambda wildcards, attempt: 64 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 480 + ((attempt - 1) + 480),
+        partition = "compute,hugemem"
+    shell:
+        "humann3 "
+        "--memory-use maximum "
+        "--threads {threads} "
+        "--bypass-nucleotide-search "
+        "--search-mode uniref50 "
+        "--protein-database /agr/scratch/projects/2023-mbie-rumen-gbs/biobakery/biobakery/humann3/uniref50ECFilt "
+        "--input-format fastq.gz "
+        "--output results/{LIBRARY}/05_humann3Uniref50EC "
+        "--input {input.k2_filtered_reads_gz} "
+        "--output-basename {wildcards.sample} "
+        "--o-log {log} "
+        "--remove-temp-output && "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_genefamilies.tsv {output.genes}; "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_pathabundance.tsv {output.pathways}; "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_pathcoverage.tsv {output.pathwaysCoverage}; "
 
 
-# rule taxpastaKraken2BrackenBiom:
-#     input:
-#         expand("results/03_brackenSpecies/{sample}.bracken", sample = FIDs),
-#     output:
-#         "results/bracken.k2.counts.biom",
-#     benchmark:
-#         "benchmarks/taxpastaKraken2BrackenBiom.txt"
-#     conda:
-#         "taxpasta"
-#     threads: 2
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
-#         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
-#         partition = "large,milan"
-#     shell:
-#         "taxpasta merge "
-#         "-p bracken "
-#         "-o {output} "
-#         "--output-format BIOM "
-#         "--taxonomy /dataset/2022-BJP-GTDB/scratch/2022-BJP-GTDB/kraken/GTDB/taxonomy "
-#         "--add-name "
-#         "--summarise-at species "
-#         "{input} "
+def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+    import pandas as pd
+    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.pathcoverage.tsv"), sample = passed)
 
+rule merge_functional_profiles_pathabundance:
+    input:
+        get_humann3_pathcoverage,
+    output:
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathabundance.rpk.tsv")
+    log:
+        os.path.join("logs", LIBRARY, "humann3_uniref50EC_pathabundance.log")
+    benchmark:
+        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_pathabundance.txt")
+    conda:
+        "humann3"
+    threads:2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_join_tables "
+        "-v "
+        "-i results/{LIBRARY}/05_humann3Uniref50EC "
+        "--file_name pathabundance "
+        "-o {output.pathabundance} "
+        "2>&1 | tee {log}  "
+
+
+def get_humann3_genefamilies(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+    import pandas as pd
+    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.genefamilies.tsv"), sample = passed)
+
+rule merge_functional_profiles_genefamilies:
+    input:
+        get_humann3_genefamilies
+    output:
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_genefamilies.rpk.tsv")
+    log:
+        os.path.join("logs", LIBRARY, "humann3_uniref50EC_genefamilies.log")
+    benchmark:
+        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_genefamilies.txt")
+    conda:
+        "humann3"
+    threads:2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_join_tables "
+        "-v "
+        "-i results/{LIBRARY}/05_humann3Uniref50EC "
+        "--file_name genefamilies "
+        "-o {output.genefamilies} "
+        "2>&1 | tee {log}  "
+
+
+def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+    import pandas as pd
+    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.pathcoverage.tsv"), sample = passed)
+
+rule merge_functional_profiles_pathcoverage:
+    input:
+        get_humann3_pathcoverage,
+    output:
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathcoverage.rpk.tsv")
+    log:
+        os.path.join("logs", LIBRARY, "humann3_uniref50EC_pathcoverage.log")
+    benchmark:
+        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_pathcoverage.txt")
+    conda:
+        "humann3"
+    threads:2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_join_tables "
+        "-v "
+        "-i results/{LIBRARY}/05_humann3Uniref50EC "
+        "--file_name pathcoverage "
+        "-o {output} "
+        "2>&1 | tee {log}  "
+
+
+rule regroup_table_KO:
+    input:
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.regroup.KO.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.regroup.KO.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_regroup_table "
+        "-i {input.genefamilies} "
+        "--groups uniref50_ko "
+        "--function sum "
+        "--ungrouped Y "
+        "--protected Y "
+        "-o {output} "
+
+
+rule regroup_table_EC:
+    input:
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.regroup.EC.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.regroup.EC.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_regroup_table "
+        "-i {input.genefamilies} "
+        "--groups uniref50_level4ec "
+        "--function sum "
+        "--ungrouped Y "
+        "--protected Y "
+        "-o {output} "
+
+
+rule regroup_table_pfam:
+    input:
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.regroup.pfam.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.regroup.pfam.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_regroup_table "
+        "-i {input.genefamilies} "
+        "--groups uniref50_pfam "
+        "--function sum "
+        "--ungrouped Y "
+        "--protected Y "
+        "-o {output} "
+
+
+rule regroup_table_EggNOG:
+    input:
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.regroup.EggNOG.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.regroup.EggNOG.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_regroup_table "
+        "-i {input.genefamilies} "
+        "--groups uniref50_eggnog "
+        "--function sum "
+        "--ungrouped Y "
+        "--protected Y "
+        "-o {output} "
+
+
+rule norm_humann3_genefamilies:
+    input:
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.norm.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.norm.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_renorm_table "
+        "-i {input.genefamilies} "
+        "-u cpm "
+        "-p "
+        "-o {output} "
+
+
+rule norm_humann3_pathabundance:
+    input:
+        pathabundance = "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv"
+    output:
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv"
+    log:
+        "logs/{library}/humann3.uniref50EC.pathabundance.norm.log",
+    benchmark:
+        "benchmarks/{library}/humann3.uniref50EC.pathabundance.norm.txt"
+    conda:
+        "humann3"
+    threads: 2
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) + 60),
+        partition = "compute,hugemem"
+    shell:
+        "humann_renorm_table "
+        "-i {input.pathabundance} "
+        "-u cpm "
+        "-p "
+        "-o {output} "
 
 
