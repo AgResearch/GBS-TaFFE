@@ -63,15 +63,15 @@ rule all:
         expand("results/{library}/kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
         expand("results/{library}/kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
 #human3
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.rpk.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv", library = LIBRARY),
-        expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv", library = LIBRARY),
 
 
 #KRAKEN2 RULES
@@ -119,9 +119,9 @@ rule kraken2_GTDB214_gz:
         "benchmarks/{library}/kraken2_GTDB214_gz.{samples}.txt"
     conda:
         "pigz"
-    threads: 8
+    threads: 16
     resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 16),
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
         time = lambda wildcards, attempt: 40 + ((attempt - 1) * 60),
         partition = "compute,hugemem"
     shell:
@@ -386,7 +386,7 @@ rule kraken2_host_filter_gz:
         "benchmarks/{library}/kraken2_host_filter_gz.{samples}.txt"
     conda:
         "pigz"
-    threads: 6
+    threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
         time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
