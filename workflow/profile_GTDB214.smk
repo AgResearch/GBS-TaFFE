@@ -494,7 +494,7 @@ rule merge_functional_profiles_genefamilies:
         "-v "
         "-i results/{LIBRARY}/05_humann3Uniref50EC "
         "--file_name genefamilies "
-        "-o {output.genefamilies} "
+        "-o {output} "
         "2>&1 | tee {log}  "
 
 
