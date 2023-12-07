@@ -81,7 +81,7 @@ rule kraken2_GTDB214:
     output:
         k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
         k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2",
-        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq"),
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq"),
     log:
         "logs/{library}/kraken2_GTDB214/kraken2GTDB.{samples}.GTDB214.log",
     benchmark:
@@ -111,12 +111,12 @@ rule kraken2_GTDB214_gz:
     priority: 1000
     input:
         k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
-        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq",
+        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq",
     output:
         k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2.gz",
-        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq.gz"),
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq.gz"),
     benchmark:
-        "benchmarks/{library}/kraken2_GTDB214_gz.{sample}.txt"
+        "benchmarks/{library}/kraken2_GTDB214_gz.{samples}.txt"
     conda:
         "pigz"
     threads: 8
@@ -348,14 +348,14 @@ rule taxpasta_Kraken2_GTDB214_Biom:
 # HUMANN RULES
 rule kraken2_host_filter:
     input:
-        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{sample}.GTDB214.kraken2.classified.fastq.gz",
+        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq.gz",
     output:
-        k2OutputHosts = temp("results/{library}/04_k2_filtering/{sample}.Hosts.k2"),
-        k2_filtered_read = temp("results/{library}/04_k2_filtering/{sample}.nonhost.fastq"),
+        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.Hosts.k2"),
+        k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
     log:
-        "logs/{library}/kraken2/kraken2_host_filter.{sample}.GTDB214.log",
+        "logs/{library}/kraken2/kraken2_host_filter.{samples}.GTDB214.log",
     benchmark:
-        "benchmarks/{library}/kraken2_host_filter.{sample}.txt"
+        "benchmarks/{library}/kraken2_host_filter.{samples}.txt"
     conda:
         "kraken2"
     threads: 32
@@ -377,13 +377,13 @@ rule kraken2_host_filter:
 rule kraken2_host_filter_gz:
     priority: 1000
     input:
-        k2_filtered_read = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq",
+        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
     output:
-        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq.gz",
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
     log:
-        "logs/{library}kraken2/kraken2_host_filter_gz.{sample}.log",
+        "logs/{library}kraken2/kraken2_host_filter_gz.{samples}.log",
     benchmark:
-        "benchmarks/{library}/kraken2_host_filter_gz.{sample}.txt"
+        "benchmarks/{library}/kraken2_host_filter_gz.{samples}.txt"
     conda:
         "pigz"
     threads: 6
@@ -398,15 +398,15 @@ rule kraken2_host_filter_gz:
 
 rule humann3Uniref50EC:
     input:
-        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{sample}.nonhost.fastq.gz",
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
     output:
-        genes = "results/{library}/05_humann3Uniref50EC/{sample}.genefamilies.tsv",
-        pathways = "results/{library}/05_humann3Uniref50EC/{sample}.pathabundance.tsv",
-        pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{sample}.pathcoverage.tsv",
+        genes = "results/{library}/05_humann3Uniref50EC/{samples}.genefamilies.tsv",
+        pathways = "results/{library}/05_humann3Uniref50EC/{samples}.pathabundance.tsv",
+        pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{samples}.pathcoverage.tsv",
     log:
-        "logs/{library}/humann3.{sample}.uniref50EC.log",
+        "logs/{library}/humann3.{samples}.uniref50EC.log",
     benchmark:
-        "benchmarks/{library}/humann3Uniref50EC.{sample}.txt"
+        "benchmarks/{library}/humann3Uniref50EC.{samples}.txt"
     conda:
         "humann3"
     threads: 24
@@ -424,12 +424,12 @@ rule humann3Uniref50EC:
         "--input-format fastq.gz "
         "--output results/{LIBRARY}/05_humann3Uniref50EC "
         "--input {input.k2_filtered_reads_gz} "
-        "--output-basename {wildcards.sample} "
+        "--output-basename {wildcards.samples} "
         "--o-log {log} "
         "--remove-temp-output && "
-        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_genefamilies.tsv {output.genes}; "
-        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_pathabundance.tsv {output.pathways}; "
-        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.sample}_pathcoverage.tsv {output.pathwaysCoverage}; "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.samples}_genefamilies.tsv {output.genes}; "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.samples}_pathabundance.tsv {output.pathways}; "
+        "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.samples}_pathcoverage.tsv {output.pathwaysCoverage}; "
 
 
 def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
@@ -438,7 +438,7 @@ def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.pathcoverage.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), sample = passed)
 
 rule merge_functional_profiles_pathabundance:
     input:
@@ -471,7 +471,7 @@ def get_humann3_genefamilies(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.genefamilies.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.genefamilies.tsv"), sample = passed)
 
 rule merge_functional_profiles_genefamilies:
     input:
@@ -504,7 +504,7 @@ def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{sample}.pathcoverage.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), sample = passed)
 
 rule merge_functional_profiles_pathcoverage:
     input:
