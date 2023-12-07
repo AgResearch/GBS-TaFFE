@@ -461,7 +461,7 @@ rule merge_functional_profiles_pathabundance:
         "-v "
         "-i results/{LIBRARY}/05_humann3Uniref50EC "
         "--file_name pathabundance "
-        "-o {output.pathabundance} "
+        "-o {output} "
         "2>&1 | tee {log}  "
 
 
