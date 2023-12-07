@@ -438,7 +438,7 @@ def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), samples = passed)
 
 rule merge_functional_profiles_pathabundance:
     input:
@@ -471,7 +471,7 @@ def get_humann3_genefamilies(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.genefamilies.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.genefamilies.tsv"), samples = passed)
 
 rule merge_functional_profiles_genefamilies:
     input:
@@ -504,7 +504,7 @@ def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), sample = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.pathcoverage.tsv"), samples = passed)
 
 rule merge_functional_profiles_pathcoverage:
     input:
