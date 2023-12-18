@@ -75,7 +75,7 @@ rule bbduk:
         os.path.join('results', '{library}', 'logs', 'bbduk', '{samples}.bbduk.log'),
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'bbduk.{samples}.txt'),
-    conda:,
+    conda:
         'bbduk'
     threads: 8
     resources:
