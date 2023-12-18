@@ -18,7 +18,7 @@ wildcard_constraints:
 
 
 # Global minimum read count for processing
-min_reads = 25000
+min_reads = 50000
 LIBRARY = config["LIBRARY"]
 seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
 
