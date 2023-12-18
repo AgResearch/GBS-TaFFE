@@ -18,7 +18,7 @@ wildcard_constraints:
 
 
 # Global minimum read count for processing
-min_reads = 50000
+min_reads = 25000
 LIBRARY = config["LIBRARY"]
 seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
 
@@ -54,14 +54,14 @@ onstart:
 rule all:
     input:
 #kraken2
-        expand("results/{library}/kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
 #human3
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
@@ -135,7 +135,7 @@ rule taxpasta_Kraken2_GTDB214_domain:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.domain.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.domain.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_kingdom.txt")
     conda:
@@ -162,7 +162,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.phylum.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.phylum.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_phylum.txt")
     conda:
@@ -189,7 +189,7 @@ rule taxpasta_Kraken2_GTDB214_order:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.order.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.order.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_order.txt")
     conda:
@@ -216,7 +216,7 @@ rule taxpasta_Kraken2_GTDB214_class:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.class.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.class.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_class.txt")
     conda:
@@ -243,7 +243,7 @@ rule taxpasta_Kraken2_GTDB214_family:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.family.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.family.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_family.txt")
     conda:
@@ -270,7 +270,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.genus.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_genus.txt")
     conda:
@@ -297,7 +297,7 @@ rule taxpasta_Kraken2_GTDB214_species:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.species.counts.tsv")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.species.counts.tsv")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_species.txt")
     conda:
@@ -324,7 +324,7 @@ rule taxpasta_Kraken2_GTDB214_Biom:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.biom")
+        os.path.join("results", LIBRARY, "{LIBRARY}.kraken2.GTDB214.genus.counts.biom")
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_Biom.txt")
     conda:
