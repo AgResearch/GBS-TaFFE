@@ -778,9 +778,9 @@ rule humann3Uniref50EC:
         "mv results/{LIBRARY}/05_humann3Uniref50EC/{wildcards.samples}_pathcoverage.tsv {output.pathwaysCoverage}; "
 
 
-def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+def get_humann3_pathcoverage(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.report_seqkit_raw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
@@ -811,9 +811,9 @@ rule merge_functional_profiles_pathabundance:
         "2>&1 | tee {log}  "
 
 
-def get_humann3_genefamilies(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+def get_humann3_genefamilies(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.report_seqkit_raw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
@@ -844,9 +844,9 @@ rule merge_functional_profiles_genefamilies:
         "2>&1 | tee {log}  "
 
 
-def get_humann3_pathcoverage(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+def get_humann3_pathcoverage(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.report_seqkit_raw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
