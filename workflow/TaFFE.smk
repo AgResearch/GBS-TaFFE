@@ -237,7 +237,7 @@ def get_seqkitKneaddata_passing_samples(wildcards, minReads=min_reads, lib=LIBRA
 
 
 rule report_seqkit_KDR:
-    priority: 1000
+    priority: 10000
     input:
         KDRs = get_seqkitKneaddata_passing_samples,
     output:
@@ -436,7 +436,6 @@ rule kraken2_GTDB214:
 
 
 rule kraken2_GTDB214_gz:
-    priority: 1000
     input:
         k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
         k2Classified_read = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq",
@@ -721,7 +720,6 @@ rule kraken2_host_filter:
 
 
 rule kraken2_host_filter_gz:
-    priority: 1000
     input:
         k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
     output:

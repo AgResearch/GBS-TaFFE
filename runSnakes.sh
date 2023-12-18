@@ -15,12 +15,12 @@ echo "Preparing fastq for profiling."
 echo "Collecting SQ runs: $(ls results/SQ*).."
 
 
-snakemake --profile config/slurm --snakefile workflow/prepare.smk
-echo "Preparations completed."
+# snakemake --profile config/slurm --snakefile workflow/prepare.smk
+# echo "Preparations completed."
 
-echo "Starting profiling..."
-snakemake --profile config/slurm --snakefile workflow/profile.smk
-echo "profiling completed."
+# echo "Starting profiling..."
+# snakemake --profile config/slurm --snakefile workflow/profile.smk
+# echo "profiling completed."
 
 ##snakemake --rulegraph | dot -T svg > rulegraph.svg
 
