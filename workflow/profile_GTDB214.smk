@@ -60,7 +60,7 @@ rule all:
         expand("results/{library}/{library}.kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
 #human3
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
