@@ -135,9 +135,9 @@ rule taxpasta_Kraken2_GTDB214_domain:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.domain.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.domain.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_kingdom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_kingdom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -162,9 +162,9 @@ rule taxpasta_Kraken2_GTDB214_phylum:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.phylum.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.phylum.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_phylum.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_phylum.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -189,9 +189,9 @@ rule taxpasta_Kraken2_GTDB214_order:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.order.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.order.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_order.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_order.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -216,9 +216,9 @@ rule taxpasta_Kraken2_GTDB214_class:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.class.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.class.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_class.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_class.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -243,9 +243,9 @@ rule taxpasta_Kraken2_GTDB214_family:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.family.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.family.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_family.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_family.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -270,9 +270,9 @@ rule taxpasta_Kraken2_GTDB214_genus:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.genus.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.genus.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_genus.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_genus.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -297,9 +297,9 @@ rule taxpasta_Kraken2_GTDB214_species:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.species.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.species.counts.tsv")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_species.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_species.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -324,9 +324,9 @@ rule taxpasta_Kraken2_GTDB214_Biom:
     input:
         get_passing_files_GTDB214,
     output:
-        os.path.join("results", "{config[LIBRARY]}", "{config[LIBRARY]}.kraken2.GTDB214.genus.counts.biom")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.genus.counts.biom")
     benchmark:
-        os.path.join("results", "{config[LIBRARY]}", "benchmarks", "taxpasta_Kraken2_GTDB214_Biom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_Biom.txt")
     conda:
         "taxpasta"
     threads: 2
