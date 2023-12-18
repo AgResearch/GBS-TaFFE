@@ -19,29 +19,21 @@ min_reads = 25000
 
 LIBRARY = config["LIBRARY"]
 
+# seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
+
+# def get_passing_FIDs(seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+#     import pandas as pd
+#     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+#     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+#     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+
+# FIDs = get_passing_FIDs()
+
+
 input_fastq_pattern = os.path.join('results', config["LIBRARY"], '01_cutadapt', '{samples}.fastq.gz')
-
-seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
-
-def get_passing_files_GTDB214(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
-
-def get_passing_FIDs(seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-    import pandas as pd
-    qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
-    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-    return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-
-FIDs = get_passing_FIDs()
-
-# print(input_fastq_pattern)
-# FIDs, = glob_wildcards(input_fastq_pattern)
+print(input_fastq_pattern)
+FIDs, = glob_wildcards(input_fastq_pattern)
 
 
 onstart:
@@ -465,6 +457,24 @@ rule kraken2_GTDB214_gz:
         "-p {threads} "
         "{input.k2OutputGTDB} " 
         "{input.k2Classified_read} " 
+
+
+def get_passing_files_GTDB214(wildcards, minReads=min_reads, lib=LIBRARY):
+    file = checkpoints.report_seqkit_raw.get().output[0]
+    qc_stats = pd.read_csv(file, delimiter = "\s+")
+    qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+    qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+    passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+    return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
+
+
+# def get_passing_files_GTDB214(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+#     import pandas as pd
+#     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
+#     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
+#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
+#     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
+#     return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
 
 
 rule taxpasta_Kraken2_GTDB214_domain:
