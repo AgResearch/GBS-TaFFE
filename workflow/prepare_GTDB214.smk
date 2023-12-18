@@ -187,7 +187,7 @@ rule gzip_KDR_temps:
         """
         
         pigz -p {threads} -c {input.KDRs} > {output.KDRs} && 
-        pigz -p {threads} -c {input.trimReads} > {otuput.trimReads} && 
+        pigz -p {threads} -c {input.trimReads} > {output.trimReads} && 
         pigz -p {threads} -c {input.trfReads} > {output.trfReads} && 
         pigz -p {threads} -c {input.silvaReads} > {output.silvaReads} &&
 
