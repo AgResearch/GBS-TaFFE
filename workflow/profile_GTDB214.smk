@@ -18,7 +18,7 @@ wildcard_constraints:
 
 
 # Global minimum read count for processing
-min_reads = 50000
+min_reads = 25000
 LIBRARY = config["LIBRARY"]
 seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
 
@@ -83,9 +83,9 @@ rule kraken2_GTDB214:
         k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2",
         k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq"),
     log:
-        "logs/{library}/kraken2_GTDB214/kraken2GTDB.{samples}.GTDB214.log",
+        os.path.join("results", "{library}", "logs", "kraken2_GTDB214", "kraken2GTDB.{samples}.GTDB214.log"),
     benchmark:
-        "benchmarks/{library}/kraken2_GTDB214.{samples}.txt"
+        os.path.join("results","{library}", "benchmarks", "kraken2_GTDB214.{samples}.txt"),
     conda:
         "kraken2"
     threads: 32
@@ -116,7 +116,7 @@ rule kraken2_GTDB214_gz:
         k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2.gz",
         k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq.gz"),
     benchmark:
-        "benchmarks/{library}/kraken2_GTDB214_gz.{samples}.txt"
+        os.path.join("results", "{library}", "benchmarks", "kraken2_GTDB214_gz.{samples}.txt"),
     conda:
         "pigz"
     threads: 16
@@ -137,7 +137,7 @@ rule taxpasta_Kraken2_GTDB214_domain:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.domain.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_kingdom.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_kingdom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -164,7 +164,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.phylum.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_phylum.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_phylum.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -191,7 +191,7 @@ rule taxpasta_Kraken2_GTDB214_order:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.order.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_order.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_order.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -218,7 +218,7 @@ rule taxpasta_Kraken2_GTDB214_class:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.class.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_class.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_class.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -245,7 +245,7 @@ rule taxpasta_Kraken2_GTDB214_family:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.family.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_family.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_family.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -272,7 +272,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_genus.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_genus.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -299,7 +299,7 @@ rule taxpasta_Kraken2_GTDB214_species:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.species.counts.tsv")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_species.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_species.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -326,7 +326,7 @@ rule taxpasta_Kraken2_GTDB214_Biom:
     output:
         os.path.join("results", LIBRARY, "kraken2.GTDB214.genus.counts.biom")
     benchmark:
-        os.path.join("results", LIBRARY, "taxpasta_Kraken2_GTDB214_Biom.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "taxpasta_Kraken2_GTDB214_Biom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -353,9 +353,9 @@ rule kraken2_host_filter:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.Hosts.k2"),
         k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
     log:
-        "logs/{library}/kraken2/kraken2_host_filter.{samples}.GTDB214.log",
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.GTDB214.log"),
     benchmark:
-        "benchmarks/{library}/kraken2_host_filter.{samples}.txt"
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
     conda:
         "kraken2"
     threads: 32
@@ -381,9 +381,9 @@ rule kraken2_host_filter_gz:
     output:
         k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
     log:
-        "logs/{library}kraken2/kraken2_host_filter_gz.{samples}.log",
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
     benchmark:
-        "benchmarks/{library}/kraken2_host_filter_gz.{samples}.txt"
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
     conda:
         "pigz"
     threads: 16
@@ -404,9 +404,9 @@ rule humann3Uniref50EC:
         pathways = "results/{library}/05_humann3Uniref50EC/{samples}.pathabundance.tsv",
         pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{samples}.pathcoverage.tsv",
     log:
-        "logs/{library}/humann3.{samples}.uniref50EC.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.Uniref50EC.{samples}.log"),
     benchmark:
-        "benchmarks/{library}/humann3Uniref50EC.{samples}.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.Uniref50EC.{samples}.txt"),
     conda:
         "humann3"
     threads: 24
@@ -446,9 +446,9 @@ rule merge_functional_profiles_pathabundance:
     output:
         os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathabundance.rpk.tsv")
     log:
-        os.path.join("logs", LIBRARY, "humann3_uniref50EC_pathabundance.log")
+        os.path.join("results", LIBRARY, "logs", "humann3.uniref50EC.merge.pathabundance.log")
     benchmark:
-        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_pathabundance.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.pathabundance.txt")
     conda:
         "humann3"
     threads:2
@@ -479,9 +479,9 @@ rule merge_functional_profiles_genefamilies:
     output:
         os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_genefamilies.rpk.tsv")
     log:
-        os.path.join("logs", LIBRARY, "humann3_uniref50EC_genefamilies.log")
+        os.path.join("results", LIBRARY, "logs", "humann3.uniref50EC.merge.genefamilies.log")
     benchmark:
-        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_genefamilies.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.genefamilies.txt")
     conda:
         "humann3"
     threads:2
@@ -512,9 +512,9 @@ rule merge_functional_profiles_pathcoverage:
     output:
         os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathcoverage.rpk.tsv")
     log:
-        os.path.join("logs", LIBRARY, "humann3_uniref50EC_pathcoverage.log")
+        os.path.join("results", LIBRARY, "logs", "humann3", "humann3.uniref50EC.merge.pathcoverage.log")
     benchmark:
-        os.path.join("benchmarks", LIBRARY, "humann3_uniref50EC_pathcoverage.txt")
+        os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.pathcoverage.txt")
     conda:
         "humann3"
     threads:2
@@ -537,9 +537,9 @@ rule regroup_table_KO:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.regroup.KO.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.KO.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.regroup.KO.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.KO.log"),
     conda:
         "humann3"
     threads: 2
@@ -563,9 +563,9 @@ rule regroup_table_EC:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.regroup.EC.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.EC.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.regroup.EC.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.EC.log"),
     conda:
         "humann3"
     threads: 2
@@ -589,9 +589,9 @@ rule regroup_table_pfam:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.regroup.pfam.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.pfam.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.regroup.pfam.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.pfam.log"),
     conda:
         "humann3"
     threads: 2
@@ -615,9 +615,9 @@ rule regroup_table_EggNOG:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.regroup.EggNOG.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.EggNOG.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.regroup.EggNOG.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.EggNOG.txt"),
     conda:
         "humann3"
     threads: 2
@@ -641,9 +641,9 @@ rule norm_humann3_genefamilies:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.norm.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.norm.genefamilies.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.norm.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.norm.genefamilies.txt"),
     conda:
         "humann3"
     threads: 2
@@ -665,9 +665,9 @@ rule norm_humann3_pathabundance:
     output:
         "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv"
     log:
-        "logs/{library}/humann3.uniref50EC.pathabundance.norm.log",
+        os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.norm.pathabundance.log"),
     benchmark:
-        "benchmarks/{library}/humann3.uniref50EC.pathabundance.norm.txt"
+        os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.norm.pathabundance.txt"),
     conda:
         "humann3"
     threads: 2
