@@ -96,6 +96,7 @@ rule kraken2_GTDB214:
     shell:
         "kraken2 "
         "--use-names "
+        "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 

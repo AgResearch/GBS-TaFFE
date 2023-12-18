@@ -107,6 +107,7 @@ rule kraken2_GTDB207:
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
+        "--report-zero-counts "
         "{input.KDRs} "
         "--output {output.k2OutputGTDB} "
         " > {log} "
