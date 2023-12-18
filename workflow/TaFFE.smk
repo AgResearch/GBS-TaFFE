@@ -268,6 +268,7 @@ def get_seqkitMaskingBBDukReads_passing_samples(wildcards, minReads=min_reads, l
 
 
 rule report_seqkit_bbduk:
+    priority: 10000
     input:
         bbdukReads = get_seqkitMaskingBBDukReads_passing_samples,
         token = os.path.join('results', LIBRARY, '00_QC' ,'.priority.semaphore.tkn'),
@@ -296,6 +297,7 @@ def get_seqkitMaskingPrinseqReads_passing_samples(wildcards, minReads=min_reads,
 
 
 rule report_seqkit_prinseq:
+    priority: 10000
     input:
         prinseqReads = get_seqkitMaskingPrinseqReads_passing_samples,
         token = os.path.join('results', LIBRARY, '00_QC' ,'.priority.semaphore.tkn'),
@@ -323,7 +325,8 @@ def get_seqkitKneaddataTrimReads_passing_samples(wildcards, minReads=min_reads, 
     return expand(os.path.join("results", lib, "02_kneaddata/{samples}.trimmed.fastq.gz"), samples = passed)
 
 
-rule report_seqkit_KDTrim: 
+rule report_seqkit_KDTrim:
+    priority: 10000
     input:
         trimReads = get_seqkitKneaddataTrimReads_passing_samples,
         token = os.path.join('results', LIBRARY, '00_QC' ,'.priority.semaphore.tkn'),
@@ -353,6 +356,7 @@ def get_seqkitKneaddataTRFReads_passing_samples(wildcards, minReads=min_reads, l
 
 
 rule report_seqkit_KDTRF:
+    priority: 10000
     input:
         trfReads = get_seqkitKneaddataTRFReads_passing_samples,
         token = os.path.join('results', LIBRARY, '00_QC' ,'.priority.semaphore.tkn'),
@@ -382,6 +386,7 @@ def get_seqkitKneaddataSILVAReads_passing_samples(wildcards, minReads=min_reads,
 
 
 rule report_seqkit_KDSILVA138:
+    priority: 10000
     input:
         silvaReads = get_seqkitKneaddataSILVAReads_passing_samples,
         token = os.path.join('results', LIBRARY, '00_QC' ,'.priority.semaphore.tkn'),
