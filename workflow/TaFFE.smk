@@ -408,6 +408,7 @@ rule report_seqkit_KDSILVA138:
 
 #KRAKEN2 RULES
 rule kraken2_GTDB214:
+    priority: 1000
     input:
         KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
@@ -482,6 +483,7 @@ def get_passing_files_GTDB214(wildcards, minReads=min_reads, lib=LIBRARY):
 
 
 rule taxpasta_Kraken2_GTDB214_domain:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -509,6 +511,7 @@ rule taxpasta_Kraken2_GTDB214_domain:
 
 
 rule taxpasta_Kraken2_GTDB214_phylum:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -536,6 +539,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
 
 
 rule taxpasta_Kraken2_GTDB214_order:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -563,6 +567,7 @@ rule taxpasta_Kraken2_GTDB214_order:
 
 
 rule taxpasta_Kraken2_GTDB214_class:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -590,6 +595,7 @@ rule taxpasta_Kraken2_GTDB214_class:
 
 
 rule taxpasta_Kraken2_GTDB214_family:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -617,6 +623,7 @@ rule taxpasta_Kraken2_GTDB214_family:
 
 
 rule taxpasta_Kraken2_GTDB214_genus:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -644,6 +651,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
 
 
 rule taxpasta_Kraken2_GTDB214_species:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
@@ -671,6 +679,7 @@ rule taxpasta_Kraken2_GTDB214_species:
 
 
 rule taxpasta_Kraken2_GTDB214_Biom:
+    priority: 1000
     input:
         get_passing_files_GTDB214,
     output:
