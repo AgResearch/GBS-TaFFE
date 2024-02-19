@@ -1,0 +1,33 @@
+# Based on: https://github.com/jdblischak/smk-simple-slurm
+# Default slurm profile for running the pipeline on the eRI
+cluster:
+  mkdir -p logs/slurm &&
+  sbatch
+    --account={resources.account}
+    --partition={resources.partition}
+    --cpus-per-task={threads}
+    --mem="{resources.mem_gb}G"
+    --job-name=smk-{rule}-{wildcards}
+    --time={resources.time}
+    --output=logs/slurm/{rule}-{wildcards}-%j.out
+    --parsable
+default-resources:
+  - account="2023-mbie-rumen-gbs"
+  - partition=compute
+  - time=120
+  - mem_gb=48
+restart-times: 3
+local-cores: 6
+latency-wait: 6000
+jobs: 50
+max-jobs-per-second: 0.5
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+scheduler: greedy
+use-conda: True
+use-singularity: True
+reason: True
+conda-frontend: conda
+cluster-status: workflow/scripts/status.py
+cluster-cancel: scancel
