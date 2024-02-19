@@ -1,9 +1,0 @@
-[submodule "config/slurm_test"]
-	path = config/slurm_test
-	url = https://github.com/BenjaminJPerry/SMK-SLURM-CONFIGS.git
-[submodule "config/slurm"]
-	path = config/slurm
-	url = https://github.com/BenjaminJPerry/SMK-SLURM-CONFIGS.git
-[submodule "workflow/scripts"]
-	path = workflow/scripts
-	url = https://github.com/BenjaminJPerry/SMK-UTILITIES.git
