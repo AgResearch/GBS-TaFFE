@@ -50,32 +50,123 @@ onstart:
 
 rule all:
     input:
-        expand('results/{library}/00_QC/seqkit.report.KDR.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.raw.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.bbduk.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.prinseq.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.KDTrim.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
-        expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
-#kraken2
         expand("results/{library}/{library}.kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
-#human3
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.KO.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EC.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.pfam.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.EggNOG.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.cpm.QC.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.cpm.QC.tsv", library = LIBRARY),
+
+
+rule kraken2_host_filter:
+    input:
+        preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
+    output:
+        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.Hosts.k2"),
+        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
+        k2_host_read = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+    log:
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.GTDB214.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
+    conda:
+        "kraken2"
+    threads: 32
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        partition = "compute,hugemem"
+    shell:
+        "kraken2 "
+        "--gzip-compressed "
+        "--unclassified-out {output.k2_filtered_read} "
+        "--classified-out {output.k2Classified_read} "
+        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "-t {threads} "
+        "--output {output.k2OutputHosts} "
+        "{input.k2Classified_read} "
+        "2>&1 | tee {log} "
+
+
+rule kraken2_host_filter_gz:
+    input:
+        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
+        k2_host_read = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+    output:
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
+        k2_host_read_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz",
+    log:
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+    conda:
+        "pigz"
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
+        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
+        partition = "compute,hugemem"
+    shell:
+        """
+
+        pigz -p {threads} -c {input.k2_filtered_read} > {output.k2_filtered_reads_gz} && 
+        pigz -p {threads} -c {input.k2_host_read} > {output.k2_host_read_gz} &&
+
+        rm {input.k2_filtered_read} {input.k2_host_read};
+
+        """
+
+
+rule standardise_length:
+    input:
+
+    output:
+
+    log:
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+    conda:
+        'cutadapt-4.4'
+    threads:
+
+    shell:
+        """
+
+        
+        """
+
+rule vsearch_dereplicate:
+    input:
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
+    output:
+        nonredundant_fasta = "results/{library}/05_nonredundant/{samples}.nonhost.fasta",
+    log:
+        "logs/{samples}/vsearch.unqiues.log",
+    conda:
+        "vsearch"
+    threads: 1
+    message:
+        "Identifying unique amplicons: {wildcards.samples}\n"
+    shell:
+        "vsearch "
+        "--gzip "
+        "--fastaout "
+        "--threads {threads} "
+        "--log {log} "
+        "--fastx_uniques {input.k2_filtered_reads_gz} "
+        "--minuniquesize 1 "
+        "--relabel Sequence "
+        "--sizeout "
+        "--fastaout {output.nonredundant_fasta}"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 checkpoint report_seqkit_raw:
