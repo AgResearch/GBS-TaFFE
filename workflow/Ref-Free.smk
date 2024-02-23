@@ -64,8 +64,8 @@ rule kraken2_host_filter:
     shell:
         "kraken2 "
         "--gzip-compressed "
-        "--unclassified-out {output.k2_filtered_read} "
-        "--classified-out {output.k2_host_read} "
+        "--unclassified-out {output.k2_filtered_reads} "
+        "--classified-out {output.k2_host_reads} "
         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
         "-t {threads} "
         "--output {output.k2OutputHosts} "

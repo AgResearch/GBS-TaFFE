@@ -13,9 +13,9 @@ cluster:
     --parsable
 default-resources:
   - account="2023-mbie-rumen-gbs"
-  - partition=compute,hugemem,
-  - time=120
-  - mem_gb=48
+  - partition=compute,hugemem,vgpu
+  - time=30
+  - mem_gb=8
 restart-times: 5
 local-cores: 6
 latency-wait: 6000
