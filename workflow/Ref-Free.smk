@@ -144,7 +144,6 @@ rule vsearch_nonredundant_fasta:
     shell:
         "vsearch "
         "--gzip "
-        "--fastaout "
         "--threads {threads} "
         "--log {log} "
         "--fastx_uniques {input.filtered_std_reads} "
