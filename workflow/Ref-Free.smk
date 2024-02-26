@@ -42,6 +42,8 @@ rule all:
     input:
         expand("results/{library}/05_nonredundant/{samples}.fasta", library = LIBRARY, samples = FIDs), 
         expand('results/{library}/00_QC/seqkit.report.nonhost.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.nonhost.std.txt', library = LIBRARY),
+
 
 rule kraken2_host_filter:
     input:
@@ -176,7 +178,6 @@ rule update_nonredundant_headers:
 
 
 rule report_seqkit_nonhost:
-    priority: 1000
     input:
         expand('results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
@@ -189,7 +190,23 @@ rule report_seqkit_nonhost:
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
-        partition="compute,hugemem"
+        partition="compute"
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
+rule report_seqkit_nonhost_std:
+    input:
+        expand('results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz', library = LIBRARY, samples = FIDs),
+    output:
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.nonhost.std.txt')
+    benchmark:
+        os.path.join('benchmarks', LIBRARY, 'report_seqkit_nonhost.std.txt')
+    conda:
+        'seqkit'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
+        partition="compute"
+    shell:
+        'seqkit stats -j {threads} -a {input} > {output} '
