@@ -178,7 +178,7 @@ rule update_nonredundant_headers:
 rule report_seqkit_nonhost:
     priority: 1000
     input:
-        expand('"results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz"', library = LIBRARY, samples = FIDs),
+        expand('results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
         os.path.join('results', LIBRARY, '00_QC/seqkit.report.nonhost.txt')
     benchmark:
