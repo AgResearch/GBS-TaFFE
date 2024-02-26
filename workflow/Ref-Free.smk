@@ -40,7 +40,7 @@ onstart:
 
 rule all:
     input:
-        expand("results/{library}/06_nonredundant/{samples}.fasta", library = LIBRARY, samples = FIDs), 
+        expand("results/{library}/05_nonredundant/{samples}.fasta", library = LIBRARY, samples = FIDs), 
 
 
 rule kraken2_host_filter:
