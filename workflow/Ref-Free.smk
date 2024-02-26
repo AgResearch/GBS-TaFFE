@@ -157,7 +157,7 @@ rule update_nonredundant_headers:
     input:
         nonredundant_fasta = "results/{library}/04_k2_filtering/{samples}.nonhost.std.nonredundant.fasta",
     output:
-        nonredundant_fasta_cleaned = "results/{library}/06_nonredundant/{samples}.fasta",
+        nonredundant_fasta_cleaned = "results/{library}/05_nonredundant/{samples}.fasta",
     log:
         os.path.join("results", "{library}", "logs", "kraken2", "update_nonredundant_headers.{samples}.log"),
     benchmark:
