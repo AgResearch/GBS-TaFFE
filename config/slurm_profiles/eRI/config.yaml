@@ -13,7 +13,7 @@ cluster:
     --parsable
 default-resources:
   - account="2023-mbie-rumen-gbs"
-  - partition=compute,hugemem,vgpu
+  - partition=compute,hugemem
   - time=30
   - mem_gb=8
 restart-times: 5
