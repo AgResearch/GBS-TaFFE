@@ -120,7 +120,7 @@ rule standardise_lengths_nonhost:
         partition = "compute,hugemem"
     shell:
         """
-        cutadapt --cores {threads} --length 65 --minimum-length 40 -o {output.filtered_std_reads} {input.k2_filtered_reads_gz} 
+        cutadapt --cores {threads} --length 65 --minimum-length 65 -o {output.filtered_std_reads} {input.k2_filtered_reads_gz} 
     
         """
 
