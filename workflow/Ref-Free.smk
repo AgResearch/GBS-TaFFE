@@ -43,6 +43,7 @@ rule all:
         expand("results/{library}/05_nonredundant/{samples}.fasta", library = LIBRARY, samples = FIDs), 
         expand('results/{library}/00_QC/seqkit.report.nonhost.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.nonhost.std.txt', library = LIBRARY),
+        expand('results/{library}/00_QC/seqkit.report.nr.fasta.txt', library = LIBRARY),
 
 
 rule kraken2_host_filter:
@@ -194,13 +195,31 @@ rule report_seqkit_nonhost:
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
 
+
 rule report_seqkit_nonhost_std:
     input:
-        expand('results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz', library = LIBRARY, samples = FIDs),
+        expand('results/{library}/04_k2_filtering/{samples}.nonhost.std.fastq.gz', library = LIBRARY, samples = FIDs),
     output:
         os.path.join('results', LIBRARY, '00_QC/seqkit.report.nonhost.std.txt')
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'report_seqkit_nonhost.std.txt')
+    conda:
+        'seqkit'
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
+        partition="compute"
+    shell:
+        'seqkit stats -j {threads} -a {input} > {output} '
+
+rule report_seqkit_nonredundant:
+    input:
+        expand('results/{library}/05_nonredundant/{samples}.fasta', library = LIBRARY, samples = FIDs),
+    output:
+        os.path.join('results', LIBRARY, '00_QC/seqkit.report.nr.fasta.txt')
+    benchmark:
+        os.path.join('benchmarks', LIBRARY, 'report_seqkit_nr_fasta.txt')
     conda:
         'seqkit'
     threads: 16
