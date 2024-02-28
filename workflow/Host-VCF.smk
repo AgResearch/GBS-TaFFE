@@ -194,7 +194,7 @@ rule bcftools_index:
     input:
         genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
     output:
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna.fai' #TODO automate the file name expansion to add .fai
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion to add .fai
     conda:
         "samtools-1.17"
     threads: 1
@@ -209,7 +209,7 @@ rule bcftools_index:
 rule bcftools_VCF: #TODO
     input:
         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna.fai',
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
     output:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
     log:
@@ -226,6 +226,6 @@ rule bcftools_VCF: #TODO
     shell:
         "bcftools mpileup --threads {threads} --skip-indels --annotate AD --output-type u --fasta-ref {input.bcf_index} {input.host_bams} "
         "| bcftools call --consensus-caller --variants-only - "
-        "| bcftools view --write-index --max-alleles 2 - "
+        "| bcftools view --max-alleles 2 - "
         "> {output.host_vcf} "
 
