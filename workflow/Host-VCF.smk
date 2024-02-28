@@ -41,7 +41,7 @@ onstart:
 
 rule all:
     input:
-        expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
+        #expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
 
