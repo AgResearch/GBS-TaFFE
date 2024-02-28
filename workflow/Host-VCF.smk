@@ -221,7 +221,7 @@ rule bcftools_merge_bams:
         """
         for i in {input.host_bams}; do echo $i >> {output.bam_list}; done &&
         
-        bamtools merge -list {output.bamlist} -out {output.merged_bams}
+        bamtools merge -list {output.bam_list} -out {output.merged_bams}
 
         """
  
