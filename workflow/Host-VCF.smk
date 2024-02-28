@@ -18,6 +18,10 @@ wildcard_constraints:
     samples="\w+"
 
 
+# Just declaring, in practise this is passed on the CLI by --config LIBRARY=SQ####
+LIBRARY = config["LIBRARY"]
+
+
 input_fastq_pattern = os.path.join('results', config["LIBRARY"], '02_kneaddata', '{samples}.fastq.gz')
 print(input_fastq_pattern)
 FIDs, = glob_wildcards(input_fastq_pattern)
