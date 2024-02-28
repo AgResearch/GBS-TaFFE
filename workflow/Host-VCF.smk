@@ -122,7 +122,7 @@ rule get_genome:
 
 rule build_b2_index:
     input:
-        genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
+        genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
     output:
         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
     conda:
