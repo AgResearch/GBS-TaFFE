@@ -217,7 +217,7 @@ rule bcftools_merge_bams:
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bamtools "
+        "bamtools merge "
         "-in {input.host_bams} "
         "-out {output.merged_bams} "
 
@@ -240,7 +240,7 @@ rule samtools_merge_bams:
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "samtools "
+        "samtools merge "
         "-o {output.merged_bams} "
         "-u "
         "-O BAM "
