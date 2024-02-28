@@ -218,10 +218,10 @@ rule bcftools_VCF: #TODO
         os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF.txt"),
     conda:
         "bcftools-1.19"
-    threads: 16
+    threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
-        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
         "bcftools mpileup --threads {threads} --skip-indels --annotate AD --output-type u --fasta-ref {input.bcf_index} {input.host_bams} "
