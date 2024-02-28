@@ -51,8 +51,8 @@ rule kraken2_host_filter:
         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.hosts.k2"),
-        k2_filtered_reads = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
-        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+        k2_filtered_reads = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
+        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.host.fastq"),
     log:
         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
     benchmark:
@@ -212,6 +212,7 @@ rule report_seqkit_nonhost_std:
         partition="compute"
     shell:
         'seqkit stats -j {threads} -a {input} > {output} '
+
 
 rule report_seqkit_nonredundant:
     input:

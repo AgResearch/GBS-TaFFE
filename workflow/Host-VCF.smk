@@ -37,7 +37,10 @@ onstart:
 
 rule all:
     input:
-        expand("results/{library}/{library}.kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
+
+
+localrules: get_genome, bcftools_index
 
 
 rule kraken2_host_filter:
@@ -45,8 +48,8 @@ rule kraken2_host_filter:
         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.hosts.k2"),
-        k2_filtered_reads = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
-        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+        k2_filtered_reads = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
+        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.host.fastq"),
     log:
         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
     benchmark:
@@ -99,98 +102,126 @@ rule kraken2_host_filter_gz:
         """
 
 
-rule bowtie2_alignment:
-    input:
-
+rule get_genome:
     output:
+        genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
+    threads: 2
+    resources:
+        partition='compute'
+    resources:
+        time = lambda wildcards, attempt: attempt * 7 * 24 * 60
+    params:
+        genome=config['genome'],
+    shell:
+        "wget -c -O {output.genome_gz} {params.genome} "
 
-    log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
-    benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+
+rule build_b2_index:
+    input:
+        genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
+    output:
+        bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
     conda:
-
-    threads:
-
+        "bowtie2-2.5.1"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) * 16), #TODO benchmark and tweak
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
+        partition = "compute"
     shell:
         """
         
+        bowtie2 -f --threads {threads} --seed 1953 {input.genome_gz} resources/ref/BT2INDEX 
+        bowtie2-inspect -s resources/ref/BT2INDEX
+
+        """
+
+
+rule bowtie2_alignment:
+    input:
+        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz",
+        bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
+    output:
+        host_sam = temp("results/{library}/06_host_alignment/{samples}.sam"),
+    log:
+        os.path.join("results", "{library}", "logs", "bowtie2", "bowtie2_alignment.{samples}.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "bowtie2_alignment.{samples}.txt"),
+    conda:
+        "bowtie2-2.5.1"
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 84),
+        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
+        partition = "compute,hugemem"
+    shell:
+        """
+
+        bowtie2 --very-fast-local -p {threads} -x resources/ref/BT2INDEX -U {input.k2_host_reads_gz} -S {output.host_sam} 2> {log} 
+
         """
 
 
 rule prepare_bams:
     input:
-
+        host_sam = "results/{library}/06_host_alignment/{samples}.sam",
     output:
-
+        host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
+        os.path.join("results", "{library}", "logs", "samtools", "prepare_bams.{samples}.log"),
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+        os.path.join("results", "{library}", "benchmarks", "prepare_bams.{samples}.txt"),
     conda:
-
-    threads:
-
+        "samtools-1.17"
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 60),
+        partition = "compute,hugemem"
     shell:
         """
-        
+
+        samtools view --threads 6 -bS  {input.host_sam} | samtools sort > {output.host_bam} 2> {log}
+
         """
 
 
-rule bcftools_VCF:
+rule bcftools_index:
     input:
-
+        genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
     output:
-
-    log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
-    benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna.fai' #TODO automate the file name expansion to add .fai
     conda:
-
-    threads:
-
+        "samtools-1.17"
+    threads: 1
     shell:
         """
+        wget -k {input.genome_gz};
+        samtools faidx resources/ref/GCF_000298735.2_genomic.fna
         
         """
 
 
-rule normalise_VCF:
+rule bcftools_VCF: #TODO
     input:
-
+        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna.fai',
     output:
-
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF.log"),
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF.txt"),
     conda:
-
-    threads:
-
+        "bcftools-1.19"
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
+        partition = "compute"
     shell:
-        """
-        
-        """
-
-
-rule merge_VCF:
-    input:
-
-    output:
-
-    log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
-    benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
-    conda:
-
-    threads:
-
-    shell:
-        """
-        
-        """
-
+        "bcftools mpileup --threads {threads} --skip-indels --annotate AD --output-type u --fasta-ref {input.bcf_index} {input.host_bams} "
+        "| bcftools call --consensus-caller --variants-only - "
+        "| bcftools view --write-index --max-alleles 2 - "
+        "> {output.host_vcf} "
 
