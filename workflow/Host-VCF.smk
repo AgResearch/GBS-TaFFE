@@ -42,6 +42,8 @@ onstart:
 rule all:
     input:
         expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
 
 
 localrules: get_genome, bcftools_index
@@ -159,11 +161,19 @@ rule bowtie2_alignment:
         time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
         partition = "compute,hugemem"
     shell:
-        """
+        "bowtie2 "
+        "--very-fast-local "
+        "-p {threads} "
+        "--rg-id {wildcards.samples} "
+        "--rg SM:{wildcards.samples} "
+        "--rg LB:{wildcards.library} "
+        "--rg PU:{wildcards.library} " #TODO add flowcell here
+        "--rg PL:ILLUMINA " 
+        "-x resources/ref/BT2INDEX "
+        "-U {input.k2_host_reads_gz} "
+        "-S {output.host_sam} "
+        "2> {log} "
 
-        bowtie2 --very-fast-local -p {threads} -x resources/ref/BT2INDEX -U {input.k2_host_reads_gz} -S {output.host_sam} 2> {log} 
-
-        """
 
 
 rule prepare_bams:
@@ -184,10 +194,60 @@ rule prepare_bams:
         partition = "compute,hugemem"
     shell:
         """
-
         samtools view --threads 6 -bS  {input.host_sam} | samtools sort > {output.host_bam} 2> {log}
 
+
         """
+
+
+rule bcftools_merge_bams:
+    input:
+        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+    output:
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
+    log:
+        os.path.join("results", LIBRARY, "logs", "bamtools", "bcftools_merge_bams.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_merge_bams.txt"),
+    conda:
+        "bamtools-2.5.2"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        "bamtools "
+        "-in {input.host_bams} "
+        "-out {output.merged_bams} "
+
+
+rule samtools_merge_bams:
+    input:
+        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion to add .fai
+    output:
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam"))
+    log:
+        os.path.join("results", LIBRARY, "logs", "bamtools", "samtools_merge_bams.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "samtools_merge_bams.txt"),
+    conda:
+        "samtools-1.17"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        "samtools "
+        "-o {output.merged_bams} "
+        "-u "
+        "-O BAM "
+        "--reference {input.bcf_index} "
+        "--threads {threads} "
+        "--write-index "
+        "{input.host_bams} "
 
 
 rule bcftools_index:
