@@ -204,6 +204,7 @@ rule bcftools_merge_bams:
     input:
         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
     output:
+        bam_list = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".bamlist.txt")),
         merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
     log:
         os.path.join("results", LIBRARY, "logs", "bamtools", "bcftools_merge_bams.log"),
@@ -217,9 +218,13 @@ rule bcftools_merge_bams:
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bamtools merge "
-        "-in {input.host_bams} "
-        "-out {output.merged_bams} "
+        """
+        for i in {input.host_bams}; do echo $i >> {output.bam_list}; done &&
+        
+        bamtools merge -list {output.bamlist} -out {output.merged_bams}
+
+        """
+ 
 
 
 rule samtools_merge_bams:
