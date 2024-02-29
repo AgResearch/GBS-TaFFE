@@ -41,9 +41,10 @@ onstart:
 
 rule all:
     input:
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
         #expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
 
 
 localrules: get_genome, bcftools_index
@@ -200,7 +201,7 @@ rule prepare_bams:
         """
 
 
-rule bcftools_merge_bams:
+rule bamtools_merge_bams:
     input:
         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
     output:
@@ -273,7 +274,7 @@ rule bcftools_index:
 
 rule bcftools_VCF: #TODO
     input:
-        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
     output:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
