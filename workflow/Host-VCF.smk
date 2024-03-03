@@ -394,5 +394,5 @@ rule host_multiqc:
         "--data-format TSV "
         "--fullnames "
         "--outdir results/{LIBRARY}/00_host_stats "
-        "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools}
+        "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools} "
 
