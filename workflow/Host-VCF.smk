@@ -333,8 +333,7 @@ rule mosdepth_stats_merged:
     resources:
         mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
-        partition = "large,milan",
-        DTMP = "/nesi/nobackup/agresearch03735/SMK-SNVS/tmp",
+        partition = "compute",
     shell:
         "mosdepth "
         "--use-median "
