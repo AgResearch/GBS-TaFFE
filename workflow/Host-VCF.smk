@@ -42,6 +42,7 @@ onstart:
 rule all:
     input:
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".multiqc.host")),
         #expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
@@ -55,6 +56,7 @@ rule kraken2_host_filter:
         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.hosts.k2"),
+        #k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2", #TODO for multiqc report
         k2_filtered_reads = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
         k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.host.fastq"),
     log:
@@ -75,6 +77,7 @@ rule kraken2_host_filter:
         "--classified-out {output.k2_host_reads} "
         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
         "-t {threads} "
+        #"--report {output.k2ReportGTDB} " TODO for multiqc report
         "--output {output.k2OutputHosts} "
         "{input.preprocessed_reads} "
         "2>&1 | tee {log} "
@@ -176,7 +179,6 @@ rule bowtie2_alignment:
         "2> {log} "
 
 
-
 rule prepare_bams:
     input:
         host_sam = "results/{library}/06_host_alignment/{samples}.sam",
@@ -225,7 +227,6 @@ rule bamtools_merge_bams:
         bamtools merge -list {output.bam_list} -out {output.merged_bams}
 
         """
- 
 
 
 rule samtools_merge_bams:
@@ -294,4 +295,104 @@ rule bcftools_VCF: #TODO
         "| bcftools call --consensus-caller --variants-only - "
         "| bcftools view --max-alleles 2 - "
         "> {output.host_vcf} "
+
+
+rule samtools_stats_merged:
+    input:
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
+        reference = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".merged.bam.samtools_stats.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "samtools", "samtools_host_stats.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "samtools_host_stats.txt"),
+    conda:
+        "samtools-1.17"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        partition = "compute",
+    shell:
+        "samtools stats --threads {threads} -r {input.reference} {input.merged_bams} > {output.stats} "
+
+
+rule mosdepth_stats_merged:
+    input:
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
+    output:
+        stats = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".host.mosdepth.summary.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "mosdepth", "mosdepth_stats_merged.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "mosdepth_stats_merged.txt"),
+    conda:
+        "mosdepth-0.3.6"
+    threads: 12
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        partition = "large,milan",
+        DTMP = "/nesi/nobackup/agresearch03735/SMK-SNVS/tmp",
+    shell:
+        "mosdepth "
+        "--use-median "
+        "--fast-mode " # dont look at internal cigar operations or correct mate overlaps (recommended for most use-cases).
+        "--no-per-base " # dont output per-base depth.
+        "--threads {threads} "
+        "results/{LIBRARY}/00_host_stats/{LIBRARY}.host " # output prefix
+        "{input.merged_bams} "
+
+
+rule bcftools_stats:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        reference = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".host.bcftools-stats.txt")),
+    threads: 6
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.host_vcf} > "
+        "{output.stats} "
+
+
+rule host_multiqc:
+    input:
+        logs_bowtie2 = expand("results/{library}/logs/bowtie2/bowtie2_alignment.{samples}.log", library = LIBRARY, samples = FIDs),
+        stats_bcftools = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".host.bcftools-stats.txt")),
+        stats_mosdepth = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".host.mosdepth.summary.txt")),
+        stats_samtools = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".merged.bam.samtools_stats.txt")),
+    output:
+        multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".multiqc.host")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "multiqc", "host_multiqc.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "host_multiqc.txt"),
+    conda:
+        "multiqc"
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        partition = "compute",
+    shell:
+        "multiqc "
+        "--interactive "
+        "--title {LIBRARY}.host.multiqc} "
+        "--force "
+        "--data-format TSV "
+        "--fullnames "
+        "--outdir results/{LIBRARY}/00_host_stats "
+        "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools}
 
