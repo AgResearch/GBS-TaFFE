@@ -389,7 +389,7 @@ rule host_multiqc:
     shell:
         "multiqc "
         "--interactive "
-        "--title {LIBRARY}.host.multiqc} "
+        "--title {LIBRARY}.host.multiqc "
         "--force "
         "--data-format TSV "
         "--fullnames "
