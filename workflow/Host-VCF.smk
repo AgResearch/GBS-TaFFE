@@ -42,7 +42,7 @@ onstart:
 rule all:
     input:
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".multiqc.host")),
+        os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
         #expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
