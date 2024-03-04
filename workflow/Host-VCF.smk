@@ -291,9 +291,9 @@ rule bcftools_VCF: #TODO
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} --skip-indels --annotate AD --output-type u --fasta-ref {input.bcf_index} {input.merged_bams} "
-        "| bcftools call --consensus-caller --variants-only - "
-        "| bcftools view --max-alleles 2 - "
+        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} {input.merged_bams} "
+        "| bcftools call -cv - "
+        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
         "> {output.host_vcf} "
 
 
