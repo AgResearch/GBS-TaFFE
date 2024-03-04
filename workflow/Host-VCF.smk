@@ -334,7 +334,7 @@ rule bcftools_VCF_individual:
         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
     output:
         host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz",
-        csi = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.csi",
+        csi = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz.csi",
     log:
         "results/{library}/logs/bcftools/bcftools_VCF_individual.{samples}.log",
     benchmark:
@@ -355,8 +355,8 @@ rule bcftools_VCF_individual:
 
 rule merge_bcftools_VCF_individual:
     input:
-        vcf = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf", samples = FIDs, library = LIBRARY),
-        csi = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.csi", samples = FIDs, library = LIBRARY),
+        vcf = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz", samples = FIDs, library = LIBRARY),
+        csi = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz.csi", samples = FIDs, library = LIBRARY),
     output:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".individual.host.vcf")),
     log:
