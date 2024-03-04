@@ -343,7 +343,7 @@ rule bcftools_VCF_individual:
         "bcftools-1.19"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
         time = lambda wildcards, attempt: 6 + ((attempt - 1) * 24),
         partition = "compute"
     shell:
