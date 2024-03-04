@@ -296,9 +296,9 @@ rule bcftools_VCF: #TODO
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} {input.merged_bams} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD {input.merged_bams} "
         "| bcftools call -cv - "
-        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
+        "| bcftools view -M2 - "
         "> {output.host_vcf} "
 
 
@@ -322,9 +322,9 @@ rule bcftools_VCF_list:
         partition = "compute"
     shell:
         "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
-        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} -b {output.bam_list} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD "
         "| bcftools call -cv - "
-        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
+        "| bcftools view -M2 - "
         "> {output.host_vcf} "
 
 
@@ -346,9 +346,9 @@ rule bcftools_VCF_individual:
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} {output.bam_list} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
-        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
+        "| bcftools view -M2 - "
         "> {output.host_vcf} "
 
 
