@@ -342,8 +342,8 @@ rule bcftools_VCF_individual:
         "bcftools-1.19"
     threads: 6
     resources:
-        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 8),
-        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 6 + ((attempt - 1) * 24),
         partition = "compute"
     shell:
         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
