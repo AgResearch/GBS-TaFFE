@@ -42,7 +42,12 @@ onstart:
 rule all:
     input:
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".individual.host.vcf")),
+
+
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        # os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
         #expand("results/{library}/06_host_alignment/{library}.merged.host.vcf", library = LIBRARY),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
         # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.bamtools.bam"))
@@ -295,6 +300,78 @@ rule bcftools_VCF: #TODO
         "| bcftools call -cv - "
         "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
         "> {output.host_vcf} "
+
+
+rule bcftools_VCF_list:
+    input:
+        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+    output:
+        bam_list = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".bamlist.txt")),
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_list.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF_list.txt"),
+    conda:
+        "bcftools-1.19"
+    threads: 24
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
+        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} -b {output.bam_list} "
+        "| bcftools call -cv - "
+        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
+        "> {output.host_vcf} "
+
+
+rule bcftools_VCF_individual:
+    input:
+        host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+    output:
+        host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf",
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_individual.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF_individual.txt"),
+    conda:
+        "bcftools-1.19"
+    threads: 6
+    resources:
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
+        partition = "compute"
+    shell:
+        "bcftools mpileup --threads {threads} --skip-indels --annotate INFO/DP,INFO/AC,FORMAT/DP,FORMAT/AD --output-type u --fasta-ref {input.bcf_index} {output.bam_list} "
+        "| bcftools call -cv - "
+        "| bcftools view --min-alleles 2 --max-alleles 2 -v snps --min-ac 3 - "
+        "> {output.host_vcf} "
+
+
+rule merge_bcftools_VCF_individual:
+    input:
+        vcf = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf", samples = FIDs, library = LIBRARY),
+    output:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".individual.host.vcf")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "merge_bcftools_VCF_individual.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "merge_bcftools_VCF_individual.txt"),
+    conda:
+        "bcftools-1.19"
+    threads: 24
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        """
+        bcftools merge --threads {threads} {input.vcf} -O v -o {output.merged};
+        """
 
 
 rule samtools_stats_merged:
