@@ -296,7 +296,7 @@ rule bcftools_VCF: #TODO
         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AC,FORMAT/AD {input.merged_bams} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
         "| bcftools call -cv - "
         "| bcftools view -M2 - "
         "> {output.host_vcf} "
@@ -322,7 +322,7 @@ rule bcftools_VCF_list:
         partition = "compute"
     shell:
         "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AC,FORMAT/AD "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD "
         "| bcftools call -cv - "
         "| bcftools view -M2 - "
         "> {output.host_vcf} "
@@ -346,7 +346,7 @@ rule bcftools_VCF_individual:
         time = lambda wildcards, attempt: 120 + ((attempt - 1) * 120),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AC,FORMAT/AD {input.host_bam} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
         "| bcftools view -M2 - "
         "> {output.host_vcf} "
