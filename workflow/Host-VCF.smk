@@ -373,7 +373,7 @@ rule host_multiqc:
         stats_mosdepth = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".host.mosdepth.summary.txt")),
         stats_samtools = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".merged.bam.samtools_stats.txt")),
     output:
-        multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".multiqc.host")),
+        multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
     log:
         os.path.join("results", LIBRARY, "logs", "multiqc", "host_multiqc.log"),
     benchmark:
@@ -388,7 +388,7 @@ rule host_multiqc:
     shell:
         "multiqc "
         "--interactive "
-        "--title {LIBRARY}.host.multiqc "
+        "--title {LIBRARY}_host "
         "--force "
         "--data-format tsv "
         "--fullnames "
