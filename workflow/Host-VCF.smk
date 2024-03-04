@@ -335,9 +335,9 @@ rule bcftools_VCF_individual:
     output:
         host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf",
     log:
-        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_individual.log"),
+        "results/{library}/logs/bcftools/bcftools_VCF_individual.{samples}.log",
     benchmark:
-        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF_individual.txt"),
+        "results/{library}/benchmarks/bcftools_VCF_individual.{samples}.txt",
     conda:
         "bcftools-1.19"
     threads: 6
