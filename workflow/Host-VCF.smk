@@ -333,14 +333,15 @@ rule bcftools_VCF_individual:
         host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
     output:
-        host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf",
+        host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz",
+        csi = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.csi",
     log:
         "results/{library}/logs/bcftools/bcftools_VCF_individual.{samples}.log",
     benchmark:
         "results/{library}/benchmarks/bcftools_VCF_individual.{samples}.txt",
     conda:
         "bcftools-1.19"
-    threads: 6
+    threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
         time = lambda wildcards, attempt: 6 + ((attempt - 1) * 24),
@@ -348,13 +349,14 @@ rule bcftools_VCF_individual:
     shell:
         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
-        "| bcftools view -M2 - "
-        "> {output.host_vcf} "
+        "| bcftools view -M2 -O z8  -o {output.host_vcf}; "
+        "bcftools index --threads {threads} {output.host_vcf} -o  {output.csi}  "
 
 
 rule merge_bcftools_VCF_individual:
     input:
         vcf = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf", samples = FIDs, library = LIBRARY),
+        csi = expand("results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.csi", samples = FIDs, library = LIBRARY),
     output:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".individual.host.vcf")),
     log:
