@@ -311,8 +311,8 @@ rule samtools_stats_merged:
         "samtools-1.17"
     threads: 12
     resources:
-        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
-        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 60),
         partition = "compute",
     shell:
         "samtools stats --threads {threads} -r {input.reference} {input.merged_bams} > {output.stats} "
@@ -390,7 +390,7 @@ rule host_multiqc:
         "--interactive "
         "--title {LIBRARY}.host.multiqc "
         "--force "
-        "--data-format TSV "
+        "--data-format tsv "
         "--fullnames "
         "--outdir results/{LIBRARY}/00_host_stats "
         "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools} "
