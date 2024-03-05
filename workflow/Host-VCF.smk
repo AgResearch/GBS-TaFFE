@@ -466,10 +466,10 @@ rule host_multiqc:
     shell:
         "multiqc "
         "--interactive "
-        "--title {wildcards.library}_host "
+        "--title {LIBRARY}_host "
         "--force "
         "--data-format tsv "
         "--fullnames "
-        "--outdir results/{wildcards.library}/00_host_stats "
+        "--outdir results/{LIBRARY}/00_host_stats "
         "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools} "
 
