@@ -360,10 +360,10 @@ rule merge_bcftools_VCF_individual:
         os.path.join("results", LIBRARY, "benchmarks", "merge_bcftools_VCF_individual.txt"),
     conda:
         "bcftools-1.19"
-    threads: 24
+    threads: 12
     resources:
-        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
-        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 12),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
         partition = "compute"
     shell:
         """
@@ -383,10 +383,10 @@ rule samtools_stats:
         "results/{library}/benchmarks/samtools_stats.{samples}.txt",
     conda:
         "samtools-1.17"
-    threads: 12
+    threads: 4
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
-        time = lambda wildcards, attempt: 90 + ((attempt - 1) * 60),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
         partition = "compute",
     shell:
         "samtools stats --threads {threads} -r {input.reference} {input.host_bam} > {output.stats} "
@@ -403,10 +403,10 @@ rule mosdepth_stats:
         "results/{library}/benchmarks/mosdepth_stats.{samples}.txt",
     conda:
         "mosdepth-0.3.6"
-    threads: 12
+    threads: 4
     resources:
-        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
-        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
         partition = "compute",
     shell:
         "mosdepth "
@@ -428,12 +428,12 @@ rule bcftools_stats:
         "results/{library}/logs/bcftools/bcftools_stats.{samples}.log",
     benchmark:
         "results/{library}/benchmarks/bcftools_stats.{samples}.txt",
-    threads: 6
+    threads: 4
     conda:
         "bcftools-1.19"
     resources:
-        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 64),
-        time = lambda wildcards, attempt: 120 + ((attempt - 1) * 60),
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 64),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
         partition = "compute",
     shell:
         "bcftools stats "
