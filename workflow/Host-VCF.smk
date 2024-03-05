@@ -349,8 +349,8 @@ rule bcftools_VCF_individual:
     shell:
         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
-        "| bcftools view -m2 -M2 -v snps -X -O z8  -o {output.host_vcf}; "
-        "bcftools index --threads {threads} {output.host_vcf} -o  {output.csi}  "
+        "| bcftools view -m2 -M2 -v snps -0 -O z8 -o {output.host_vcf}; "
+        "bcftools index --threads {threads} {output.host_vcf} -o  {output.csi} "
 
 
 rule merge_bcftools_VCF_individual:
@@ -372,7 +372,7 @@ rule merge_bcftools_VCF_individual:
         partition = "compute"
     shell:
         """
-        bcftools merge --threads {threads} {input.vcf} -0 -O v -o {output.host_vcf};
+        bcftools merge --threads {threads} {input.vcf} | bcftools view -m2 -M2 -v snps -0 -O v -o {output.host_vcf};
         """
 
 
