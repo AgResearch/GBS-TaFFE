@@ -386,7 +386,7 @@ rule samtools_stats:
     threads: 4
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
+        time = lambda wildcards, attempt: 4 + ((attempt - 1) * 60),
         partition = "compute",
     shell:
         "samtools stats --threads {threads} -r {input.reference} {input.host_bam} > {output.stats} "
