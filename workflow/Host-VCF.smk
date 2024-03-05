@@ -372,7 +372,7 @@ rule merge_bcftools_VCF_individual:
         partition = "compute"
     shell:
         """
-        bcftools merge --threads {threads} {input.vcf} | bcftools view -m2 -M2 -v snps -0 -O v -o {output.host_vcf};
+        bcftools merge --threads {threads} {input.vcf} | bcftools view -m2 -M2 -v snps -0 -X -O v -o {output.host_vcf};
         """
 
 
