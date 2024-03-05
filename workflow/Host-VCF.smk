@@ -392,9 +392,32 @@ rule samtools_stats:
         "samtools stats --threads {threads} -r {input.reference} {input.host_bam} > {output.stats} "
 
 
+rule samtools_index_bam:
+    input:
+        host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
+    output:
+        index = "results/{library}/06_host_alignment/{samples}.sorted.bam.bai",
+    log:
+        "results/{library}/logs/bcftools/{samples}.samtools_index_bam.log",
+    benchmark:
+        "results/{library}/benchmarks/{samples}.samtools_index_bam.txt",
+    conda:
+        "samtools-1.17"
+    threads: 1
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 10),
+        partition = "compute",
+    shell:
+        """
+        samtools index {input.host_bam};
+        """
+
+
 rule mosdepth_stats:
     input:
         host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
+        index = "results/{library}/06_host_alignment/{samples}.sorted.bam.bai",
     output:
         stats = "results/{library}/00_host_stats/{samples}.host.mosdepth.summary.txt",
     log:
