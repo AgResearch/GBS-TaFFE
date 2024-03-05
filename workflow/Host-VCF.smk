@@ -428,8 +428,8 @@ rule mosdepth_stats:
         "mosdepth-0.3.6"
     threads: 4
     resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 64),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
         partition = "compute",
     shell:
         "mosdepth "
@@ -455,8 +455,8 @@ rule bcftools_stats:
     conda:
         "bcftools-1.19"
     resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 64),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 60),
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
         partition = "compute",
     shell:
         "bcftools stats "
