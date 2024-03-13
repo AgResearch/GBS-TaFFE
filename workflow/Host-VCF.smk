@@ -43,8 +43,8 @@ rule all:
     input:
         os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
-        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf"))
 
 
 
@@ -273,54 +273,54 @@ rule bcftools_index:
         """
 
 
-# rule bcftools_VCF: #Alternate Method for VCF
-#     input:
-#         merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
-#         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
-#     output:
-#         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-#     log:
-#         os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF.log"),
-#     benchmark:
-#         os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF.txt"),
-#     conda:
-#         "bcftools-1.19"
-#     threads: 24
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
-#         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
-#         partition = "compute"
-#     shell:
-#         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
-#         "| bcftools call -cv - "
-#         "| bcftools view -M2 - "
-#         "> {output.host_vcf} "
+rule bcftools_VCF: #Alternate Method for VCF
+    input:
+        merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+    output:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF.txt"),
+    conda:
+        "bcftools-1.19"
+    threads: 24
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
+        "| bcftools call -cv - "
+        "| bcftools view -M2 - "
+        "> {output.host_vcf} "
 
 
-# rule bcftools_VCF_list: #Alternate Method for VCF
-#     input:
-#         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
-#         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
-#     output:
-#         bam_list = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".bamlist.txt")),
-#         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
-#     log:
-#         os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_list.log"),
-#     benchmark:
-#         os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF_list.txt"),
-#     conda:
-#         "bcftools-1.19"
-#     threads: 24
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
-#         time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
-#         partition = "compute"
-#     shell:
-#         "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
-#         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD "
-#         "| bcftools call -cv - "
-#         "| bcftools view -M2 - "
-#         "> {output.host_vcf} "
+rule bcftools_VCF_list: #Alternate Method for VCF
+    input:
+        host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
+        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+    output:
+        bam_list = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".bamlist.txt")),
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_list.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_VCF_list.txt"),
+    conda:
+        "bcftools-1.19"
+    threads: 24
+    resources:
+        mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
+        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        partition = "compute"
+    shell:
+        "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD "
+        "| bcftools call -cv - "
+        "| bcftools view -M2 - "
+        "> {output.host_vcf} "
 
 
 rule bcftools_VCF_individual:
