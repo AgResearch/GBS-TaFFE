@@ -288,7 +288,7 @@ rule bcftools_VCF: #Alternate Method for VCF
     threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
-        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        time = lambda wildcards, attempt: 2880 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
         "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
@@ -313,7 +313,7 @@ rule bcftools_VCF_list: #Alternate Method for VCF
     threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 12 + ((attempt - 1) * 12),
-        time = lambda wildcards, attempt: 720 + ((attempt - 1) * 720),
+        time = lambda wildcards, attempt: 2880 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
         "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
