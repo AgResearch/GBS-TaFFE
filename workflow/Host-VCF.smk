@@ -44,40 +44,35 @@ rule all:
         os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf"))
-
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
 
 
 localrules: get_genome, bcftools_index
 
 
-rule kraken2_host_filter:
+rule kraken2_filter:
     input:
         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
-        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.hosts.k2"),
-        #k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2", #TODO for multiqc report
-        k2_filtered_reads = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
-        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.host.fastq"),
+        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.filtering.k2"),
+        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
     log:
         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
     conda:
         "kraken2"
-    threads: 8
+    threads: 32
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32), #TODO benchmark and tweak
+        mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "compute,hugemem"
+        partition = "hugemem,compute"
     shell:
         "kraken2 "
         "--gzip-compressed "
-        "--unclassified-out {output.k2_filtered_reads} "
-        "--classified-out {output.k2_host_reads} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "--unclassified-out {output.k2_host_reads} "
+        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
         "-t {threads} "
-        #"--report {output.k2ReportGTDB} " TODO for multiqc report
         "--output {output.k2OutputHosts} "
         "{input.preprocessed_reads} "
         "2>&1 | tee {log} "
@@ -85,11 +80,9 @@ rule kraken2_host_filter:
 
 rule kraken2_host_filter_gz:
     input:
-        k2_filtered_reads = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
-        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
     output:
-        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
-        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz",
+        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
     log:
         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.log"),
     benchmark:
@@ -104,52 +97,51 @@ rule kraken2_host_filter_gz:
     shell:
         """
 
-        pigz -p {threads} -c {input.k2_filtered_reads} > {output.k2_filtered_reads_gz} && 
         pigz -p {threads} -c {input.k2_host_reads} > {output.k2_host_reads_gz} &&
 
-        rm {input.k2_filtered_reads} {input.k2_host_reads};
+        rm {input.k2_host_reads};
 
         """
 
 
-rule get_genome:
-    output:
-        genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
-    threads: 2
-    resources:
-        partition='compute'
-    resources:
-        time = lambda wildcards, attempt: attempt * 7 * 24 * 60
-    params:
-        genome=config['genome'],
-    shell:
-        "wget -c -O {output.genome_gz} {params.genome} "
+# rule get_genome:
+#     output:
+#         genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
+#     threads: 2
+#     resources:
+#         partition='compute'
+#     resources:
+#         time = lambda wildcards, attempt: attempt * 7 * 24 * 60
+#     params:
+#         genome=config['genome'],
+#     shell:
+#         "wget -c -O {output.genome_gz} {params.genome} "
 
 
-rule build_b2_index:
-    input:
-        genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
-    output:
-        bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
-    conda:
-        "bowtie2-2.5.1"
-    threads: 12
-    resources:
-        mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) * 16), #TODO benchmark and tweak
-        time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
-        partition = "compute"
-    shell:
-        """
+# rule build_b2_index:
+#     input:
+#         genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
+#     output:
+#         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
+#     conda:
+#         "bowtie2-2.5.1"
+#     threads: 12
+#     resources:
+#         mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) * 16), #TODO benchmark and tweak
+#         time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
+#         partition = "compute"
+#     shell:
+#         """
         
-        bowtie2 -f --threads {threads} --seed 1953 {input.genome_gz} resources/ref/BT2INDEX 
-        bowtie2-inspect -s resources/ref/BT2INDEX
+#         bowtie2 -f --threads {threads} --seed 1953 {input.genome_gz} resources/ref/BT2INDEX 
+#         bowtie2-inspect -s resources/ref/BT2INDEX
 
-        """
+#         """
 
 
 rule bowtie2_alignment:
     input:
-        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz",
+        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
     output:
         host_sam = temp("results/{library}/06_host_alignment/{samples}.sam"),
@@ -232,7 +224,7 @@ rule bamtools_merge_bams:
 rule samtools_merge_bams:
     input:
         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion to add .fai
+        bcf_index = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion to add .fai
     output:
         merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam"))
     log:
@@ -257,26 +249,26 @@ rule samtools_merge_bams:
         "{input.host_bams} "
 
 
-rule bcftools_index:
-    input:
-        genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
-    output:
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion to add .fai
-    conda:
-        "samtools-1.17"
-    threads: 1
-    shell:
-        """
-        wget -k {input.genome_gz};
-        samtools faidx resources/ref/GCF_000298735.2_genomic.fna
+# rule bcftools_index:
+#     input:
+#         genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
+#     output:
+#         bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion to add .fai
+#     conda:
+#         "samtools-1.17"
+#     threads: 1
+#     shell:
+#         """
+#         wget -k {input.genome_gz};
+#         samtools faidx resources/ref/GCF_000298735.2_genomic.fna
         
-        """
+#         """
 
 
-rule bcftools_VCF: #Alternate Method for VCF
+rule bcftools_VCF_merged: #Alternate Method for VCF
     input:
         merged_bams = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.samtools.bam")),
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+        indexed_genome = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna',
     output:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
     log:
@@ -291,19 +283,19 @@ rule bcftools_VCF: #Alternate Method for VCF
         time = lambda wildcards, attempt: 2880 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.indexed_genome} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.merged_bams} "
         "| bcftools call -cv - "
         "| bcftools view -M2 - "
         "> {output.host_vcf} "
 
 
-rule bcftools_VCF_list: #Alternate Method for VCF
+rule bcftools_VCF_homebrew: #Alternate Method for VCF
     input:
         host_bams = expand("results/{library}/06_host_alignment/{samples}.sorted.bam", library = LIBRARY, samples = FIDs),
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+        indexed_genome = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna',
     output:
         bam_list = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".bamlist.txt")),
-        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".list.host.vcf")),
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf")),
     log:
         os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_VCF_list.log"),
     benchmark:
@@ -316,17 +308,18 @@ rule bcftools_VCF_list: #Alternate Method for VCF
         time = lambda wildcards, attempt: 2880 + ((attempt - 1) * 720),
         partition = "compute"
     shell:
-        "for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && "
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -b {output.bam_list} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD "
-        "| bcftools call -cv - "
-        "| bcftools view -M2 - "
-        "> {output.host_vcf} "
+        """
+        for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && 
+        
+        bcftools mpileup -I -Ou -f {input.indexed_genome} -b {output.bam_list} -a AD | bcftools call -cv - | bcftools view -M2 - > {output.host_vcf};
+
+        """
 
 
 rule bcftools_VCF_individual:
     input:
         host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
-        bcf_index = 'resources/ref/GCF_000298735.2_genomic.fna',
+        indexed_genome = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna',
     output:
         host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz",
         csi = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz.csi",
@@ -342,7 +335,7 @@ rule bcftools_VCF_individual:
         time = lambda wildcards, attempt: 6 + ((attempt - 1) * 24),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.bcf_index} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
+        "bcftools mpileup --threads {threads} -I -Ou -f {input.indexed_genome} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
         "| bcftools view -M2 -O z8 -o {output.host_vcf}; "
         "bcftools index --threads {threads} {output.host_vcf} -o  {output.csi} "
@@ -367,14 +360,14 @@ rule merge_bcftools_VCF_individual:
         partition = "compute"
     shell:
         """
-        bcftools merge --threads {threads} {input.vcf} | bcftools view -m2 -M2 -v snps -X -c 3:nref -O v -o {output.host_vcf};
+        bcftools merge --threads {threads} {input.vcf} | bcftools view -m2 -M2 -v snps -O v -o {output.host_vcf};
         """
 
 
 rule samtools_stats:
     input:
         host_bam = "results/{library}/06_host_alignment/{samples}.sorted.bam",
-        reference = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
         stats = "results/{library}/00_host_stats/{samples}.bam.samtools_stats.txt",
     log:
@@ -444,7 +437,7 @@ rule mosdepth_stats:
 rule bcftools_stats:
     input:
         host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz",
-        reference = 'resources/ref/GCF_000298735.2_genomic.fna' #TODO automate the file name expansion
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
         stats = "results/{library}/00_host_stats/{samples}.host.bcftools-stats.txt",
     log:
