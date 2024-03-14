@@ -47,7 +47,7 @@ rule all:
         os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
 
 
-localrules: get_genome, bcftools_index
+# localrules: get_genome, bcftools_index
 
 
 rule kraken2_filter:
@@ -80,7 +80,7 @@ rule kraken2_filter:
 
 rule kraken2_host_filter_gz:
     input:
-        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
+        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq",
     output:
         k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
     log:
