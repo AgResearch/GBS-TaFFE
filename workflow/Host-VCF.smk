@@ -434,16 +434,68 @@ rule mosdepth_stats:
         "{input.host_bam} "
 
 
-rule bcftools_stats:
+rule bcftools_stats_individual:
     input:
-        host_vcf = "results/{library}/06_host_alignment/{samples}.sorted.bam.vcf.gz",
+        host_vcf = "results/{library}/06_host_alignment/{samples}.host.vcf",
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
-        stats = "results/{library}/00_host_stats/{samples}.host.bcftools-stats.txt",
+        stats = "results/{library}/00_host_stats/{samples}.host.bcftools-stats.individual.txt",
     log:
-        "results/{library}/logs/bcftools/bcftools_stats.{samples}.log",
+        "results/{library}/logs/bcftools/bcftools_stats_individual.{samples}.log",
     benchmark:
-        "results/{library}/benchmarks/bcftools_stats.{samples}.txt",
+        "results/{library}/benchmarks/bcftools_stats_individual.{samples}.txt",
+    threads: 4
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.host_vcf} > "
+        "{output.stats} "
+
+
+rule bcftools_stats_merged:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.merged.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_stats_merged.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_stats_merged.txt"),
+    threads: 4
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.host_vcf} > "
+        "{output.stats} "
+
+
+rule bcftools_stats_homebrew:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf")),
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.homebrew.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_stats_homebrew.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_stats_homebrew.txt"),
     threads: 4
     conda:
         "bcftools-1.19"
@@ -466,6 +518,8 @@ rule host_multiqc:
         stats_bcftools = expand("results/{library}/00_host_stats/{samples}.host.bcftools-stats.txt", library = LIBRARY, samples = FIDs),
         stats_mosdepth = expand("results/{library}/00_host_stats/{samples}.host.mosdepth.summary.txt", library = LIBRARY, samples = FIDs),
         stats_samtools = expand("results/{library}/00_host_stats/{samples}.bam.samtools_stats.txt", library = LIBRARY, samples = FIDs),
+        stats_bcftools_merged = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.merged.txt")),
+        stats_bcftools_homebrew = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.homebrew.txt")),
     output:
         multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
     log:
@@ -487,5 +541,5 @@ rule host_multiqc:
         "--data-format tsv "
         "--fullnames "
         "--outdir results/{LIBRARY}/00_host_stats "
-        "{input.logs_bowtie2} {input.stats_bcftools} {input.stats_mosdepth} {input.stats_samtools} "
+        "{input.logs_bowtie2} {input.stats_samtools} {input.stats_mosdepth} {input.stats_bcftools} {input.stats_bcftools_merged} {input.stats_bcftools_homebrew} "
 
