@@ -515,5 +515,5 @@ rule host_multiqc:
         "--data-format tsv "
         "--fullnames "
         "--outdir results/{LIBRARY}/00_host_stats "
-        "{input.logs_bowtie2} {input.stats_samtools} {input.stats_mosdepth} {input.stats_bcftools} {input.stats_bcftools_merged} {input.stats_bcftools_homebrew} "
+        "{input.logs_bowtie2} {input.stats_samtools} {input.stats_mosdepth} {input.stats_bcftools_individual} {input.stats_bcftools_merged} {input.stats_bcftools_homebrew} "
 
