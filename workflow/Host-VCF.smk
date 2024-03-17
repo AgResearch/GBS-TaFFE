@@ -436,14 +436,14 @@ rule mosdepth_stats:
 
 rule bcftools_stats_individual:
     input:
-        host_vcf = "results/{library}/06_host_alignment/{samples}.host.vcf",
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
-        stats = "results/{library}/00_host_stats/{samples}.host.bcftools-stats.individual.txt",
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.individual.txt")),
     log:
-        "results/{library}/logs/bcftools/bcftools_stats_individual.{samples}.log",
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_stats_individual.log"),
     benchmark:
-        "results/{library}/benchmarks/bcftools_stats_individual.{samples}.txt",
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_stats_individual.txt"),
     threads: 4
     conda:
         "bcftools-1.19"
@@ -515,9 +515,9 @@ rule bcftools_stats_homebrew:
 rule host_multiqc:
     input:
         logs_bowtie2 = expand("results/{library}/logs/bowtie2/bowtie2_alignment.{samples}.log", library = LIBRARY, samples = FIDs),
-        stats_bcftools = expand("results/{library}/00_host_stats/{samples}.host.bcftools-stats.txt", library = LIBRARY, samples = FIDs),
         stats_mosdepth = expand("results/{library}/00_host_stats/{samples}.host.mosdepth.summary.txt", library = LIBRARY, samples = FIDs),
         stats_samtools = expand("results/{library}/00_host_stats/{samples}.bam.samtools_stats.txt", library = LIBRARY, samples = FIDs),
+        stats_bcftools_individual =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.individual.txt")),
         stats_bcftools_merged = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.merged.txt")),
         stats_bcftools_homebrew = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.homebrew.txt")),
     output:
