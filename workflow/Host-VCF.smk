@@ -50,58 +50,55 @@ rule all:
 # localrules: get_genome, bcftools_index
 
 
-rule kraken2_filter:
-    input:
-        preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
-    output:
-        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.filtering.k2"),
-        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
-    log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
-    benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
-    conda:
-        "kraken2"
-    threads: 32
-    resources:
-        mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "hugemem,compute"
-    shell:
-        "kraken2 "
-        "--gzip-compressed "
-        "--unclassified-out {output.k2_host_reads} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
-        "-t {threads} "
-        "--output {output.k2OutputHosts} "
-        "{input.preprocessed_reads} "
-        "2>&1 | tee {log} "
+# rule kraken2_filter: #TODO: Can only filter if the host is not built into the index
+#     input:
+#         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
+#     output:
+#         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.filtering.k2"),
+#         k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
+#     log:
+#         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
+#     benchmark:
+#         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
+#     conda:
+#         "kraken2"
+#     threads: 32
+#     resources:
+#         mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
+#         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+#         partition = "hugemem,compute"
+#     shell:
+#         "kraken2 "
+#         "--gzip-compressed "
+#         "--unclassified-out {output.k2_host_reads} "
+#         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
+#         "-t {threads} "
+#         "--output {output.k2OutputHosts} "
+#         "{input.preprocessed_reads} "
+#         "2>&1 | tee {log} "
 
 
-rule kraken2_host_filter_gz:
-    input:
-        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq",
-    output:
-        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
-    log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.log"),
-    benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
-    conda:
-        "pigz"
-    threads: 8
-    resources:
-        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
-        time = lambda wildcards, attempt: 5 + ((attempt - 1) * 5),
-        partition = "compute,hugemem"
-    shell:
-        """
-
-        pigz -p {threads} -c {input.k2_host_reads} > {output.k2_host_reads_gz} &&
-
-        rm {input.k2_host_reads};
-
-        """
+# rule kraken2_host_filter_gz:
+#     input:
+#         k2_host_reads = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq",
+#     output:
+#         k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
+#     log:
+#         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.log"),
+#     benchmark:
+#         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+#     conda:
+#         "pigz"
+#     threads: 8
+#     resources:
+#         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+#         time = lambda wildcards, attempt: 5 + ((attempt - 1) * 5),
+#         partition = "compute,hugemem"
+#     shell:
+#         """
+#         pigz -p {threads} -c {input.k2_host_reads} > {output.k2_host_reads_gz} &&
+#         rm {input.k2_host_reads};
+#         """
 
 
 # rule get_genome:
@@ -141,7 +138,7 @@ rule kraken2_host_filter_gz:
 
 rule bowtie2_alignment:
     input:
-        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
+        reads_gz = "results/SQ2121/02_kneaddata/{samples}.fastq.gz",
         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
     output:
         host_sam = temp("results/{library}/06_host_alignment/{samples}.sam"),
@@ -284,9 +281,7 @@ rule bcftools_VCF_homebrew: #Alternate Method for VCF
     shell:
         """
         for i in {input.host_bams}; do echo $i >> {output.bam_list}; done && 
-        
         bcftools mpileup -I -Ou -f {input.indexed_genome} -b {output.bam_list} -a AD | bcftools call -cv - | bcftools view -M2 - > {output.host_vcf};
-
         """
 
 
