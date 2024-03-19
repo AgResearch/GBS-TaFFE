@@ -50,95 +50,68 @@ rule all:
 # localrules: get_genome, bcftools_index
 
 
-# rule kraken2_filter: #TODO: Can only filter if the host is not built into the index
-#     input:
-#         preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
-#     output:
-#         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.filtering.k2"),
-#         k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq"),
-#     log:
-#         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
-#     benchmark:
-#         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
-#     conda:
-#         "kraken2"
-#     threads: 32
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
-#         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-#         partition = "hugemem,compute"
-#     shell:
-#         "kraken2 "
-#         "--gzip-compressed "
-#         "--unclassified-out {output.k2_host_reads} "
-#         "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
-#         "-t {threads} "
-#         "--output {output.k2OutputHosts} "
-#         "{input.preprocessed_reads} "
-#         "2>&1 | tee {log} "
+rule kraken2_host_filter:
+    input:
+        preprocessed_reads = "results/{library}/02_kneaddata/{samples}.fastq.gz",
+    output:
+        k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.hosts.k2"),
+        k2_filtered_reads = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
+        k2_host_reads = temp("results/{library}/04_k2_filtering/{samples}.host.fastq"),
+    log:
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
+    conda:
+        "kraken2"
+    threads: 8
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32), #TODO benchmark and tweak
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        partition = "compute,hugemem"
+    shell:
+        "kraken2 "
+        "--gzip-compressed "
+        "--unclassified-out {output.k2_filtered_reads} "
+        "--classified-out {output.k2_host_reads} "
+        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "-t {threads} "
+        "--output {output.k2OutputHosts} "
+        "{input.preprocessed_reads} "
+        "2>&1 | tee {log} "
 
 
-# rule kraken2_host_filter_gz:
-#     input:
-#         k2_host_reads = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq",
-#     output:
-#         k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonmicrobe.fastq.gz",
-#     log:
-#         os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.log"),
-#     benchmark:
-#         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
-#     conda:
-#         "pigz"
-#     threads: 8
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
-#         time = lambda wildcards, attempt: 5 + ((attempt - 1) * 5),
-#         partition = "compute,hugemem"
-#     shell:
-#         """
-#         pigz -p {threads} -c {input.k2_host_reads} > {output.k2_host_reads_gz} &&
-#         rm {input.k2_host_reads};
-#         """
+rule kraken2_host_filter_gz:
+    input:
+        k2_filtered_reads = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq",
+        k2_host_reads = "results/{library}/04_k2_filtering/{samples}.host.fastq",
+    output:
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
+        k2_host_reads_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz",
+    log:
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.log"),
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
+    conda:
+        "pigz"
+    threads: 8
+    resources:
+        mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
+        time = lambda wildcards, attempt: 5 + ((attempt - 1) * 5),
+        partition = "compute,hugemem"
+    shell:
+        """
 
+        pigz -p {threads} -c {input.k2_filtered_reads} > {output.k2_filtered_reads_gz} && 
+        pigz -p {threads} -c {input.k2_host_reads} > {output.k2_host_reads_gz} &&
 
-# rule get_genome:
-#     output:
-#         genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
-#     threads: 2
-#     resources:
-#         partition='compute'
-#     resources:
-#         time = lambda wildcards, attempt: attempt * 7 * 24 * 60
-#     params:
-#         genome=config['genome'],
-#     shell:
-#         "wget -c -O {output.genome_gz} {params.genome} "
+        rm {input.k2_filtered_reads} {input.k2_host_reads};
 
-
-# rule build_b2_index:
-#     input:
-#         genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
-#     output:
-#         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
-#     conda:
-#         "bowtie2-2.5.1"
-#     threads: 12
-#     resources:
-#         mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) * 16), #TODO benchmark and tweak
-#         time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
-#         partition = "compute"
-#     shell:
-#         """
-        
-#         bowtie2 -f --threads {threads} --seed 1953 {input.genome_gz} resources/ref/BT2INDEX 
-#         bowtie2-inspect -s resources/ref/BT2INDEX
-
-#         """
+        """
 
 
 rule bowtie2_alignment:
     input:
-        reads_gz = "results/SQ2121/02_kneaddata/{samples}.fastq.gz",
+        reads_gz = "results/{library}/04_k2_filtering/{samples}.host.fastq.gz", # "results/SQ2121/02_kneaddata/{samples}.fastq.gz" OR "results/SQ2121/04_k2_filtering/{samples}.host.fastq.gz"
         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
     output:
         host_sam = temp("results/{library}/06_host_alignment/{samples}.sam"),
@@ -512,3 +485,37 @@ rule host_multiqc:
         "--outdir results/{LIBRARY}/00_host_stats "
         "{input.logs_bowtie2} {input.stats_samtools} {input.stats_mosdepth} {input.stats_bcftools_individual} {input.stats_bcftools_merged} {input.stats_bcftools_homebrew} "
 
+
+# rule get_genome:
+#     output:
+#         genome_gz = protected('resources/ref/GCF_000298735.2_genomic.fna.gz'),
+#     threads: 2
+#     resources:
+#         partition='compute'
+#     resources:
+#         time = lambda wildcards, attempt: attempt * 7 * 24 * 60
+#     params:
+#         genome=config['genome'],
+#     shell:
+#         "wget -c -O {output.genome_gz} {params.genome} "
+
+
+# rule build_b2_index:
+#     input:
+#         genome_gz = 'resources/ref/GCF_000298735.2_genomic.fna.gz',
+#     output:
+#         bt2_index_semaphore = "resources/ref/BT2INDEX.rev.1.bt2"
+#     conda:
+#         "bowtie2-2.5.1"
+#     threads: 12
+#     resources:
+#         mem_gb = lambda wildcards, attempt: 16 + ((attempt - 1) * 16), #TODO benchmark and tweak
+#         time = lambda wildcards, attempt: 60 + ((attempt - 1) * 60),
+#         partition = "compute"
+#     shell:
+#         """
+        
+#         bowtie2 -f --threads {threads} --seed 1953 {input.genome_gz} resources/ref/BT2INDEX 
+#         bowtie2-inspect -s resources/ref/BT2INDEX
+
+#         """
