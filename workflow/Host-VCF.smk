@@ -136,7 +136,7 @@ rule bowtie2_alignment:
         "--rg PU:{wildcards.library} " #TODO add flowcell here
         "--rg PL:ILLUMINA " 
         "-x resources/ref/BT2INDEX "
-        "-U {input.k2_host_reads_gz} "
+        "-U {input.reads_gz} "
         "-S {output.host_sam} "
         "2> {log} "
 
