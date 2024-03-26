@@ -42,9 +42,9 @@ onstart:
 rule all:
     input:
         os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
 
 
 # localrules: get_genome, bcftools_index
@@ -454,6 +454,168 @@ rule bcftools_stats_homebrew:
         "{output.stats} "
 
 
+rule vcftools_filter_individual:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
+    output:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.reorder.vcf")),
+    params:
+        vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3"))
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "vcftools_filter_individual.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_individual.txt"),
+    threads: 4
+    conda:
+        "vcftools-0.1.16"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "vcftools "
+        "--vcf {input.host_vcf} "
+        "--threads {threads} "
+        "--mac 3 "
+        "--recode --recode-INFO-all "
+        "--out {params.vcf_out_root}; "
+        "echo {output.filtered_vcf} "
+
+
+rule vcftools_filter_homebrew:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf")),
+    output:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.reorder.vcf")),
+    params:
+        vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + "homebrew.host.MAC-3"))
+    log:
+        os.path.join("results", LIBRARY, "logs", "vcftools", "vcftools_filter_homebrew.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_homebrew.txt"),
+    threads: 4
+    conda:
+        "vcftools-0.1.16"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "vcftools "
+        "--vcf {input.host_vcf} "
+        "--threads {threads} "
+        "--mac 3 "
+        "--recode --recode-INFO-all "
+        "--out {params.vcf_out_root}; "
+        "echo {output.filtered_vcf} "
+
+
+rule vcftools_filter_merged:
+    input:
+        host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+    output:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.reorder.vcf")),
+    params:
+        vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3"))
+    log:
+        os.path.join("results", LIBRARY, "logs", "vcftools", "vcftools_filter_merged.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_merged.txt"),
+    threads: 4
+    conda:
+        "vcftools-0.1.16"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "vcftools "
+        "--vcf {input.host_vcf} "
+        "--threads {threads} "
+        "--mac 3 "
+        "--recode --recode-INFO-all "
+        "--out {params.vcf_out_root}; "
+        "echo {output.filtered_vcf} "
+
+
+rule filtered_stats_individual:
+    input:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.reorder.vcf")),
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_individual.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "filtered_stats_individual.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "filtered_stats_individual.txt"),
+    threads: 4
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.filtered_vcf} > "
+        "{output.stats} "
+
+
+rule filtered_stats_homebrew:
+    input:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.reorder.vcf")),
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_homebrew.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "filtered_stats_homebrew.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "filtered_stats_homebrew.txt"),
+    threads: 4
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.filtered_vcf} > "
+        "{output.stats} "
+
+
+rule bcftools_stats_merged:
+    input:
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.reorder.vcf")),
+        reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
+    output:
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools_stats_merged.txt")),
+    log:
+        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_stats_merged.log"),
+    benchmark:
+        os.path.join("results", LIBRARY, "benchmarks", "bcftools_stats_merged.txt"),
+    threads: 4
+    conda:
+        "bcftools-1.19"
+    resources:
+        mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        partition = "compute",
+    shell:
+        "bcftools stats "
+        "--fasta-ref {input.reference} "
+        "--samples - "
+        "--threads {threads} "
+        "{input.filtered_vcf} > "
+        "{output.stats} "
+
+
 rule host_multiqc:
     input:
         logs_bowtie2 = expand("results/{library}/logs/bowtie2/bowtie2_alignment.{samples}.log", library = LIBRARY, samples = FIDs),
@@ -462,6 +624,9 @@ rule host_multiqc:
         stats_bcftools_individual =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.individual.txt")),
         stats_bcftools_merged = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.merged.txt")),
         stats_bcftools_homebrew = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.homebrew.txt")),
+        stats_filtered_individual =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_individual.txt")),
+        stats_filtered_homebrew =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_homebrew.txt")),
+        stats_filtered_merged =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools_stats_merged.txt")),
     output:
         multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
     log:
@@ -483,7 +648,15 @@ rule host_multiqc:
         "--data-format tsv "
         "--fullnames "
         "--outdir results/{LIBRARY}/00_host_stats "
-        "{input.logs_bowtie2} {input.stats_samtools} {input.stats_mosdepth} {input.stats_bcftools_individual} {input.stats_bcftools_merged} {input.stats_bcftools_homebrew} "
+        "{input.logs_bowtie2} "
+        "{input.stats_samtools} "
+        "{input.stats_mosdepth} "
+        "{input.stats_bcftools_individual} "
+        "{input.stats_bcftools_merged} "
+        "{input.stats_bcftools_homebrew} "
+        "{input.stats_filtered_individual} "
+        "{input.stats_filtered_homebrew} "
+        "{input.stats_filtered_merged} "
 
 
 # rule get_genome:
