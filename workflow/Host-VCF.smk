@@ -458,7 +458,7 @@ rule vcftools_filter_individual:
     input:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
     output:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.recode.vcf")),
     params:
         vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3"))
     log:
@@ -485,9 +485,9 @@ rule vcftools_filter_homebrew:
     input:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf")),
     output:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.recode.vcf")),
     params:
-        vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + "homebrew.host.MAC-3"))
+        vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3"))
     log:
         os.path.join("results", LIBRARY, "logs", "vcftools", "vcftools_filter_homebrew.log"),
     benchmark:
@@ -512,7 +512,7 @@ rule vcftools_filter_merged:
     input:
         host_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
     output:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.recode.vcf")),
     params:
         vcf_out_root = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3"))
     log:
@@ -537,7 +537,7 @@ rule vcftools_filter_merged:
 
 rule filtered_stats_individual:
     input:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.MAC-3.recode.vcf")),
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
         stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_individual.txt")),
@@ -563,7 +563,7 @@ rule filtered_stats_individual:
 
 rule filtered_stats_homebrew:
     input:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.MAC-3.recode.vcf")),
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
         stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_homebrew.txt")),
@@ -589,7 +589,7 @@ rule filtered_stats_homebrew:
 
 rule filtered_stats_merged:
     input:
-        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.reorder.vcf")),
+        filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.recode.vcf")),
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
         stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_merged.txt")),
