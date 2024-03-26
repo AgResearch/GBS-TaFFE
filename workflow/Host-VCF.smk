@@ -465,12 +465,12 @@ rule vcftools_filter_individual:
         os.path.join("results", LIBRARY, "logs", "bcftools", "vcftools_filter_individual.log"),
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_individual.txt"),
-    threads: 4
+    threads: 2
     conda:
         "vcftools-0.1.16"
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
-        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 10 + ((attempt - 1) * 2),
         partition = "compute",
     shell:
         "vcftools "
@@ -493,12 +493,12 @@ rule vcftools_filter_homebrew:
         os.path.join("results", LIBRARY, "logs", "vcftools", "vcftools_filter_homebrew.log"),
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_homebrew.txt"),
-    threads: 4
+    threads: 2
     conda:
         "vcftools-0.1.16"
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
-        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 10 + ((attempt - 1) * 2),
         partition = "compute",
     shell:
         "vcftools "
@@ -521,12 +521,12 @@ rule vcftools_filter_merged:
         os.path.join("results", LIBRARY, "logs", "vcftools", "vcftools_filter_merged.log"),
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "vcftools_filter_merged.txt"),
-    threads: 4
+    threads: 2
     conda:
         "vcftools-0.1.16"
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
-        time = lambda wildcards, attempt: 2 + ((attempt - 1) * 2),
+        time = lambda wildcards, attempt: 10 + ((attempt - 1) * 2),
         partition = "compute",
     shell:
         "vcftools "
