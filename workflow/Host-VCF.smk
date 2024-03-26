@@ -590,16 +590,16 @@ rule filtered_stats_homebrew:
         "{output.stats} "
 
 
-rule bcftools_stats_merged:
+rule filtered_stats_merged:
     input:
         filtered_vcf = os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.MAC-3.reorder.vcf")),
         reference = 'resources/ref/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna' #TODO automate the file name expansion
     output:
-        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools_stats_merged.txt")),
+        stats =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_merged.txt")),
     log:
-        os.path.join("results", LIBRARY, "logs", "bcftools", "bcftools_stats_merged.log"),
+        os.path.join("results", LIBRARY, "logs", "bcftools", "filtered_stats_merged.log"),
     benchmark:
-        os.path.join("results", LIBRARY, "benchmarks", "bcftools_stats_merged.txt"),
+        os.path.join("results", LIBRARY, "benchmarks", "filtered_stats_merged.txt"),
     threads: 4
     conda:
         "bcftools-1.19"
@@ -626,7 +626,7 @@ rule host_multiqc:
         stats_bcftools_homebrew = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools-stats.homebrew.txt")),
         stats_filtered_individual =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_individual.txt")),
         stats_filtered_homebrew =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_homebrew.txt")),
-        stats_filtered_merged =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".bcftools_stats_merged.txt")),
+        stats_filtered_merged =  os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + ".filtered_stats_merged.txt")),
     output:
         multiqc_report = os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
     log:
