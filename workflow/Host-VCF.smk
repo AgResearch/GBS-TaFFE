@@ -42,9 +42,9 @@ onstart:
 rule all:
     input:
         os.path.join("results", LIBRARY, "00_host_stats", (LIBRARY + "_host_multiqc_report.html")),
-        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
-        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
-        # os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".host.vcf")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".merged.host.vcf")),
+        os.path.join("results", LIBRARY, "06_host_alignment", (LIBRARY + ".homebrew.host.vcf"))
 
 
 # localrules: get_genome, bcftools_index
