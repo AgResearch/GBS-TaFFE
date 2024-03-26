@@ -477,7 +477,7 @@ rule vcftools_filter_individual:
         "--vcf {input.host_vcf} "
         "--mac 3 "
         "--recode --recode-INFO-all "
-        "--out {params.vcf_out_root}; "
+        "--out {params.vcf_out_root} && "
         "echo {output.filtered_vcf} "
 
 
@@ -504,7 +504,7 @@ rule vcftools_filter_homebrew:
         "--vcf {input.host_vcf} "
         "--mac 3 "
         "--recode --recode-INFO-all "
-        "--out {params.vcf_out_root}; "
+        "--out {params.vcf_out_root} && "
         "echo {output.filtered_vcf} "
 
 
@@ -531,7 +531,7 @@ rule vcftools_filter_merged:
         "--vcf {input.host_vcf} "
         "--mac 3 "
         "--recode --recode-INFO-all "
-        "--out {params.vcf_out_root}; "
+        "--out {params.vcf_out_root} && "
         "echo {output.filtered_vcf} "
 
 
