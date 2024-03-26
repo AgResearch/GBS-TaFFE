@@ -475,7 +475,6 @@ rule vcftools_filter_individual:
     shell:
         "vcftools "
         "--vcf {input.host_vcf} "
-        "--threads {threads} "
         "--mac 3 "
         "--recode --recode-INFO-all "
         "--out {params.vcf_out_root}; "
@@ -503,7 +502,6 @@ rule vcftools_filter_homebrew:
     shell:
         "vcftools "
         "--vcf {input.host_vcf} "
-        "--threads {threads} "
         "--mac 3 "
         "--recode --recode-INFO-all "
         "--out {params.vcf_out_root}; "
@@ -531,7 +529,6 @@ rule vcftools_filter_merged:
     shell:
         "vcftools "
         "--vcf {input.host_vcf} "
-        "--threads {threads} "
         "--mac 3 "
         "--recode --recode-INFO-all "
         "--out {params.vcf_out_root}; "
