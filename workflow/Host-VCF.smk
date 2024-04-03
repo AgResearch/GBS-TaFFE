@@ -277,9 +277,10 @@ rule bcftools_VCF_individual:
         time = lambda wildcards, attempt: 6 + ((attempt - 1) * 24),
         partition = "compute"
     shell:
-        "bcftools mpileup --threads {threads} -I -Ou -f {input.indexed_genome} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
+        "bcftools mpileup --threads {threads} -I -O u -f {input.indexed_genome} -a INFO/DPR,INFO/AD,FORMAT/DP,FORMAT/AD {input.host_bam} "
         "| bcftools call -cv - "
-        "| bcftools view -M2 -O z8 -o {output.host_vcf}; "
+        "| bcftools view -M2 -O z8 "
+        "| bcftools sort -O z8 -o {output.host_vcf}; "
         "bcftools index --threads {threads} {output.host_vcf} -o  {output.csi} "
 
 
