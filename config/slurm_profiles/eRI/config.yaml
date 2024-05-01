@@ -17,9 +17,8 @@ default-resources:
   - time=30
   - mem_gb=8
 restart-times: 5
-local-cores: 2
-latency-wait: 6000
-jobs: 12
+latency-wait: 600
+jobs: 20
 max-jobs-per-second: 1
 max-status-checks-per-second: 1
 keep-going: True
