@@ -21,6 +21,7 @@ latency-wait: 600
 jobs: 100
 max-jobs-per-second: 1
 max-status-checks-per-second: 1
+local-cores: 2
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
