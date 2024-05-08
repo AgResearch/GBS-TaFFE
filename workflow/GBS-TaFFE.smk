@@ -421,7 +421,7 @@ rule kraken2_GTDB214:
         os.path.join("results","{library}", "benchmarks", "kraken2_GTDB214.{samples}.txt"),
     conda:
         "kraken2"
-    threads: 32
+    threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
