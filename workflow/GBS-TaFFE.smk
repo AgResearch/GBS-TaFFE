@@ -65,7 +65,7 @@ rule all:
         expand("results/{library}/{library}.kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
         # expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
 #human3
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
@@ -425,7 +425,7 @@ rule kraken2_GTDB214:
     resources:
         mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "hugemem,compute"
+        partition = "hugemem"
     shell:
         "kraken2 "
         "--use-names "
@@ -456,7 +456,7 @@ rule kraken2_GTDB214_gz:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
         time = lambda wildcards, attempt: 40 + ((attempt - 1) * 60),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "pigz "
         "-p {threads} "
@@ -721,7 +721,7 @@ rule kraken2_host_filter:
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "kraken2 "
         "--gzip-compressed "
@@ -748,7 +748,7 @@ rule kraken2_host_filter_gz:
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
         time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
-        partition = "compute,hugemem"
+        partition = "compute"
     shell:
         "pigz -p 12 "
         "{input.k2_filtered_read} "
