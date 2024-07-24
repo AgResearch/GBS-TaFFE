@@ -735,7 +735,7 @@ rule kraken2_host_filter:
 
 rule kraken2_host_filter_gz:
     input:
-        k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq"),
+        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq",
     output:
         k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq.gz",
     log:
