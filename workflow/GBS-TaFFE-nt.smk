@@ -432,7 +432,7 @@ rule kraken2_nt20231129:
         "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
+        "--db /datasets/2024-kraken2-indices/k2_nt_20231129 " 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
