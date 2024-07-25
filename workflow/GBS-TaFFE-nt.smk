@@ -424,7 +424,7 @@ rule kraken2_nt20231129:
     threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 740 + ((attempt - 1) * 20),
-        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
+        time = lambda wildcards, attempt: 60 + ((attempt - 1) * 30),
         partition = "hugemem"
     shell:
         "kraken2 "
