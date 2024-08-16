@@ -423,7 +423,7 @@ rule kraken2_nt20240530:
         "kraken2"
     threads: 24
     resources:
-        mem_gb = lambda wildcards, attempt: 740 + ((attempt - 1) * 20),
+        mem_gb = lambda wildcards, attempt: 912 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 60 + ((attempt - 1) * 30),
         partition = "hugemem"
     shell:
