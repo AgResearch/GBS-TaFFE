@@ -58,24 +58,24 @@ rule all:
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
 #kraken2
-        expand("results/{library}/{library}.kraken2.nt20231129.domain.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.nt20231129.phylum.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.nt20231129.order.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.nt20231129.class.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.nt20231129.family.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.nt20231129.genus.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/{library}.kraken2.nt20231129.species.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/{library}.kraken2.nt20231129.genus.counts.biom",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.domain.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.phylum.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.order.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.class.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.family.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.genus.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.nt20240530.species.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.nt20240530.genus.counts.biom",  library = LIBRARY),
 #human3
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20231129.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.nt20231129.rpk.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.KO.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.EC.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.pfam.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.EggNOG.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20231129.rpk.cpm.QC.tsv", library = LIBRARY),
-        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.cpm.QC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20240530.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathcoverage.nt20240530.rpk.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.KO.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.EC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.pfam.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.EggNOG.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20240530.rpk.cpm.QC.tsv", library = LIBRARY),
+        # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.cpm.QC.tsv", library = LIBRARY),
 
 
 checkpoint report_seqkit_raw:
@@ -407,18 +407,18 @@ rule report_seqkit_KDSILVA138:
 
 
 #KRAKEN2 RULES
-rule kraken2_nt20231129:
+rule kraken2_nt20240530:
     priority: 1000
     input:
         KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.k2",
-        k2ReportGTDB = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.kraken2",
-        k2Classified_read = temp("results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.kraken2.classified.fastq"),
+        k2OutputGTDB = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.k2",
+        k2ReportGTDB = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2",
+        k2Classified_read = temp("results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2.classified.fastq"),
     log:
-        os.path.join("results", "{library}", "logs", "kraken2_nt20231129", "kraken2GTDB.{samples}.nt20231129.log"),
+        os.path.join("results", "{library}", "logs", "kraken2_nt20240530", "kraken2GTDB.{samples}.nt20240530.log"),
     benchmark:
-        os.path.join("results","{library}", "benchmarks", "kraken2_nt20231129.{samples}.txt"),
+        os.path.join("results","{library}", "benchmarks", "kraken2_nt20240530.{samples}.txt"),
     conda:
         "kraken2"
     threads: 24
@@ -432,7 +432,7 @@ rule kraken2_nt20231129:
         "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
-        "--db /datasets/2024-kraken2-indices/k2_nt_20231129 " 
+        "--db /datasets/2024-kraken2-indices/k2_nt_20240530 " 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
@@ -441,15 +441,15 @@ rule kraken2_nt20231129:
         "2>&1 | tee {log} "
 
 
-rule kraken2_nt20231129_gz:
+rule kraken2_nt20240530_gz:
     input:
-        k2OutputGTDB = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.k2",
-        k2Classified_read = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.kraken2.classified.fastq",
+        k2OutputGTDB = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.k2",
+        k2Classified_read = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2.classified.fastq",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.k2.gz",
-        k2Classified_read = temp("results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.kraken2.classified.fastq.gz"),
+        k2OutputGTDB = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.k2.gz",
+        k2Classified_read = temp("results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2.classified.fastq.gz"),
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_nt20231129_gz.{samples}.txt"),
+        os.path.join("results", "{library}", "benchmarks", "kraken2_nt20240530_gz.{samples}.txt"),
     conda:
         "pigz"
     threads: 16
@@ -464,32 +464,32 @@ rule kraken2_nt20231129_gz:
         "{input.k2Classified_read} " 
 
 
-def get_passing_files_nt20231129(wildcards, minReads=min_reads, lib=LIBRARY):
+def get_passing_files_nt20240530(wildcards, minReads=min_reads, lib=LIBRARY):
     file = checkpoints.report_seqkit_raw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2_nt20231129/{samples}.nt20231129.kraken2"), samples = passed)
+    return expand(os.path.join("results", lib, "03_kraken2_nt20240530/{samples}.nt20240530.kraken2"), samples = passed)
 
 
-# def get_passing_files_nt20231129(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+# def get_passing_files_nt20240530(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
 #     import pandas as pd
 #     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
 #     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
 #     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
 #     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-#     return expand(os.path.join("results", lib, "03_kraken2_nt20231129/{samples}.nt20231129.kraken2"), samples = passed)
+#     return expand(os.path.join("results", lib, "03_kraken2_nt20240530/{samples}.nt20240530.kraken2"), samples = passed)
 
 
-rule taxpasta_Kraken2_nt20231129_domain:
+rule taxpasta_Kraken2_nt20240530_domain:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.domain.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.domain.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_kingdom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_kingdom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -502,7 +502,7 @@ rule taxpasta_Kraken2_nt20231129_domain:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -510,14 +510,14 @@ rule taxpasta_Kraken2_nt20231129_domain:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_phylum:
+rule taxpasta_Kraken2_nt20240530_phylum:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.phylum.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.phylum.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_phylum.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_phylum.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -530,7 +530,7 @@ rule taxpasta_Kraken2_nt20231129_phylum:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -538,14 +538,14 @@ rule taxpasta_Kraken2_nt20231129_phylum:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_order:
+rule taxpasta_Kraken2_nt20240530_order:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.order.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.order.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_order.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_order.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -558,7 +558,7 @@ rule taxpasta_Kraken2_nt20231129_order:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -566,14 +566,14 @@ rule taxpasta_Kraken2_nt20231129_order:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_class:
+rule taxpasta_Kraken2_nt20240530_class:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.class.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.class.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_class.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_class.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -586,7 +586,7 @@ rule taxpasta_Kraken2_nt20231129_class:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -594,14 +594,14 @@ rule taxpasta_Kraken2_nt20231129_class:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_family:
+rule taxpasta_Kraken2_nt20240530_family:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.family.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.family.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_family.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_family.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -614,7 +614,7 @@ rule taxpasta_Kraken2_nt20231129_family:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -622,14 +622,14 @@ rule taxpasta_Kraken2_nt20231129_family:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_genus:
+rule taxpasta_Kraken2_nt20240530_genus:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.genus.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.genus.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_genus.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_genus.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -642,7 +642,7 @@ rule taxpasta_Kraken2_nt20231129_genus:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -650,14 +650,14 @@ rule taxpasta_Kraken2_nt20231129_genus:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_species:
+rule taxpasta_Kraken2_nt20240530_species:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.species.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.species.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_species.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_species.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -670,7 +670,7 @@ rule taxpasta_Kraken2_nt20231129_species:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -678,14 +678,14 @@ rule taxpasta_Kraken2_nt20231129_species:
         "{input} "
 
 
-rule taxpasta_Kraken2_nt20231129_Biom:
+rule taxpasta_Kraken2_nt20240530_Biom:
     priority: 1000
     input:
-        get_passing_files_nt20231129,
+        get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20231129.genus.counts.biom")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.genus.counts.biom")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20231129_Biom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_Biom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -698,7 +698,7 @@ rule taxpasta_Kraken2_nt20231129_Biom:
         "-p kraken2 "
         "-o {output} "
         "--output-format BIOM "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20231129/taxonomy "
+        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
         "--add-name "
         "--summarise-at genus "
         "{input} "
@@ -707,12 +707,12 @@ rule taxpasta_Kraken2_nt20231129_Biom:
 # HUMANN RULES
 rule kraken2_host_filter:
     input:
-        k2Classified_read = "results/{library}/03_kraken2_nt20231129/{samples}.nt20231129.kraken2.classified.fastq.gz",
+        k2Classified_read = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2.classified.fastq.gz",
     output:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.Hosts.k2"),
-        k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq"),
+        k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.nt20240530.fastq"),
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.nt20231129.log"),
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.nt20240530.log"),
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
     conda:
@@ -735,11 +735,11 @@ rule kraken2_host_filter:
 
 rule kraken2_host_filter_gz:
     input:
-        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq",
+        k2_filtered_read = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20240530.fastq",
     output:
-        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq.gz",
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20240530.fastq.gz",
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.nt20231129.log"),
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.nt20240530.log"),
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
     conda:
@@ -756,11 +756,11 @@ rule kraken2_host_filter_gz:
 
 rule humann3Uniref50EC:
     input:
-        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20231129.fastq.gz",
+        k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.nt20240530.fastq.gz",
     output:
-        genes = "results/{library}/05_humann3Uniref50EC/{samples}.nt20231129.genefamilies.tsv",
-        pathways = "results/{library}/05_humann3Uniref50EC/{samples}.nt20231129.pathabundance.tsv",
-        pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{samples}.nt20231129.pathcoverage.tsv",
+        genes = "results/{library}/05_humann3Uniref50EC/{samples}.nt20240530.genefamilies.tsv",
+        pathways = "results/{library}/05_humann3Uniref50EC/{samples}.nt20240530.pathabundance.tsv",
+        pathwaysCoverage = "results/{library}/05_humann3Uniref50EC/{samples}.nt20240530.pathcoverage.tsv",
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.Uniref50EC.{samples}.log"),
     benchmark:
@@ -796,13 +796,13 @@ def get_humann3_pathcoverage(wildcards, minReads=min_reads, lib=LIBRARY):
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20231129.pathcoverage.tsv"), samples = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20240530.pathcoverage.tsv"), samples = passed)
 
 rule merge_functional_profiles_pathabundance:
     input:
         get_humann3_pathcoverage,
     output:
-        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathabundance.nt20231129.rpk.tsv")
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathabundance.nt20240530.rpk.tsv")
     log:
         os.path.join("results", LIBRARY, "logs", "humann3.uniref50EC.merge.pathabundance.log")
     benchmark:
@@ -829,13 +829,13 @@ def get_humann3_genefamilies(wildcards, minReads=min_reads, lib=LIBRARY):
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20231129.genefamilies.tsv"), samples = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20240530.genefamilies.tsv"), samples = passed)
 
 rule merge_functional_profiles_genefamilies:
     input:
         get_humann3_genefamilies
     output:
-        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv")
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv")
     log:
         os.path.join("results", LIBRARY, "logs", "humann3.uniref50EC.merge.genefamilies.log")
     benchmark:
@@ -862,13 +862,13 @@ def get_humann3_pathcoverage(wildcards, minReads=min_reads, lib=LIBRARY):
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20231129.pathcoverage.tsv"), samples = passed)
+    return expand(os.path.join("results", lib, "05_humann3Uniref50EC", "{samples}.nt20240530.pathcoverage.tsv"), samples = passed)
 
 rule merge_functional_profiles_pathcoverage:
     input:
         get_humann3_pathcoverage,
     output:
-        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathcoverage.nt20231129.rpk.tsv")
+        os.path.join("results", LIBRARY, "05_functional", "humann3_uniref50EC_microbial_pathcoverage.nt20240530.rpk.tsv")
     log:
         os.path.join("results", LIBRARY, "logs", "humann3", "humann3.uniref50EC.merge.pathcoverage.log")
     benchmark:
@@ -891,9 +891,9 @@ rule merge_functional_profiles_pathcoverage:
 
 rule regroup_table_KO:
     input:
-        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv"
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.KO.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.KO.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.KO.log"),
     benchmark:
@@ -917,9 +917,9 @@ rule regroup_table_KO:
 
 rule regroup_table_EC:
     input:
-        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv"
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.EC.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.EC.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.EC.log"),
     benchmark:
@@ -943,9 +943,9 @@ rule regroup_table_EC:
 
 rule regroup_table_pfam:
     input:
-        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv"
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.pfam.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.pfam.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.pfam.log"),
     benchmark:
@@ -969,9 +969,9 @@ rule regroup_table_pfam:
 
 rule regroup_table_EggNOG:
     input:
-        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv"
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.EggNOG.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.EggNOG.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.regroup.EggNOG.log"),
     benchmark:
@@ -995,9 +995,9 @@ rule regroup_table_EggNOG:
 
 rule norm_humann3_genefamilies:
     input:
-        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.tsv"
+        genefamilies = "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20231129.rpk.cpm.QC.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.cpm.QC.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.norm.genefamilies.log"),
     benchmark:
@@ -1019,9 +1019,9 @@ rule norm_humann3_genefamilies:
 
 rule norm_humann3_pathabundance:
     input:
-        pathabundance = "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20231129.rpk.tsv"
+        pathabundance = "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20240530.rpk.tsv"
     output:
-        "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20231129.rpk.cpm.QC.tsv"
+        "results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.nt20240530.rpk.cpm.QC.tsv"
     log:
         os.path.join("results", "{library}", "logs", "humann3", "humann3.uniref50EC.norm.pathabundance.log"),
     benchmark:
