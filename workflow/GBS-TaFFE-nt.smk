@@ -494,7 +494,7 @@ rule taxpasta_Kraken2_nt20240530_domain:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -522,7 +522,7 @@ rule taxpasta_Kraken2_nt20240530_phylum:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -550,7 +550,7 @@ rule taxpasta_Kraken2_nt20240530_order:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -578,7 +578,7 @@ rule taxpasta_Kraken2_nt20240530_class:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -606,7 +606,7 @@ rule taxpasta_Kraken2_nt20240530_family:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -634,7 +634,7 @@ rule taxpasta_Kraken2_nt20240530_genus:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -662,7 +662,7 @@ rule taxpasta_Kraken2_nt20240530_species:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -690,7 +690,7 @@ rule taxpasta_Kraken2_nt20240530_Biom:
         "taxpasta"
     threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
