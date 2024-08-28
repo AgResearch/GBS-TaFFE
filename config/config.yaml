@@ -3,3 +3,21 @@
 
 LIBRARY: DEFAULT
 
+### Path Variables to Update on Deployment
+
+# Needs to be pointed to a stable installation of trimmomatics installed using workflow/envs/kneaddata-0.12.yaml
+# Current is for installation in home directory
+TRIMMOMATIC: "~/.conda/envs/kneaddata/share/trimmomatic-0.39-2"
+
+# Downloaded or Constructed Kraken2 Index Directory
+# Must contain all *.k2 files (eg. hash.k2) 
+K2INDEX: "/datasets/2024-kraken2-indices/k2_nt_20240530"
+
+# Direcotory containing the names.dmp, nodes.dmp files used in constructing the k2 index being used
+TAXONOMY: "/datasets/2024-kraken2-indices/k2_nt_20240530"
+
+# Directory containing hosts K2 Index for filtering
+HOSTS: "/agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts"
+
+# Directory containing humann3 installed UNIPROT DB
+UNIPROTDB: "/agr/scratch/projects/2023-mbie-rumen-gbs/biobakery/biobakery/humann3/uniref50ECFilt"

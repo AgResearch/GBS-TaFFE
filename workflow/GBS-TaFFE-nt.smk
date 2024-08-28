@@ -17,9 +17,16 @@ wildcard_constraints:
 # Global minimum read count for processing
 min_reads = 25000
 
+# Unpacking the config.yaml file
 LIBRARY = config["LIBRARY"]
+TRIMMOMATIC = config["TRIMMOMATIC"]
+K2INDEX = config["K2INDEX"]
+TAXONOMY = config["TAXONOMY"]
+HOSTS = config["HOSTS"]
+UNIPROTDB = config["UNIPROTDB"] #TODO You must intall this with the humann3 conda env you designate in the humann3 rule
 
 
+# generating and checking wildcards template string
 input_fastq_pattern = os.path.join('results', config["LIBRARY"], '01_cutadapt', '{samples}.fastq.gz')
 print(input_fastq_pattern)
 FIDs, = glob_wildcards(input_fastq_pattern)
@@ -179,7 +186,7 @@ rule kneaddata:
         '-t {threads} '
         '--log-level DEBUG '
         '--log {log} '
-        '--trimmomatic ~/.conda/envs/kneaddata/share/trimmomatic-0.39-2 ' #TODO Check Path
+        '--trimmomatic {TRIMMOMATIC} ' #TODO Update path in config/config.yaml
         '--sequencer-source TruSeq3 '
         '-db /agr/scratch/projects/2023-mbie-rumen-gbs/SILVA138/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/{wildcards.library}/02_kneaddata '
@@ -424,7 +431,7 @@ rule kraken2_nt20240530:
         "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
-        "--db /datasets/2024-kraken2-indices/k2_nt_20240530 " 
+        "--db {K2INDEX} " #TODO Update path in config/config.yaml 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
@@ -494,7 +501,7 @@ rule taxpasta_Kraken2_nt20240530_domain:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -522,7 +529,7 @@ rule taxpasta_Kraken2_nt20240530_phylum:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -550,7 +557,7 @@ rule taxpasta_Kraken2_nt20240530_order:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -578,7 +585,7 @@ rule taxpasta_Kraken2_nt20240530_class:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -606,7 +613,7 @@ rule taxpasta_Kraken2_nt20240530_family:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -634,7 +641,7 @@ rule taxpasta_Kraken2_nt20240530_genus:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -662,7 +669,7 @@ rule taxpasta_Kraken2_nt20240530_species:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -690,7 +697,7 @@ rule taxpasta_Kraken2_nt20240530_Biom:
         "-p kraken2 "
         "-o {output} "
         "--output-format BIOM "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530 "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--summarise-at genus "
         "{input} "
@@ -718,7 +725,7 @@ rule kraken2_host_filter:
         "kraken2 "
         "--gzip-compressed "
         "--unclassified-out {output.k2_filtered_read} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "--db {HOSTS} " 
         "-t {threads} "
         "--output {output.k2OutputHosts} "
         "{input.k2Classified_read} "
@@ -770,7 +777,7 @@ rule humann3Uniref50EC:
         "--threads {threads} "
         "--bypass-nucleotide-search "
         "--search-mode uniref50 "
-        "--protein-database /agr/scratch/projects/2023-mbie-rumen-gbs/biobakery/biobakery/humann3/uniref50ECFilt "
+        "--protein-database {UNIPROTDB} "
         "--input-format fastq.gz "
         "--output results/{LIBRARY}/05_humann3Uniref50EC "
         "--input {input.k2_filtered_reads_gz} "
