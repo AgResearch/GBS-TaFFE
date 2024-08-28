@@ -1,0 +1,20 @@
+name: prinseqpp
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - boost-cpp=1.82.0=he19a28c_1
+  - bzip2=1.0.8=h7f98852_4
+  - icu=72.1=hcb278e6_0
+  - libgcc-ng=13.1.0=he5830b7_0
+  - libgomp=13.1.0=he5830b7_0
+  - libstdcxx-ng=13.1.0=hfd8a6a1_0
+  - libzlib=1.2.13=hd590300_5
+  - prinseq-plus-plus=1.2.4=h21ec9f0_4
+  - pthread-stubs=0.4=h36c2ea0_1001
+  - xz=5.2.6=h166bdaf_0
+  - zlib=1.2.13=hd590300_5
+  - zstd=1.5.2=h3eb15da_6
