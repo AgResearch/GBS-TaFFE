@@ -54,7 +54,8 @@ rule all:
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
 #kraken2
-        expand("results/{library}/{library}.kraken2.nt20240530.domain.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.superkingdom.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.nt20240530.kingdom.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.nt20240530.phylum.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.nt20240530.order.counts.tsv",  library = LIBRARY),
         expand("results/{library}/{library}.kraken2.nt20240530.class.counts.tsv",  library = LIBRARY),
@@ -481,14 +482,14 @@ def get_passing_files_nt20240530(wildcards, minReads=min_reads, lib=LIBRARY):
 #     return expand(os.path.join("results", lib, "03_kraken2_nt20240530/{samples}.nt20240530.kraken2"), samples = passed)
 
 
-rule taxpasta_Kraken2_nt20240530_domain:
+rule taxpasta_Kraken2_nt20240530_superkingdom:
     priority: 1000
     input:
         get_passing_files_nt20240530,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.domain.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.superkingdom.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_kingdom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_superkingdom.txt")
     conda:
         taxpasta_env
     threads: 2
@@ -505,7 +506,34 @@ rule taxpasta_Kraken2_nt20240530_domain:
         "--add-name "
         "--add-rank "
         "--add-lineage "
-        "--summarise-at domain "
+        "--summarise-at superkingdom "
+        "{input} "
+
+rule taxpasta_Kraken2_nt20240530_kingdom:
+    priority: 1000
+    input:
+        get_passing_files_nt20240530,
+    output:
+        os.path.join("results", "{library}", "{library}.kraken2.nt20240530.kingdom.counts.tsv")
+    benchmark:
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_kingdom.txt")
+    conda:
+        "taxpasta"
+    threads: 16
+    resources:
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        partition = "compute"
+    shell:
+        "taxpasta merge "
+        "-p kraken2 "
+        "-o {output} "
+        "--output-format TSV "
+        "--taxonomy {TAXONOMY} "
+        "--add-name "
+        "--add-rank "
+        "--add-lineage "
+        "--summarise-at kingdom "
         "{input} "
 
 
@@ -703,7 +731,7 @@ rule taxpasta_Kraken2_nt20240530_Biom:
         "{input} "
 
 
-# HUMANN RULES
+# HUMAN RULES
 rule kraken2_host_filter:
     input:
         k2Classified_read = "results/{library}/03_kraken2_nt20240530/{samples}.nt20240530.kraken2.classified.fastq.gz",
