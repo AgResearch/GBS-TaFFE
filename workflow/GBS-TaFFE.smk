@@ -18,6 +18,8 @@ wildcard_constraints:
 min_reads = 25000
 
 LIBRARY = config["LIBRARY"]
+GTDB = config["GTDB"]
+GTDB_TAXONOMY = config["GTDB_TAXONOMY"]
 
 # seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
 
@@ -432,7 +434,7 @@ rule kraken2_GTDB214:
         "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1 " 
+        "--db {GTDB} " 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
@@ -502,7 +504,7 @@ rule taxpasta_Kraken2_GTDB214_domain:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -530,7 +532,7 @@ rule taxpasta_Kraken2_GTDB214_phylum:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -558,7 +560,7 @@ rule taxpasta_Kraken2_GTDB214_order:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -586,7 +588,7 @@ rule taxpasta_Kraken2_GTDB214_class:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -614,7 +616,7 @@ rule taxpasta_Kraken2_GTDB214_family:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -642,7 +644,7 @@ rule taxpasta_Kraken2_GTDB214_genus:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -670,7 +672,7 @@ rule taxpasta_Kraken2_GTDB214_species:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -698,7 +700,7 @@ rule taxpasta_Kraken2_GTDB214_Biom:
         "-p kraken2 "
         "-o {output} "
         "--output-format BIOM "
-        "--taxonomy /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-GTDB-214.1/taxonomy "
+        "--taxonomy {GTDB_TAXONOMY} "
         "--add-name "
         "--summarise-at genus "
         "{input} "
