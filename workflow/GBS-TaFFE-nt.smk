@@ -17,20 +17,16 @@ wildcard_constraints:
 # Global minimum read count for processing
 min_reads = 25000
 
+# Unpacking the config.yaml file
 LIBRARY = config["LIBRARY"]
-
-# seqkit_report = os.path.join("results", LIBRARY, "00_QC", "seqkit.report.raw.txt")
-
-# def get_passing_FIDs(seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
-#     import pandas as pd
-#     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
-#     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
-#     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
-#     return qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-
-# FIDs = get_passing_FIDs()
+TRIMMOMATIC = config["TRIMMOMATIC"]
+K2INDEX = config["K2INDEX"]
+TAXONOMY = config["TAXONOMY"]
+HOSTS = config["HOSTS"]
+UNIPROTDB = config["UNIPROTDB"] #TODO You must intall this with the humann3 conda env you designate in the humann3 rule
 
 
+# generating and checking wildcards template string
 input_fastq_pattern = os.path.join('results', config["LIBRARY"], '01_cutadapt', '{samples}.fastq.gz')
 print(input_fastq_pattern)
 FIDs, = glob_wildcards(input_fastq_pattern)
@@ -79,6 +75,13 @@ rule all:
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.cpm.QC.tsv", library = LIBRARY),
 
 
+seqkit_env = 'workflow/envs/seqkit-2.4.yaml'
+pigz_env = 'workflow/envs/pigz-2.6.yaml'
+kraken2_env = 'workflow/envs/kraken2-2.1.3.yaml'
+humann3_env = 'workflow/envs/humann-3.8.yaml'
+taxpasta_env = 'workflow/envs/taxpasta-0.7.0.yaml'
+
+
 checkpoint report_seqkit_raw:
     priority: 1000
     input:
@@ -88,7 +91,7 @@ checkpoint report_seqkit_raw:
     benchmark:
         os.path.join('benchmarks', LIBRARY, 'report_seqkit_raw.txt')
     conda:
-        'seqkit'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -108,7 +111,7 @@ rule bbduk:
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'bbduk.{samples}.txt'),
     conda:
-        'bbduk'
+        'workflow/envs/bbmap-39.01.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
@@ -137,7 +140,7 @@ rule prinseq:
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'prinseq.{samples}.txt'),
     conda:
-        'prinseqpp'
+        'workflow/envs/prinseq-plus-plus-1.2.4.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -166,7 +169,7 @@ rule kneaddata:
         silvaReads = temp('results/{library}/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
         KDRs = temp('results/{library}/02_kneaddata/{samples}.fastq'),
     conda:
-        'kneaddata'
+        'workflow/envs/kneaddata-0.12.yaml'
     log:
         os.path.join('results', '{library}', 'logs', 'kneaddata', '{samples}.kneaddata.log'),
     benchmark:
@@ -184,7 +187,7 @@ rule kneaddata:
         '-t {threads} '
         '--log-level DEBUG '
         '--log {log} '
-        '--trimmomatic ~/.conda/envs/kneaddata/share/trimmomatic-0.39-2 ' #TODO Check Path
+        '--trimmomatic {TRIMMOMATIC} ' #TODO Update path in config/config.yaml
         '--sequencer-source TruSeq3 '
         '-db /agr/scratch/projects/2023-mbie-rumen-gbs/SILVA138/SILVA_138.1/SLIVA138.1 ' # Embarrassing typo when building index XD
         '-o results/{wildcards.library}/02_kneaddata '
@@ -209,7 +212,7 @@ rule gzip_KDR_temps:
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'gzip_KDR_temps.{samples}.txt'),
     conda:
-        "pigz"
+        pigz_env
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 8),
@@ -247,8 +250,7 @@ rule report_seqkit_KDR:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDR.txt'),
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -278,7 +280,7 @@ rule report_seqkit_bbduk:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "report_seqkit_bbduk.txt"),
     conda:
-        'envs/seqkit.yaml'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -307,7 +309,7 @@ rule report_seqkit_prinseq:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "report_seqkit_prinseq.txt"),
     conda:
-        'envs/seqkit.yaml'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -336,8 +338,7 @@ rule report_seqkit_KDTrim:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt'),
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -366,8 +367,7 @@ rule report_seqkit_KDTRF:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -396,8 +396,7 @@ rule report_seqkit_KDSILVA138:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        seqkit_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -421,7 +420,7 @@ rule kraken2_nt20240530:
     benchmark:
         os.path.join("results","{library}", "benchmarks", "kraken2_nt20240530.{samples}.txt"),
     conda:
-        "kraken2"
+        kraken2_env
     threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 912 + ((attempt - 1) * 20),
@@ -433,7 +432,7 @@ rule kraken2_nt20240530:
         "--report-zero-counts "
         "--gzip-compressed "
         "--classified-out {output.k2Classified_read} "
-        "--db /datasets/2024-kraken2-indices/k2_nt_20240530 " 
+        "--db {K2INDEX} " #TODO Update path in config/config.yaml 
         "-t {threads} "
         "--report {output.k2ReportGTDB} "
         "--report-minimizer-data "
@@ -452,7 +451,7 @@ rule kraken2_nt20240530_gz:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_nt20240530_gz.{samples}.txt"),
     conda:
-        "pigz"
+        pigz_env
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
@@ -492,10 +491,10 @@ rule taxpasta_Kraken2_nt20240530_superkingdom:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_superkingdom.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -503,7 +502,7 @@ rule taxpasta_Kraken2_nt20240530_superkingdom:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -530,7 +529,7 @@ rule taxpasta_Kraken2_nt20240530_kingdom:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -547,10 +546,10 @@ rule taxpasta_Kraken2_nt20240530_phylum:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_phylum.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -558,7 +557,7 @@ rule taxpasta_Kraken2_nt20240530_phylum:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -575,10 +574,10 @@ rule taxpasta_Kraken2_nt20240530_order:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_order.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -586,7 +585,7 @@ rule taxpasta_Kraken2_nt20240530_order:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -603,10 +602,10 @@ rule taxpasta_Kraken2_nt20240530_class:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_class.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -614,7 +613,7 @@ rule taxpasta_Kraken2_nt20240530_class:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -631,10 +630,10 @@ rule taxpasta_Kraken2_nt20240530_family:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_family.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -642,7 +641,7 @@ rule taxpasta_Kraken2_nt20240530_family:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -659,10 +658,10 @@ rule taxpasta_Kraken2_nt20240530_genus:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_genus.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -670,7 +669,7 @@ rule taxpasta_Kraken2_nt20240530_genus:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -687,10 +686,10 @@ rule taxpasta_Kraken2_nt20240530_species:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_species.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -698,7 +697,7 @@ rule taxpasta_Kraken2_nt20240530_species:
         "-p kraken2 "
         "-o {output} "
         "--output-format TSV "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--add-rank "
         "--add-lineage "
@@ -715,10 +714,10 @@ rule taxpasta_Kraken2_nt20240530_Biom:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_nt20240530_Biom.txt")
     conda:
-        "taxpasta"
-    threads: 16
+        taxpasta_env
+    threads: 2
     resources:
-        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
         time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
         partition = "compute"
     shell:
@@ -726,7 +725,7 @@ rule taxpasta_Kraken2_nt20240530_Biom:
         "-p kraken2 "
         "-o {output} "
         "--output-format BIOM "
-        "--taxonomy /datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy "
+        "--taxonomy {TAXONOMY} "
         "--add-name "
         "--summarise-at genus "
         "{input} "
@@ -744,7 +743,7 @@ rule kraken2_host_filter:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
     conda:
-        "kraken2"
+        kraken2_env
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 32),
@@ -754,7 +753,7 @@ rule kraken2_host_filter:
         "kraken2 "
         "--gzip-compressed "
         "--unclassified-out {output.k2_filtered_read} "
-        "--db /agr/scratch/projects/2022-bjp-gtdb/build-GTDB-DBs/GTDB/kraken2-hosts " 
+        "--db {HOSTS} " 
         "-t {threads} "
         "--output {output.k2OutputHosts} "
         "{input.k2Classified_read} "
@@ -771,7 +770,7 @@ rule kraken2_host_filter_gz:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
     conda:
-        "pigz"
+        pigz_env
     threads: 16
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 16),
@@ -794,7 +793,7 @@ rule humann3Uniref50EC:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.Uniref50EC.{samples}.txt"),
     conda:
-        "humann3"
+        humann3_env
     threads: 24
     resources:
         mem_gb = lambda wildcards, attempt: 64 + ((attempt - 1) + 24),
@@ -806,7 +805,7 @@ rule humann3Uniref50EC:
         "--threads {threads} "
         "--bypass-nucleotide-search "
         "--search-mode uniref50 "
-        "--protein-database /agr/scratch/projects/2023-mbie-rumen-gbs/biobakery/biobakery/humann3/uniref50ECFilt "
+        "--protein-database {UNIPROTDB} "
         "--input-format fastq.gz "
         "--output results/{LIBRARY}/05_humann3Uniref50EC "
         "--input {input.k2_filtered_reads_gz} "
@@ -836,7 +835,7 @@ rule merge_functional_profiles_pathabundance:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.pathabundance.txt")
     conda:
-        "humann3"
+        humann3_env
     threads:2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -869,7 +868,7 @@ rule merge_functional_profiles_genefamilies:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.genefamilies.txt")
     conda:
-        "humann3"
+        humann3_env
     threads:2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -902,7 +901,7 @@ rule merge_functional_profiles_pathcoverage:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "humann3.uniref50EC.merge.pathcoverage.txt")
     conda:
-        "humann3"
+        humann3_env
     threads:2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -927,7 +926,7 @@ rule regroup_table_KO:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.KO.log"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -953,7 +952,7 @@ rule regroup_table_EC:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.EC.log"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -979,7 +978,7 @@ rule regroup_table_pfam:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.pfam.log"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -1005,7 +1004,7 @@ rule regroup_table_EggNOG:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.regroup.EggNOG.txt"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -1031,7 +1030,7 @@ rule norm_humann3_genefamilies:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.norm.genefamilies.txt"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),
@@ -1055,7 +1054,7 @@ rule norm_humann3_pathabundance:
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "humann3.uniref50EC.norm.pathabundance.txt"),
     conda:
-        "humann3"
+        humann3_env
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) + 24),

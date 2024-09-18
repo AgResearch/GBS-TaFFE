@@ -19,7 +19,7 @@ default-resources:
 restart-times: 3
 local-cores: 4
 latency-wait: 60
-jobs: 100
+jobs: 50
 keep-going: True
 rerun-incomplete: True
 printshellcmds: True
