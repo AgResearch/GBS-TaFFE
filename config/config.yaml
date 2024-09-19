@@ -13,7 +13,7 @@ TRIMMOMATIC: "~/.conda/envs/kneaddata/share/trimmomatic-0.39-2"
 # Must contain all *.k2 files (eg. hash.k2) 
 K2INDEX: "/datasets/2024-kraken2-indices/k2_nt_20240530"
 
-# Direcotory containing the names.dmp, nodes.dmp files used in constructing the k2 index being used
+# Directory containing the names.dmp, nodes.dmp files used in constructing the k2 index being used
 TAXONOMY: "/datasets/2024-kraken2-indices/k2_nt_20240530/taxonomy"
 
 # Directory containing hosts K2 Index for filtering
