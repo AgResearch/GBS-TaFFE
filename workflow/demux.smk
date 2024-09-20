@@ -34,7 +34,7 @@ rule cutadapt: # demultiplexing GBS reads
     output:
         demuxed = directory("results/{library}/01_cutadapt"),
     conda:
-        'workflow/env/cutadapt-4.4.yaml'
+        'env/cutadapt-4.4.yaml'
     benchmark:
         'benchmarks/cutadapt.{library}.txt'
     threads: 32
