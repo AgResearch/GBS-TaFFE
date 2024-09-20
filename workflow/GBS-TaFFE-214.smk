@@ -246,7 +246,7 @@ rule report_seqkit_KDR:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDR.txt'),
     conda:
-        'env/seqkit-2.4.yaml'
+        'envs/seqkit-2.4.yaml'
         # 'seqkit'
     threads: 32
     resources:
@@ -335,7 +335,7 @@ rule report_seqkit_KDTrim:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt'),
     conda:
-        'env/seqkit-2.4.yaml'
+        'envs/seqkit-2.4.yaml'
         # 'seqkit'
     threads: 32
     resources:
@@ -365,7 +365,7 @@ rule report_seqkit_KDTRF:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        'env/seqkit-2.4.yaml'
+        'envs/seqkit-2.4.yaml'
         # 'seqkit'
     threads: 32
     resources:
@@ -395,7 +395,7 @@ rule report_seqkit_KDSILVA138:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        'env/seqkit-2.4.yaml'
+        'envs/seqkit-2.4.yaml'
         # 'seqkit'
     threads: 32
     resources:
