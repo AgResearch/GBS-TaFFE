@@ -246,8 +246,8 @@ rule report_seqkit_KDR:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDR.txt'),
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'env/seqkit-2.4.yaml'
+        # 'seqkit'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -277,7 +277,7 @@ rule report_seqkit_bbduk:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "report_seqkit_bbduk.txt"),
     conda:
-        'envs/seqkit.yaml'
+        'envs/seqkit-2.4.yaml'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -306,7 +306,7 @@ rule report_seqkit_prinseq:
     benchmark:
         os.path.join("results", LIBRARY, "benchmarks", "report_seqkit_prinseq.txt"),
     conda:
-        'envs/seqkit.yaml'
+        'envs/seqkit-2.4.yaml'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -335,8 +335,8 @@ rule report_seqkit_KDTrim:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt'),
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'env/seqkit-2.4.yaml'
+        # 'seqkit'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -365,8 +365,8 @@ rule report_seqkit_KDTRF:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'env/seqkit-2.4.yaml'
+        # 'seqkit'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
@@ -395,8 +395,8 @@ rule report_seqkit_KDSILVA138:
     benchmark:
         os.path.join('results', LIBRARY, 'benchmarks', 'report_seqkit_KDSILVA.txt')
     conda:
-        #'env/seqkit.yaml'
-        'seqkit'
+        'env/seqkit-2.4.yaml'
+        # 'seqkit'
     threads: 32
     resources:
         mem_gb = lambda wildcards, attempt: 8 + ((attempt - 1) * 4),
