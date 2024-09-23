@@ -60,14 +60,14 @@ rule all:
         expand('results/{library}/00_QC/seqkit.report.KDTRF.txt', library = LIBRARY),
         expand('results/{library}/00_QC/seqkit.report.KDSILVA138.txt', library = LIBRARY),
 #kraken2
-        expand("results/{library}/{library}.kraken2.GTDB214.domain.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.phylum.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.order.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.class.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.family.counts.tsv",  library = LIBRARY),
-        expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/{library}.kraken2.GTDB214.species.counts.tsv",  library = LIBRARY),
-        # expand("results/{library}/{library}.kraken2.GTDB214.genus.counts.biom",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.domain.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.phylum.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.order.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.class.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.family.counts.tsv",  library = LIBRARY),
+        expand("results/{library}/{library}.kraken2.GTDB220.genus.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.GTDB220.species.counts.tsv",  library = LIBRARY),
+        # expand("results/{library}/{library}.kraken2.GTDB220.genus.counts.biom",  library = LIBRARY),
 #human3
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_pathabundance.rpk.tsv", library = LIBRARY),
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.rpk.tsv", library = LIBRARY),
@@ -409,18 +409,18 @@ rule report_seqkit_KDSILVA138:
 
 
 #KRAKEN2 RULES
-rule kraken2_GTDB214:
+rule kraken2_GTDB220:
     priority: 1000
     input:
         KDRs = "results/{library}/02_kneaddata/{samples}.fastq.gz",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
-        k2ReportGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2",
-        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq"),
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.k2",
+        k2ReportGTDB = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.kraken2",
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.kraken2.classified.fastq"),
     log:
-        os.path.join("results", "{library}", "logs", "kraken2_GTDB214", "kraken2GTDB.{samples}.GTDB214.log"),
+        os.path.join("results", "{library}", "logs", "kraken2_GTDB220", "kraken2GTDB.{samples}.GTDB220.log"),
     benchmark:
-        os.path.join("results","{library}", "benchmarks", "kraken2_GTDB214.{samples}.txt"),
+        os.path.join("results","{library}", "benchmarks", "kraken2_GTDB220.{samples}.txt"),
     conda:
         "kraken2"
     threads: 24
@@ -443,15 +443,15 @@ rule kraken2_GTDB214:
         "2>&1 | tee {log} "
 
 
-rule kraken2_GTDB214_gz:
+rule kraken2_GTDB220_gz:
     input:
-        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2",
-        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq",
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.k2",
+        k2Classified_read = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.kraken2.classified.fastq",
     output:
-        k2OutputGTDB = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.k2.gz",
-        k2Classified_read = temp("results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq.gz"),
+        k2OutputGTDB = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.k2.gz",
+        k2Classified_read = temp("results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.kraken2.classified.fastq.gz"),
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "kraken2_GTDB214_gz.{samples}.txt"),
+        os.path.join("results", "{library}", "benchmarks", "kraken2_GTDB220_gz.{samples}.txt"),
     conda:
         "pigz"
     threads: 16
@@ -466,32 +466,32 @@ rule kraken2_GTDB214_gz:
         "{input.k2Classified_read} " 
 
 
-def get_passing_files_GTDB214(wildcards, minReads=min_reads, lib=LIBRARY):
+def get_passing_files_GTDB220(wildcards, minReads=min_reads, lib=LIBRARY):
     file = checkpoints.report_seqkit_raw.get().output[0]
     qc_stats = pd.read_csv(file, delimiter = "\s+")
     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-    return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
+    return expand(os.path.join("results", lib, "03_kraken2_GTDB220/{samples}.GTDB220.kraken2"), samples = passed)
 
 
-# def get_passing_files_GTDB214(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
+# def get_passing_files_GTDB220(wildcards, seqkitOut = seqkit_report, minReads=min_reads, lib=LIBRARY):
 #     import pandas as pd
 #     qc_stats = pd.read_csv(seqkitOut, delimiter = "\s+")
 #     qc_stats["num_seqs"] = qc_stats["num_seqs"].str.replace(",", "").astype(int)
 #     qc_passed = qc_stats.loc[qc_stats["num_seqs"].astype(int) > minReads]
 #     passed = qc_passed['file'].str.split("/").str[-1].str.split(".").str[0].tolist()
-#     return expand(os.path.join("results", lib, "03_kraken2_GTDB214/{samples}.GTDB214.kraken2"), samples = passed)
+#     return expand(os.path.join("results", lib, "03_kraken2_GTDB220/{samples}.GTDB220.kraken2"), samples = passed)
 
 
-rule taxpasta_Kraken2_GTDB214_domain:
+rule taxpasta_Kraken2_GTDB220_domain:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.domain.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.domain.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_kingdom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_kingdom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -512,14 +512,14 @@ rule taxpasta_Kraken2_GTDB214_domain:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_phylum:
+rule taxpasta_Kraken2_GTDB220_phylum:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.phylum.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.phylum.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_phylum.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_phylum.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -540,14 +540,14 @@ rule taxpasta_Kraken2_GTDB214_phylum:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_order:
+rule taxpasta_Kraken2_GTDB220_order:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.order.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.order.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_order.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_order.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -568,14 +568,14 @@ rule taxpasta_Kraken2_GTDB214_order:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_class:
+rule taxpasta_Kraken2_GTDB220_class:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.class.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.class.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_class.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_class.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -596,14 +596,14 @@ rule taxpasta_Kraken2_GTDB214_class:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_family:
+rule taxpasta_Kraken2_GTDB220_family:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.family.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.family.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_family.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_family.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -624,14 +624,14 @@ rule taxpasta_Kraken2_GTDB214_family:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_genus:
+rule taxpasta_Kraken2_GTDB220_genus:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.genus.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.genus.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_genus.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_genus.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -652,14 +652,14 @@ rule taxpasta_Kraken2_GTDB214_genus:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_species:
+rule taxpasta_Kraken2_GTDB220_species:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.species.counts.tsv")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.species.counts.tsv")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_species.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_species.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -680,14 +680,14 @@ rule taxpasta_Kraken2_GTDB214_species:
         "{input} "
 
 
-rule taxpasta_Kraken2_GTDB214_Biom:
+rule taxpasta_Kraken2_GTDB220_Biom:
     priority: 1000
     input:
-        get_passing_files_GTDB214,
+        get_passing_files_GTDB220,
     output:
-        os.path.join("results", "{library}", "{library}.kraken2.GTDB214.genus.counts.biom")
+        os.path.join("results", "{library}", "{library}.kraken2.GTDB220.genus.counts.biom")
     benchmark:
-        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB214_Biom.txt")
+        os.path.join("results", "{library}", "benchmarks", "taxpasta_Kraken2_GTDB220_Biom.txt")
     conda:
         "taxpasta"
     threads: 2
@@ -709,12 +709,12 @@ rule taxpasta_Kraken2_GTDB214_Biom:
 # HUMANN RULES
 rule kraken2_host_filter:
     input:
-        k2Classified_read = "results/{library}/03_kraken2_GTDB214/{samples}.GTDB214.kraken2.classified.fastq.gz",
+        k2Classified_read = "results/{library}/03_kraken2_GTDB220/{samples}.GTDB220.kraken2.classified.fastq.gz",
     output:
         k2OutputHosts = temp("results/{library}/04_k2_filtering/{samples}.Hosts.k2"),
         k2_filtered_read = temp("results/{library}/04_k2_filtering/{samples}.nonhost.fastq"),
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.GTDB214.log"),
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter.{samples}.GTDB220.log"),
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter.{samples}.txt"),
     conda:
@@ -741,7 +741,7 @@ rule kraken2_host_filter_gz:
     output:
         k2_filtered_reads_gz = "results/{library}/04_k2_filtering/{samples}.nonhost.fastq.gz",
     log:
-        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB214.log"),
+        os.path.join("results", "{library}", "logs", "kraken2", "kraken2_host_filter_gz.{samples}.GTDB220.log"),
     benchmark:
         os.path.join("results", "{library}", "benchmarks", "kraken2_host_filter_gz.{samples}.txt"),
     conda:
