@@ -75,11 +75,11 @@ rule all:
         # expand("results/{library}/05_functional/humann3_uniref50EC_microbial_genefamilies.nt20240530.rpk.cpm.QC.tsv", library = LIBRARY),
 
 
-seqkit_env = 'workflow/envs/seqkit-2.4.yaml'
-pigz_env = 'workflow/envs/pigz-2.6.yaml'
-kraken2_env = 'workflow/envs/kraken2-2.1.3.yaml'
-humann3_env = 'workflow/envs/humann-3.8.yaml'
-taxpasta_env = 'workflow/envs/taxpasta-0.7.0.yaml'
+seqkit_env = 'envs/seqkit-2.4.yaml'
+pigz_env = 'envs/pigz-2.6.yaml'
+kraken2_env = 'envs/kraken2-2.1.3.yaml'
+humann3_env = 'envs/humann-3.8.yaml'
+taxpasta_env = 'envs/taxpasta-0.7.0.yaml'
 
 
 checkpoint report_seqkit_raw:
@@ -111,7 +111,7 @@ rule bbduk:
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'bbduk.{samples}.txt'),
     conda:
-        'workflow/envs/bbmap-39.01.yaml'
+        'envs/bbmap-39.01.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 2 + ((attempt - 1) * 4),
@@ -140,7 +140,7 @@ rule prinseq:
     benchmark:
         os.path.join('results', '{library}', 'benchmarks', 'prinseq.{samples}.txt'),
     conda:
-        'workflow/envs/prinseq-plus-plus-1.2.4.yaml'
+        'envs/prinseq-plus-plus-1.2.4.yaml'
     threads: 8
     resources:
         mem_gb = lambda wildcards, attempt: 4 + ((attempt - 1) * 4),
@@ -169,7 +169,7 @@ rule kneaddata:
         silvaReads = temp('results/{library}/02_kneaddata/{samples}_SLIVA138.1_bowtie2_contam.fastq'),
         KDRs = temp('results/{library}/02_kneaddata/{samples}.fastq'),
     conda:
-        'workflow/envs/kneaddata-0.12.yaml'
+        'envs/kneaddata-0.12.yaml'
     log:
         os.path.join('results', '{library}', 'logs', 'kneaddata', '{samples}.kneaddata.log'),
     benchmark:
@@ -662,7 +662,7 @@ rule taxpasta_Kraken2_nt20240530_genus:
     threads: 2
     resources:
         mem_gb = lambda wildcards, attempt: 48 + ((attempt - 1) * 12),
-        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 1440),
+        time = lambda wildcards, attempt: 1440 + ((attempt - 1) * 2 * 1440),
         partition = "compute"
     shell:
         "taxpasta merge "
