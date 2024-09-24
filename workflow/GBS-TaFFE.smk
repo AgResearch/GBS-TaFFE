@@ -428,7 +428,7 @@ rule kraken2_GTDB220:
         kraken2_env
     threads: 24
     resources:
-        mem_gb = lambda wildcards, attempt: 420 + ((attempt - 1) * 20),
+        mem_gb = lambda wildcards, attempt: 524 + ((attempt - 1) * 20),
         time = lambda wildcards, attempt: 30 + ((attempt - 1) * 30),
         partition = "hugemem"
     shell:
