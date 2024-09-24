@@ -31,4 +31,5 @@ use-singularity: True
 reason: True
 conda-frontend: conda
 cluster-status: workflow/scripts/status.py
+rerun-trigger: mtime
 cluster-cancel: scancel
