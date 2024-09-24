@@ -32,3 +32,4 @@ reason: True
 conda-frontend: conda
 cluster-status: workflow/scripts/status.py
 cluster-cancel: scancel
+rerun-trigger: mtime
