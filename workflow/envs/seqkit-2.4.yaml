@@ -10,4 +10,3 @@ dependencies:
   - libzlib=1.2.13=hd590300_5
   - pigz=2.8=h2797004_0
   - seqkit=2.4.0=h9ee0642_0
-  
