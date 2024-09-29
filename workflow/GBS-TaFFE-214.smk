@@ -172,8 +172,8 @@ rule kneaddata:
         os.path.join('results', '{library}', 'benchmarks', 'kneaddata.{samples}.txt'),
     threads: 8
     resources:
-        mem_gb = lambda wildcards, attempt: 24 + ((attempt - 1) * 8),
-        time = lambda wildcards, attempt: 20 + ((attempt - 1) * 20),
+        mem_gb = lambda wildcards, attempt: 32 + ((attempt - 1) * 8),
+        time = lambda wildcards, attempt: 30 + ((attempt - 1) * 20),
         partition='compute,hugemem',
     shell:
         'kneaddata '
